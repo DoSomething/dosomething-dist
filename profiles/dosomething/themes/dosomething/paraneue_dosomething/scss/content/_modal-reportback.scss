@@ -1,0 +1,75 @@
+.modal {
+  .modal-content.modal--reportback {
+    background: image-url("campaign-pattern-default.png");
+
+    label {
+      color: #fff;
+    }
+
+    .form-actions {
+      text-align: center;
+    }
+
+    .inner-label {
+      .message {
+        &.success {
+          color: #fff;
+        }
+
+        &.error {
+          color: $light-gray;
+        }
+      }
+    }
+
+    .filename {
+      color: #fff;
+      font-size: $font-small;
+      font-weight: $weight-bold;
+    }
+
+    .preview {
+      float: left;
+      width: auto;
+      height: auto;
+      max-width: 100px;
+      max-height: 200px;
+      border: 5px solid #fff;
+      margin: 0.25rem 1rem;
+    }
+
+    .submitted-image {
+      text-align: center;
+
+      .legal {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: $weight-bold;
+      }
+
+      img {
+        max-width: 250px;
+        max-height: 300px;
+        width: auto;
+        height: auto;
+        border: 6px solid #fff;
+      }
+    }
+
+    .form-type-radio {
+      clear: both;
+      margin-bottom: 0.25rem;
+      overflow: auto;
+
+      input[type="radio"] {
+        float: left;
+      }
+
+      label {
+        clear: none;
+        float: left;
+        margin: 0 0 0 0.25rem;
+        width: auto;
+      }
+    }
+  }
+}

@@ -1,0 +1,118 @@
+// ----------------
+//  STATIC CONTENT
+// ----------------
+
+.node-type-static-content {
+  background: $purple;
+
+  @include wrapper--nav-white;
+  @include wrapper--nav-floating;
+}
+
+.static_content-wrapper {
+  background: #fff;
+
+  .header-wrapper {
+    @include header-gradient();
+    @include header-typography();
+    padding: 8rem 1rem 0;
+    @include row;
+    @include media($tablet) {
+      padding: 8rem 0 0;
+    }
+  }
+
+  // Set gutters on mobile
+  .intro-wrapper, .additional-text-wrapper, .gallery-wrapper {
+    padding: 1rem;
+    @include row;
+    @include media($tablet) {
+      padding: 0;
+    }
+  }
+
+  .cta-wrapper {
+    @include cta();
+  }
+
+
+  // Set margins on desktop
+  .header, .intro, .additional-text, .gallery-title {
+    @include media($tablet) {
+      @include span-columns(12);
+      @include shift(2);
+    }
+  }
+
+  .intro-wrapper + .cta {
+    margin-top: 1.7rem;
+  }
+
+  .intro-wrapper + .additional-text-wrapper {
+    .additional-text {
+      margin-top: 0;
+    }
+  }
+
+  .intro {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+
+    &.no-title {
+      margin-top: 3rem;
+    }
+
+    .intro-content {
+      max-width: 100%;
+    }
+    .intro-content-half-width {
+      @include media($tablet) {
+        @include span-columns(6 of 12);
+      }
+    }
+
+    img, iframe {
+      width: 100%;
+      @include media($tablet) {
+        @include span-columns(6 of 12);
+        @include omega();
+      }
+    }
+  }
+
+  .gallery {
+    padding-top: 20px;
+    @include media($tablet) {
+      @include shift(2 of 16);
+    }
+  }
+
+  .gallery-item {
+    text-align: center;
+
+    // @TODO: This isn't correct, but it works for now. Try a "Table Grid" next.
+    @include media($tablet) {
+      @include span-columns(4 of 14);
+      @include omega(3n);
+    }
+
+    .gallery-description, h3 {
+      text-align: center;
+    }
+
+    .title {
+      color: $dark-gray;
+      margin-bottom: 5px;
+    }
+
+    img {
+      max-width: 100%;
+    }
+  }
+
+  .additional-text {
+    // @TODO: ಠ_ಠ
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}

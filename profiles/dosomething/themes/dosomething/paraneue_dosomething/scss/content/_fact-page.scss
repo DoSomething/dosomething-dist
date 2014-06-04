@@ -1,0 +1,111 @@
+
+// -----------
+//  FACT PAGE
+// -----------
+
+// @TODO: Sync naming between SCSS files and tpl.php
+
+.node-type-fact-page {
+  background: $purple;
+
+  @include wrapper--nav-white;
+  @include wrapper--nav-floating;
+
+  // @TODO: Sync with Dave/Maxwell on all 18px base font size for static content
+  p {
+    font-size: 18px;
+  }
+}
+
+.fact_page-wrapper {
+  background: #fff;
+
+  h2, h3, h4 {
+    color: $purple;
+  }
+
+  .header-wrapper {
+    padding: 8rem 1rem 1rem;
+    @include row;
+    @include media($tablet) {
+      padding: 7rem 0 0;
+    }
+  }
+
+  // Set gutters on mobile
+  .intro-wrapper, .facts-wrapper, .sources-wrapper {
+    padding: 1rem;
+    @include row;
+    @include media($tablet) {
+      padding: 0;
+    }
+  }
+
+  .cta-wrapper {
+    @include cta();
+  }
+
+  // Set margins on desktop
+  .header, .intro, .facts, .sources {
+    @include media($tablet) {
+      @include span-columns(12);
+      @include shift(2);
+    }
+  }
+
+  .header-wrapper {
+    @include header-gradient();
+    @include header-typography();
+  }
+
+  .facts-wrapper {
+    @include media($tablet) {
+      margin-top: 1.5rem;
+    }
+  }
+
+  .media-wrapper {
+    display: none;
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+    @include media($tablet) {
+      @include span-columns(6 of 12);
+      @include omega;
+      display: block;
+      float: right;
+    }
+  }
+
+  [role="banner"] {
+    .__title {
+      @include media($tablet) {
+        font-size: $font-largest;  // Slightly smaller font-size, since 11 Facts titles are title-case.
+        margin: 1.5rem 0;
+      }
+    }
+  }
+
+  .intro {
+    // @TODO: ಠ_ಠ
+    margin-top: 20px;
+    margin-bottom: 55px;
+    .intro-content {
+      @include media($tablet) {
+        @include span-columns(8 of 12);
+      }
+    }
+  }
+
+  .media {
+    img {
+      max-width: 100%;
+    }
+  }
+
+  .sources { margin-bottom: 1rem;
+    li {
+      color: $med-gray;
+      font-size: $font-small;
+    }
+  }
+}
