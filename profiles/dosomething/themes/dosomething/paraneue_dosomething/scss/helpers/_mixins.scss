@@ -1,0 +1,152 @@
+//
+//  $$$$$$$\   $$$$$$\  $$$$$$$\   $$$$$$\  $$\   $$\ $$$$$$$$\ $$\   $$\ $$$$$$$$\   $$$$$$$\   $$$$$$\
+//  $$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ $$$\  $$ |$$  _____|$$ |  $$ |$$  _____|  $$  __$$\ $$  __$$\
+//  $$ |  $$ |$$ /  $$ |$$ |  $$ |$$ /  $$ |$$$$\ $$ |$$ |      $$ |  $$ |$$ |        $$ |  $$ |$$ /  \__|
+//  $$$$$$$  |$$$$$$$$ |$$$$$$$  |$$$$$$$$ |$$ $$\$$ |$$$$$\    $$ |  $$ |$$$$$\      $$ |  $$ |\$$$$$$\
+//  $$  ____/ $$  __$$ |$$  __$$< $$  __$$ |$$ \$$$$ |$$  __|   $$ |  $$ |$$  __|     $$ |  $$ | \____$$\
+//  $$ |      $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\$$$ |$$ |      $$ |  $$ |$$ |        $$ |  $$ |$$\   $$ |
+//  $$ |      $$ |  $$ |$$ |  $$ |$$ |  $$ |$$ | \$$ |$$$$$$$$\ \$$$$$$  |$$$$$$$$\   $$$$$$$  |\$$$$$$  |
+//  \__|      \__|  \__|\__|  \__|\__|  \__|\__|  \__|\________| \______/ \________|  \_______/  \______/
+//
+
+
+// Helper to generate image URLs
+@function image-url($url) {
+  @return url("images/#{$url}");
+}
+
+// Helper to generate Neue URLs
+@function neue-image-url($url) {
+  @return url("bower_components/neue/assets/images/#{$url}");
+}
+
+// @TODO: Temporary mixin for homepage sprites (from old world)
+@mixin responsive-sprite($pos-x, $pos-y) {
+  background-position: $pos-x/2 $pos-y/2;
+
+  @include media($tablet) {
+    background-position: $pos-x $pos-y;
+  };
+}
+
+// Applies styles to make nav text white
+@mixin wrapper--nav-white {
+  .chrome--nav {
+    .hamburger {
+      color: #fff !important;
+    }
+
+    a {
+      text-shadow: 0 1px 3px rgba(#000, 0.3);
+      color: #fff !important;
+    }
+
+    .secondary-nav input[type="search"] {
+      color: #fff;
+      border: 1px solid #fff;
+      box-shadow: 0 1px 3px rgba(#000, 0.3);
+      background-image: neue-image-url("search_light.png");
+
+      @include hidpi {
+        background-image: neue-image-url("search_light@2x.png");
+      }
+    }
+  }
+}
+
+// Applies styles to make nav float over content wrapper
+@mixin wrapper--nav-floating {
+  .chrome--nav {
+    position: absolute;
+    top: 0;
+    margin-bottom: 0;
+    z-index: 1;
+  }
+}
+
+
+// Apply header gradient as a mixin since header styles not abstracted yet.
+// @TODO: May want to unify styles across and use modifier classes.
+@mixin header-gradient() {
+  @include linear-gradient($purple 35%, rgba(#000, .60) 100%);
+}
+
+// Apply header typography as a mixin to style both static and campaign content.
+// @TODO: Same as above; would be best to unify header styles.
+@mixin header-typography() {
+  .title {
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    text-align: center;
+    margin: 0 0 0.5rem;
+
+    @include media($tablet) {
+      font-size: $font-hero;
+      text-align: left;
+      margin: 0 0 0.5rem;
+    }
+  }
+
+  .subtitle {
+    color: #fff;
+    font-size: $font-regular;
+    font-weight: normal;
+    line-height: 1.5;
+    margin: 0 0 0.5rem;
+    text-align: center;
+
+
+    @include media($tablet) {
+      font-size: $font-medium;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+  }
+
+  .title, .subtitle {
+    text-shadow: 0 1px 3px rgba(#000, 0.3);
+  }
+}
+
+
+// CTA styles that apply to static and facts pages.
+// @TODO: Need to abstract out and unify these across.
+// @CTA
+@mixin cta() {
+  background-color: lighten($light-gray, 10%);
+  border-bottom: 2px solid $light-gray;
+  border-top: 2px solid $light-gray;
+  padding: 1rem;
+  @include row;
+  @include media($tablet) {
+    padding: 0;
+  }
+
+  .cta {
+    text-align: center;
+    padding: 2rem 0;
+
+    h3 {
+      color: $copy-color;
+      font-size: $font-medium;
+      font-weight: $weight-sbold;
+      margin: 0 0 0.5rem;
+    }
+
+    @include media($tablet) {
+      @include span-columns(12);
+      @include shift(2);
+    }
+  }
+}
+
+
+
+// @TODO: Should be moved to Neue
+@mixin fluid-image() {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: auto;
+}
