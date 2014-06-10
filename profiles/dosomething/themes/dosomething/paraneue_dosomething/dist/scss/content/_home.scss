@@ -1,0 +1,123 @@
+.node-type-home {
+  @include wrapper--nav-white;
+  @include wrapper--nav-floating;
+}
+
+.home--wrapper {
+  background: #fff;
+  overflow: hidden;
+}
+
+.home--hero {
+  @include row;
+  @include header-gradient;
+  background-size: cover;
+  padding: 5.5rem 0 2rem;
+
+  @include media($tablet) {
+    padding-top: 7rem;
+  }
+
+  .header {
+    margin-bottom: 1rem;
+    @include row;
+    // TODO: Possibly rethink the mobile grid to allow for thinner gutters.
+    @include span-columns(7);
+    @include shift(0.5);
+    @include omega();
+
+    @include media($tablet) {
+      @include span-columns(14);
+      @include shift(1);
+    }
+
+    .title {
+      color: #fff;
+      font-size: $font-larger;
+      font-weight: $weight-bold;
+      line-height: 1.1;
+      margin: 1.5rem 0 0.5rem;
+      text-align: center;
+
+      @include visually-hidden();
+
+      @include media($tablet) {
+        @include visually-restored();
+        margin: 1.5rem 0;
+      }
+
+      @include media($desktop) {
+        font-size: 3rem;
+      }
+    }
+
+    .subtitle {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: normal;
+      line-height: 1.2;
+      margin: 0 0 0.6rem;
+      text-align: center;
+
+      @include media($tablet) {
+        @include visually-hidden();
+      }
+    }
+  }
+}
+
+
+.home--sponsors {
+  clear: both;
+  width: 100%;
+  background: #fff;
+  text-align: center;
+  overflow: hidden;
+
+  @include media($tablet) {
+    @include span-columns(12);
+    @include shift(2);
+  }
+
+  h4 {
+    color: $light-gray;
+  }
+
+  .sprite {
+    background-image: image-url("sponsors.png");
+    background-repeat: no-repeat;
+    display: inline-block;
+    background-size: 175px 160px;
+    width: 50px;
+    height: 35px;
+    margin: 0 1rem;
+
+    @include media($tablet) {
+      background-size: 350px 320px;
+      width: 100px;
+      height: 70px;
+    }
+  }
+
+  .sprite-hrb {
+    width: 60px;
+
+    @include media($tablet) {
+      width: 120px;
+    }
+
+    @include responsive-sprite(-5px, -5px);
+  }
+
+  .sprite-aeropostale { @include responsive-sprite(-135px, -5px); }
+  .sprite-channel-one { @include responsive-sprite(-5px, -85px); }
+  .sprite-fastweb { @include responsive-sprite(-115px, -85px); }
+  .sprite-toyota { @include responsive-sprite(-5px, -165px); }
+  .sprite-jetblue { @include responsive-sprite(-115px, -165px); }
+  .sprite-aarp { @include responsive-sprite(-245px, -5px); }
+  .sprite-sprint { @include responsive-sprite(-225px, -85px); }
+  .sprite-hm { @include responsive-sprite(-228px, -165px); }
+  .sprite-salt { @include responsive-sprite(-13px, -245px); }
+  .sprite-amex { @include responsive-sprite(-110px, -245px); }
+  .sprite-google { @include responsive-sprite(-212px, -245px); }
+}

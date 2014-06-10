@@ -1,0 +1,20 @@
+{
+  "name": "neue",
+  "version": "3.15.5",
+  "main": [
+    "assets/neue.css",
+    "assets/neue.js"
+  ],
+  "ignore": [
+    ".jshintrc",
+    ".editorconfig",
+    ".gitignore",
+    ".jshintrc",
+    ".ruby-version",
+    ".scss-lint.yaml"
+  ],
+  "dependencies": {
+    "jquery": ">=1.7.2",
+    "almond": "~0.2.9"
+  }
+}
