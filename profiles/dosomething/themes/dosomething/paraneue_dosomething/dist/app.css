@@ -1,0 +1,2410 @@
+/**
+ * Hide only visually, but have it available for screenreaders.
+ * @mixin visually-hidden
+ * @mixin visually-restored
+ *
+ * @param $position: absolute
+ */
+/* line 7, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+#dosomething-signup-node-unsignup-form {
+  padding-top: 8rem;
+  padding-bottom: 2rem;
+  max-width: 600px;
+  margin: 0 auto; }
+
+/* line 17, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.element-invisible {
+  display: none; }
+
+/* line 22, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.form-required {
+  display: none; }
+
+/* line 27, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.form-actions {
+  text-align: center; }
+
+/* line 32, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.admin--tabs .tabs {
+  background: #ddd;
+  background-image: url("images/admin-panel.png");
+  padding: 1rem 0; }
+
+/* line 39, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.container-inline-date .date-padding {
+  padding: 0 !important; }
+
+/* line 43, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.container-inline-date .form-item, .container-inline-date .form-item input {
+  width: 100% !important; }
+
+/* line 48, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.container-inline-date .form-item input, .container-inline-date .form-item select, .container-inline-date .form-item option {
+  margin-right: 0 !important; }
+
+/* line 52, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+.container-inline-date > .form-item {
+  margin-right: 0;
+  margin-bottom: 0; }
+
+/* line 60, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+html body.html.admin-menu {
+  margin-top: 0 !important; }
+@media screen and (min-width: 1080px) {
+  /* line 65, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+  html body.html.admin-menu {
+    margin-top: 29px !important; } }
+
+/* line 71, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/overrides/drupal */
+#admin-menu {
+  display: none; }
+  @media screen and (min-width: 1080px) {
+    #admin-menu {
+      display: block; } }
+
+/* line 4, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container h1, .container h2, .container h3, .container h4, .container h5, .container h6 {
+  margin-top: 0; }
+/* line 8, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container > .wrapper {
+  padding: 1rem;
+  *zoom: 1; }
+  /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .container > .wrapper:before, .container > .wrapper:after {
+    content: " ";
+    display: table; }
+  /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .container > .wrapper:after {
+    clear: both; }
+  @media screen and (min-width: 768px) {
+    .container > .wrapper {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 74.44444%;
+      margin-left: 12.77778%;
+      float: none;
+      padding: 1rem 0; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .container > .wrapper:last-child {
+        margin-right: 0; } }
+  @media screen and (min-width: 1080px) {
+    .container > .wrapper {
+      padding: 1.5rem 0; } }
+/* line 27, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container:first-of-type > .wrapper {
+  padding-top: 2rem; }
+/* line 32, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container:first-of-type .container__title + .wrapper {
+  padding-top: 1.5rem; }
+/* line 37, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container > .gallery {
+  padding: 1rem 0; }
+  @media screen and (min-width: 1080px) {
+    .container > .gallery {
+      padding: 1.5rem 0; } }
+@media screen and (min-width: 768px) {
+  .container .-columned {
+    float: left;
+    display: block;
+    margin-right: 2.98507%;
+    width: 48.50746%; }
+    /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+    .container .-columned:last-child {
+      margin-right: 0; } }
+/* line 51, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container .-columned + .-columned {
+  margin-top: 1rem; }
+  @media screen and (min-width: 768px) {
+    .container .-columned + .-columned {
+      margin-top: 0; } }
+/* line 60, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container aside img {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  width: auto;
+  width: 100%; }
+
+/* line 70, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container__title {
+  line-height: 1.1;
+  margin: 0 0 1rem; }
+  /* line 74, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__title.banner {
+    margin-bottom: 0;
+    padding: 0.75rem 0.5rem; }
+    /* line 78, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+    .container__title.banner > span {
+      display: inline-block;
+      line-height: 1; }
+      @media screen and (min-width: 768px) {
+        .container__title.banner > span {
+          margin-left: 12.77778%; } }
+  @media screen and (min-width: 768px) {
+    .container__title {
+      margin-bottom: 1.5rem; } }
+
+/* line 95, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container__body {
+  *zoom: 1; }
+  /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .container__body:before, .container__body:after {
+    content: " ";
+    display: table; }
+  /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .container__body:after {
+    clear: both; }
+  /* line 98, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body p {
+    margin-bottom: 0; }
+  /* line 104, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body p + p, .container__body ul + p {
+    margin-top: 1.5rem; }
+  /* line 108, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body ul {
+    margin-bottom: 0; }
+  /* line 114, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body p + ul, .container__body p + aside {
+    margin-top: 1.5rem; }
+  /* line 120, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body ul + h3, .container__body ol + h3 {
+    margin-top: 1.5rem; }
+  /* line 125, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body form {
+    padding-top: 1rem; }
+  /* line 129, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body .form-actions {
+    clear: both;
+    padding-top: 1rem; }
+    @media screen and (min-width: 768px) {
+      .container__body .form-actions {
+        text-align: left; } }
+  /* line 139, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .container__body .media.-inline {
+    float: none;
+    margin-bottom: 1.5rem; }
+    @media screen and (min-width: 1080px) {
+      .container__body .media.-inline {
+        margin-left: 2.5rem;
+        float: right; } }
+
+@media screen and (min-width: 768px) {
+  /* line 158, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+  .ie8 .-columned.-col-last {
+    margin-right: 0; } }
+
+/* line 167, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container--campaigns .gallery.-mosaic {
+  background-color: #fff; }
+
+@media screen and (min-width: 768px) {
+  .container__body .form-item-alpha-first-name {
+    float: left;
+    display: block;
+    margin-right: 2.98507%;
+    width: 48.50746%; }
+    /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+    .container__body .form-item-alpha-first-name:last-child {
+      margin-right: 0; } }
+/* line 183, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container__body .-columned.second-group {
+  margin-right: 0; }
+
+/* line 190, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/container */
+.container form .-columned + .-columned {
+  margin-top: 0; }
+
+/* line 2, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/auth */
+.auth--login .form-actions {
+  text-align: center;
+  margin: 1rem 0; }
+
+/* line 9, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/auth */
+.auth--register .field-label-optional {
+  color: #ddd; }
+/* line 13, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/auth */
+.auth--register .form-actions {
+  text-align: center;
+  margin: 1rem 0; }
+@media screen and (min-width: 768px) {
+  .auth--register .field-name-field-first-name {
+    float: left;
+    width: 50%;
+    padding-right: 0.5rem;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box; } }
+@media screen and (min-width: 768px) {
+  .auth--register .field-name-field-birthdate {
+    float: left;
+    width: 50%;
+    padding-left: 0.5rem;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box; } }
+
+/* line 37, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/auth */
+.auth--header {
+  text-align: center;
+  padding: 0 1rem;
+  color: #4e2b63; }
+  @media screen and (min-width: 768px) {
+    .auth--header {
+      padding: 0 3rem; } }
+
+/* line 47, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/auth */
+.auth--toggle-link {
+  text-align: center;
+  margin: 1rem 0; }
+
+/* line 1, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+.home--wrapper {
+  background: #fff;
+  overflow: hidden; }
+
+/* line 6, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+.home--hero {
+  *zoom: 1;
+  display: block;
+  background-color: #4e2b63;
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(35%, #4e2b63), color-stop(100%, rgba(0, 0, 0, 0.6)));
+  background-image: -webkit-linear-gradient(#4e2b63 35%, rgba(0, 0, 0, 0.6) 100%);
+  background-image: linear-gradient(#4e2b63 35%, rgba(0, 0, 0, 0.6) 100%);
+  background-size: cover;
+  padding: 5.5rem 0 2rem; }
+  /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .home--hero:before, .home--hero:after {
+    content: " ";
+    display: table; }
+  /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .home--hero:after {
+    clear: both; }
+  @media screen and (min-width: 768px) {
+    .home--hero {
+      padding-top: 7rem; } }
+  /* line 16, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--hero .header {
+    margin-bottom: 1rem;
+    *zoom: 1;
+    display: block;
+    float: left;
+    display: block;
+    margin-right: 4.54545%;
+    width: 86.93182%;
+    margin-left: 6.53409%;
+    margin-right: 0; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .home--hero .header:before, .home--hero .header:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .home--hero .header:after {
+      clear: both; }
+    /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+    .home--hero .header:last-child {
+      margin-right: 0; }
+    @media screen and (min-width: 768px) {
+      .home--hero .header {
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 87.22222%;
+        margin-left: 6.38889%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .home--hero .header:last-child {
+          margin-right: 0; } }
+    /* line 29, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+    .home--hero .header .title {
+      color: #fff;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 1.5rem 0 0.5rem;
+      text-align: center;
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px; }
+      @media screen and (min-width: 768px) {
+        .home--hero .header .title {
+          clip: auto;
+          height: auto;
+          margin: auto;
+          overflow: visible;
+          position: static;
+          width: auto;
+          margin: 1.5rem 0; } }
+      @media screen and (min-width: 1080px) {
+        .home--hero .header .title {
+          font-size: 3rem; } }
+    /* line 49, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+    .home--hero .header .subtitle {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: normal;
+      line-height: 1.2;
+      margin: 0 0 0.6rem;
+      text-align: center; }
+      @media screen and (min-width: 768px) {
+        .home--hero .header .subtitle {
+          border: 0;
+          clip: rect(0 0 0 0);
+          height: 1px;
+          margin: -1px;
+          overflow: hidden;
+          padding: 0;
+          position: absolute;
+          width: 1px; } }
+
+/* line 65, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+.home--sponsors {
+  clear: both;
+  width: 100%;
+  background: #fff;
+  text-align: center;
+  overflow: hidden;
+  padding-top: 2rem; }
+  @media screen and (min-width: 768px) {
+    .home--sponsors {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 74.44444%;
+      margin-left: 12.77778%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .home--sponsors:last-child {
+        margin-right: 0; } }
+  /* line 78, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors h4 {
+    color: #ddd; }
+  /* line 82, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite {
+    background-image: url("images/sponsors.png");
+    background-repeat: no-repeat;
+    display: inline-block;
+    background-size: 175px 160px;
+    width: 50px;
+    height: 35px;
+    margin: 0 1rem; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite {
+        background-size: 350px 320px;
+        width: 100px;
+        height: 70px; } }
+  /* line 98, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-hrb {
+    width: 60px;
+    background-position: -2.5px -2.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-hrb {
+        width: 120px; } }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-hrb {
+        background-position: -5px -5px; } }
+  /* line 108, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-aeropostale {
+    background-position: -67.5px -2.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-aeropostale {
+        background-position: -135px -5px; } }
+  /* line 109, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-channel-one {
+    background-position: -2.5px -42.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-channel-one {
+        background-position: -5px -85px; } }
+  /* line 110, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-fastweb {
+    background-position: -57.5px -42.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-fastweb {
+        background-position: -115px -85px; } }
+  /* line 111, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-toyota {
+    background-position: -2.5px -82.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-toyota {
+        background-position: -5px -165px; } }
+  /* line 112, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-jetblue {
+    background-position: -57.5px -82.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-jetblue {
+        background-position: -115px -165px; } }
+  /* line 113, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-aarp {
+    background-position: -122.5px -2.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-aarp {
+        background-position: -245px -5px; } }
+  /* line 114, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-sprint {
+    background-position: -112.5px -42.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-sprint {
+        background-position: -225px -85px; } }
+  /* line 115, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-hm {
+    background-position: -114px -82.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-hm {
+        background-position: -228px -165px; } }
+  /* line 116, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-salt {
+    background-position: -6.5px -122.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-salt {
+        background-position: -13px -245px; } }
+  /* line 117, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-amex {
+    background-position: -55px -122.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-amex {
+        background-position: -110px -245px; } }
+  /* line 118, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/home */
+  .home--sponsors .sprite-google {
+    background-position: -106px -122.5px; }
+    @media screen and (min-width: 768px) {
+      .home--sponsors .sprite-google {
+        background-position: -212px -245px; } }
+
+/* line 5, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/chrome */
+.chrome--nav.white .hamburger {
+  color: #fff !important; }
+/* line 9, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/chrome */
+.chrome--nav.white a {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  color: #fff !important; }
+/* line 14, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/chrome */
+.chrome--nav.white .secondary-nav input[type="search"] {
+  color: #fff;
+  border: 1px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  background-image: url("bower_components/neue/assets/images/search_light.png"); }
+  @media only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 1.3/1), only screen and (min-resolution: 125dpi), only screen and (min-resolution: 1.3dppx) {
+    .chrome--nav.white .secondary-nav input[type="search"] {
+      background-image: url("bower_components/neue/assets/images/search_light@2x.png"); } }
+/* line 27, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/chrome */
+.chrome--nav.floating {
+  position: absolute;
+  top: 0;
+  margin-bottom: 0;
+  z-index: 1; }
+
+/* line 7, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+body.node-type-campaign .node-action-guide h2.banner {
+  margin-bottom: 1.5rem; }
+/* line 12, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+body.node-type-campaign .node-action-guide h3.subtitle {
+  color: #444; }
+/* line 19, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+body.node-type-campaign .node-action-guide ul, body.node-type-campaign .node-action-guide ol {
+  margin-bottom: 1.5rem; }
+
+/* line 26, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+.campaign--wrapper {
+  overflow: hidden;
+  background: #fff; }
+  @media screen and (min-width: 768px) {
+    .campaign--wrapper div.col.first {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 36.11111%;
+      margin-left: 12.77778%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .campaign--wrapper div.col.first:last-child {
+        margin-right: 0; } }
+  @media screen and (min-width: 768px) {
+    .campaign--wrapper div.col.second {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 36.11111%;
+      margin-right: 0; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .campaign--wrapper div.col.second:last-child {
+        margin-right: 0; } }
+  @media screen and (min-width: 768px) {
+    .campaign--wrapper div.col.sources-wrapper {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 74.44444%;
+      margin-left: 12.77778%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .campaign--wrapper div.col.sources-wrapper:last-child {
+        margin-right: 0; } }
+  /* line 3, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+  .campaign--wrapper div.meta {
+    position: relative;
+    width: 90%;
+    margin: 230px auto 0; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper div.meta {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        bottom: 1.5rem;
+        margin: 0;
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 74.44444%;
+        margin-left: 12.77778%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .campaign--wrapper div.meta:last-child {
+          margin-right: 0; } }
+  /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+  .campaign--wrapper header.header {
+    position: relative;
+    overflow: hidden;
+    min-height: 465px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: cover;
+    background-color: #4e2b63; }
+    /* line 49, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .campaign--wrapper header.header .title {
+      color: #fff;
+      font-size: 2rem;
+      line-height: 1;
+      text-align: center;
+      margin: 0 0 0.5rem; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper header.header .title {
+          font-size: 4rem;
+          text-align: left;
+          margin: 0 0 0.5rem; } }
+    /* line 63, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .campaign--wrapper header.header .subtitle {
+      color: #fff;
+      font-size: 1rem;
+      font-weight: normal;
+      line-height: 1.5;
+      margin: 0 0 0.5rem;
+      text-align: center; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper header.header .subtitle {
+          font-size: 1.25rem;
+          margin-bottom: 1.5rem;
+          text-align: left; } }
+    /* line 79, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .campaign--wrapper header.header .title, .campaign--wrapper header.header .subtitle {
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+    /* line 33, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+    .campaign--wrapper header.header:before {
+      bottom: 0;
+      content: "";
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0);
+      background-image: -webkit-gradient(linear, left top, left bottom, color-stop(40%, rgba(0, 0, 0, 0)), color-stop(70%, rgba(0, 0, 0, 0.2)), color-stop(87%, rgba(0, 0, 0, 0.5)), color-stop(100%, rgba(0, 0, 0, 0.85)));
+      background-image: -webkit-linear-gradient(rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.2) 70%, rgba(0, 0, 0, 0.5) 87%, rgba(0, 0, 0, 0.85) 100%);
+      background-image: linear-gradient(rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.2) 70%, rgba(0, 0, 0, 0.5) 87%, rgba(0, 0, 0, 0.85) 100%); }
+    /* line 46, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+    .no-cssgradients .campaign--wrapper header.header:before {
+      background: transparent url("images/black-gradient.png") 0 bottom repeat-x; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper header.header {
+        min-height: 620px; } }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper header.header .subtitle {
+        margin: 0; } }
+    /* line 64, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+    .campaign--wrapper header.header p.date {
+      color: #fff !important;
+      font-size: 0.75rem;
+      text-align: center;
+      margin: 0 0 1.5rem; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper header.header p.date {
+          font-size: 1rem;
+          text-align: left; } }
+    /* line 79, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+    .campaign--wrapper header.header a.btn, .campaign--wrapper header.header input.btn {
+      margin: 0 auto;
+      display: block;
+      color: #fff; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper header.header a.btn, .campaign--wrapper header.header input.btn {
+          float: left; } }
+    /* line 92, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+    .campaign--wrapper header.header .btn.large {
+      font-size: 1.25rem; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper header.header .btn.large {
+          font-size: 1.75rem; } }
+    /* line 100, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+    .campaign--wrapper header.header div.sponsor-wrapper {
+      margin: 1rem auto;
+      float: none;
+      clear: both; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper header.header div.sponsor-wrapper {
+          margin: 0;
+          width: auto;
+          position: absolute;
+          right: 0;
+          bottom: 0; } }
+      /* line 113, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+      .campaign--wrapper header.header div.sponsor-wrapper img {
+        display: block;
+        height: 50px;
+        margin: 0 auto; }
+        @media screen and (min-width: 768px) {
+          .campaign--wrapper header.header div.sponsor-wrapper img {
+            float: right;
+            margin: 0; } }
+      /* line 124, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/header */
+      .campaign--wrapper header.header div.sponsor-wrapper p.copy {
+        margin: 0 0 1rem;
+        padding: 0;
+        float: none;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-align: center;
+        text-transform: uppercase;
+        color: white;
+        color: rgba(255, 255, 255, 0.7); }
+        @media screen and (min-width: 768px) {
+          .campaign--wrapper header.header div.sponsor-wrapper p.copy {
+            margin: 0;
+            padding: 0 0.5rem 0 0;
+            position: relative;
+            bottom: -1.8rem;
+            float: left; } }
+  /* line 4, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/footer */
+  .campaign--wrapper footer.boilerplate {
+    padding: 0.5rem 1.5rem;
+    background: #111;
+    text-align: center;
+    font-size: 0.9rem; }
+  /* line 17, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/footer */
+  .campaign--wrapper .prove > footer {
+    color: #fff;
+    clear: both;
+    overflow: hidden;
+    padding: 1rem 0;
+    text-align: center;
+    background: black;
+    background: rgba(0, 0, 0, 0.5); }
+    /* line 26, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/footer */
+    .no-rgba .campaign--wrapper .prove > footer {
+      background: transparent url("images/black-50.png") 0 0 repeat; }
+    /* line 30, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/footer */
+    .campaign--wrapper .prove > footer a {
+      color: #fff;
+      text-decoration: none; }
+      /* line 34, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/footer */
+      .campaign--wrapper .prove > footer a:hover {
+        text-decoration: underline; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .prove > footer .footer-content {
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 74.44444%;
+        margin-left: 12.77778%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .campaign--wrapper .prove > footer .footer-content:last-child {
+          margin-right: 0; } }
+    /* line 46, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/footer */
+    .campaign--wrapper .prove > footer .help-wrapper {
+      margin-bottom: 0.5rem; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .prove > footer .help-wrapper {
+          float: right;
+          margin-bottom: 0; } }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .prove > footer .sponsor-wrapper {
+        float: left; } }
+  /* line 6, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+  .campaign--wrapper .navigation--wrapper {
+    height: 3rem; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .navigation--wrapper {
+        height: auto; } }
+  /* line 14, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+  .campaign--wrapper .navigation {
+    width: 100%;
+    -webkit-font-smoothing: subpixel-antialiased; }
+    @media all and (min-width: 1020px) {
+      .campaign--wrapper .navigation {
+        position: absolute;
+        top: 4rem;
+        padding-top: 3rem;
+        width: 120px; } }
+    /* line 30, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+    .campaign--wrapper .navigation.is-stuck {
+      position: fixed;
+      top: 0;
+      z-index: 100; }
+    /* line 36, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+    .campaign--wrapper .navigation ul {
+      background: #ddd;
+      text-align: center;
+      overflow: hidden;
+      padding: 0; }
+      @media all and (min-width: 1020px) {
+        .campaign--wrapper .navigation ul {
+          text-align: left; } }
+    /* line 47, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+    .campaign--wrapper .navigation li {
+      display: inline-block; }
+      @media all and (min-width: 1020px) {
+        .campaign--wrapper .navigation li {
+          display: block;
+          width: 100%; } }
+      /* line 55, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+      .campaign--wrapper .navigation li:last-child a {
+        border-bottom: 0; }
+    /* line 60, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+    .campaign--wrapper .navigation a {
+      display: inline-block;
+      margin: 0 auto;
+      padding: 0.75rem 0.65rem;
+      color: #999;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 1rem; }
+      @media all and (min-width: 1020px) {
+        .campaign--wrapper .navigation a {
+          display: block;
+          padding: 0.5rem 1rem; } }
+      /* line 75, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+      .campaign--wrapper .navigation a.primary {
+        color: #23b7fb; }
+      /* line 79, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/nav */
+      .campaign--wrapper .navigation a.is-active {
+        color: #000; }
+  /* line 5, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/know */
+  .campaign--wrapper .step.know img {
+    width: 100%; }
+  /* line 16, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/know */
+  .campaign--wrapper .step.know .psa-wrapper {
+    position: relative;
+    padding-bottom: 56.25% !important;
+    height: 0;
+    overflow: hidden; }
+    /* line 22, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/know */
+    .campaign--wrapper .step.know .psa-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; }
+  /* line 35, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/know */
+  .campaign--wrapper .step.know .col.second ul {
+    padding-top: 30px !important; }
+  /* line 41, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/know */
+  .campaign--wrapper .step.know .fact-solution, .campaign--wrapper .step.know .fact-problem {
+    margin: 0 0 1.5rem; }
+  /* line 3, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/plan */
+  .campaign--wrapper .step.plan .intro {
+    margin-top: 1.5rem; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .step.plan .intro {
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 55.27778%;
+        margin-left: 12.77778%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .campaign--wrapper .step.plan .intro:last-child {
+          margin-right: 0; } }
+    /* line 11, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/plan */
+    .campaign--wrapper .step.plan .intro p {
+      margin-bottom: 0 !important; }
+  @media screen and (min-width: 768px) {
+    .campaign--wrapper .step.plan .col {
+      margin-bottom: 0;
+      padding-bottom: 0; } }
+  /* line 25, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/plan */
+  .campaign--wrapper .location-finder {
+    margin-bottom: 2rem; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .location-finder {
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 68.05556%;
+        margin-left: 12.77778%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .campaign--wrapper .location-finder:last-child {
+          margin-right: 0; }
+        /* line 32, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/plan */
+        .campaign--wrapper .location-finder h4 {
+          margin-top: 0; } }
+    /* line 37, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/plan */
+    .campaign--wrapper .location-finder p {
+      margin-bottom: 0.5rem; }
+  /* line 3, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+  .campaign--wrapper .step.do {
+    position: relative; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .step.do .content {
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 55.27778%;
+        margin-left: 12.77778%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .campaign--wrapper .step.do .content:last-child {
+          margin-right: 0; } }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .step.do .pre, .campaign--wrapper .step.do .during {
+        margin: 0 0 2.5rem; } }
+    /* line 21, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do .more-tips {
+      display: block; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.do .more-tips {
+          display: none; } }
+    /* line 29, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do .tips--wrapper {
+      display: none; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.do .tips--wrapper {
+          display: block; } }
+    /* line 37, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do .post {
+      margin: 0 0 2.5rem; }
+    /* line 41, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do .tip-header-wrapper {
+      display: inline-block;
+      margin: 0 0 16px;
+      text-decoration: none; }
+      /* line 46, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+      .campaign--wrapper .step.do .tip-header-wrapper a.tip-header {
+        position: relative;
+        text-decoration: none; }
+        /* line 50, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+        .campaign--wrapper .step.do .tip-header-wrapper a.tip-header.active {
+          display: inline-block;
+          color: #222;
+          cursor: default; }
+          /* line 55, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+          .campaign--wrapper .step.do .tip-header-wrapper a.tip-header.active:hover {
+            cursor: default; }
+          /* line 59, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+          .campaign--wrapper .step.do .tip-header-wrapper a.tip-header.active:after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            position: absolute;
+            background: transparent;
+            border-top: 12px solid #fff;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 0;
+            left: 33.333%;
+            top: 40px; }
+      /* line 76, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+      .campaign--wrapper .step.do .tip-header-wrapper span.bullet {
+        display: inline-block;
+        padding: 0 0 0 0.5rem; }
+        /* line 80, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+        .campaign--wrapper .step.do .tip-header-wrapper span.bullet:last-child {
+          display: none; }
+    /* line 86, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do .tip-body-wrapper {
+      background: #ddd; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.do .tip-body-wrapper {
+          margin: 0; } }
+    /* line 94, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do .tip-body {
+      display: none;
+      padding: 1rem !important; }
+      /* line 98, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+      .campaign--wrapper .step.do .tip-body.active {
+        display: block; }
+      /* line 102, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+      .campaign--wrapper .step.do .tip-body:first-child {
+        display: block; }
+      /* line 106, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+      .campaign--wrapper .step.do .tip-body p {
+        margin: 0 !important; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .step.do div.step-image-wrapper {
+        overflow: hidden;
+        position: relative;
+        width: 180px;
+        height: 210px;
+        top: 150px; } }
+    /* line 123, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do div.step-image-wrapper.mobile {
+      display: block; }
+      /* line 126, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+      .campaign--wrapper .step.do div.step-image-wrapper.mobile img {
+        width: 100%;
+        display: block; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.do div.step-image-wrapper.mobile {
+          display: none; } }
+    /* line 139, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+    .campaign--wrapper .step.do div.step-image-wrapper.desktop {
+      display: none; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.do div.step-image-wrapper.desktop {
+          display: block; } }
+      /* line 146, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+      .campaign--wrapper .step.do div.step-image-wrapper.desktop figure.step-image {
+        -webkit-transform: rotate(-3deg);
+        -moz-transform: rotate(-3deg);
+        -ms-transform: rotate(-3deg);
+        -o-transform: rotate(-3deg);
+        transform: rotate(-3deg); }
+        /* line 152, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+        .campaign--wrapper .step.do div.step-image-wrapper.desktop figure.step-image:after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          background-image: url("images/campaign-polaroid-frame.png");
+          background-repeat: no-repeat;
+          background-position: 50% 50%;
+          background-size: 170px;
+          width: 180px;
+          height: 210px; }
+        /* line 165, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/do */
+        .campaign--wrapper .step.do div.step-image-wrapper.desktop figure.step-image img {
+          position: relative;
+          left: 12px;
+          top: 9px;
+          padding: 0;
+          max-width: 160px; }
+  /* line 3, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+  .campaign--wrapper .step.prove {
+    margin: 0;
+    background-image: url("images/campaign-pattern-default.png"); }
+    /* line 7, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+    .campaign--wrapper .step.prove h3.title {
+      color: #fff;
+      font-size: 1.75rem;
+      text-align: center; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.prove h3.title {
+          font-size: 1.75rem;
+          text-align: left; } }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+    .campaign--wrapper .step.prove div.copy {
+      color: #fff;
+      margin: 0 0 1rem;
+      color: #fff !important;
+      text-align: center;
+      font-size: 1.25rem; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.prove div.copy {
+          font-size: 1rem;
+          text-align: left; } }
+    /* line 31, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+    .campaign--wrapper .step.prove .btn {
+      margin: 0 auto; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.prove .btn {
+          margin: auto;
+          display: inline-block; } }
+    /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+    .campaign--wrapper .step.prove a.official-rules {
+      display: block;
+      margin: 1.5rem 0 0;
+      color: #fff;
+      text-align: center; }
+      /* line 46, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+      .campaign--wrapper .step.prove a.official-rules:hover {
+        color: #fff;
+        color: rgba(255, 255, 255, 0.9); }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.prove a.official-rules {
+          text-align: left; } }
+    /* line 56, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+    .campaign--wrapper .step.prove .content {
+      margin-bottom: 3rem;
+      text-align: center; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.prove .content {
+          text-align: left;
+          float: left;
+          display: block;
+          margin-right: 2.22222%;
+          width: 36.11111%;
+          margin-left: 12.77778%; }
+          /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+          .campaign--wrapper .step.prove .content:last-child {
+            margin-right: 0; } }
+    /* line 68, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+    .campaign--wrapper .step.prove .gallery {
+      margin: 2rem 0; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.prove .gallery {
+          float: left;
+          display: block;
+          margin-right: 2.22222%;
+          width: 36.11111%;
+          margin-left: 6.38889%; }
+          /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+          .campaign--wrapper .step.prove .gallery:last-child {
+            margin-right: 0; } }
+      /* line 76, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+      .campaign--wrapper .step.prove .gallery figure img {
+        width: 100%; }
+    /* line 81, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/prove */
+    .campaign--wrapper .step.prove .slide-wrapper {
+      margin: 0 0 2rem; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .step.prove .slide-wrapper {
+          margin: 0; } }
+  /* line 41, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .campaign--wrapper .content-wrapper {
+    position: relative; }
+  /* line 47, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .campaign--wrapper .banner {
+    margin: 0;
+    padding-left: 0; }
+    /* line 51, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+    .campaign--wrapper .banner span {
+      padding: 0 1rem; }
+      @media screen and (min-width: 768px) {
+        .campaign--wrapper .banner span {
+          padding: 0;
+          margin-left: 12.77778%; } }
+  /* line 62, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .campaign--wrapper .step {
+    overflow: hidden;
+    margin: -0.5rem 1rem; }
+    @media screen and (min-width: 768px) {
+      .campaign--wrapper .step {
+        margin: 0; } }
+    /* line 74, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+    .campaign--wrapper .step h3 {
+      color: #4e2b63;
+      font-size: 1.75rem; }
+    /* line 79, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+    .campaign--wrapper .step h4 {
+      color: #4e2b63;
+      font-size: 1.25rem; }
+  /* line 85, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .campaign--wrapper .legal {
+    text-align: left; }
+    /* line 90, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+    .campaign--wrapper .legal p, .campaign--wrapper .legal sup {
+      display: inline; }
+    /* line 94, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+    .campaign--wrapper .legal div {
+      line-height: 1; }
+      /* line 97, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+      .campaign--wrapper .legal div:last-child {
+        margin: 0; }
+
+/* line 106, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+.scholarship-callout {
+  margin: 0 auto;
+  position: relative;
+  padding: 1rem 0;
+  width: 200px; }
+  @media screen and (min-width: 768px) {
+    .scholarship-callout {
+      margin: 0; } }
+  /* line 116, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .scholarship-callout:before {
+    content: "";
+    display: block;
+    position: absolute; }
+  /* line 122, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .scholarship-callout .copy {
+    color: #fff;
+    font: 1.5rem/1.3 "CoveredGrace", cursive, cursive;
+    letter-spacing: 0.03em;
+    margin: 0;
+    text-transform: lowercase; }
+  /* line 132, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .scholarship-callout.-below:before {
+    background: url("images/callout-arrow-up.png") 50% 50%/25px no-repeat transparent;
+    height: 38px;
+    right: -6px;
+    top: -6px;
+    width: 25px; }
+  /* line 144, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .scholarship-callout.-above:before {
+    background: url("images/callout-arrow-down.png") 50% 50%/35px no-repeat transparent;
+    height: 32px;
+    right: -28px;
+    bottom: 5px;
+    width: 37px; }
+  /* line 155, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .scholarship-callout.-pitch {
+    left: 45px;
+    top: 10px; }
+    /* line 159, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+    .scholarship-callout.-pitch:before {
+      right: 50px;
+      top: -20px; }
+    @media screen and (min-width: 768px) {
+      .scholarship-callout.-pitch {
+        float: left;
+        left: 40px;
+        top: -20px;
+        width: 130px;
+        -webkit-transform: rotate(-6deg);
+        -moz-transform: rotate(-6deg);
+        -ms-transform: rotate(-6deg);
+        -o-transform: rotate(-6deg);
+        transform: rotate(-6deg); }
+        /* line 172, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+        .scholarship-callout.-pitch:before {
+          background: url("images/callout-arrow-left.png") 50% 50%/35px no-repeat transparent;
+          height: 19px;
+          left: -27px;
+          right: auto;
+          top: 34px;
+          width: 38px; }
+        /* line 181, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+        .scholarship-callout.-pitch .copy {
+          line-height: 1.1;
+          text-align: center; } }
+  @media screen and (min-width: 768px) {
+    .action > header .scholarship-callout {
+      display: none; } }
+  /* line 196, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign */
+  .prove .scholarship-callout {
+    left: 50px;
+    top: 10px; }
+    @media screen and (min-width: 768px) {
+      .prove .scholarship-callout {
+        left: 70px; } }
+
+
+/* line 1, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+.sources {
+  clear: both;
+  padding-top: 2rem;
+  word-wrap: break-word; }
+  /* line 6, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+  .sources ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0; }
+    /* line 11, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+    .sources ul li + li {
+      margin-top: 0.5rem; }
+  /* line 16, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+  .sources sup, .sources p {
+    display: inline; }
+  /* line 20, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+  .sources .__title {
+    color: #999;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 0;
+    text-decoration: underline; }
+  /* line 30, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+  .sources .__body {
+    padding-top: 1rem; }
+
+@media screen and (min-width: 768px) {
+  .sources-wrapper {
+    margin-bottom: 1rem; } }
+/* line 44, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+.sources-wrapper .sources {
+  padding: 0 0 1.5rem; }
+  @media screen and (min-width: 768px) {
+    .sources-wrapper .sources {
+      padding-bottom: 0; } }
+  /* line 51, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/sources */
+  .sources-wrapper .sources h3 {
+    color: #999;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+    text-decoration: underline; }
+
+/* line 1, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/disclaimer */
+.disclaimer {
+  clear: both;
+  padding-top: 2rem; }
+
+/* line 5, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+body.page-node-confirmation {
+  background: #4e2b63; }
+
+/* line 12, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+.confirmation-wrapper {
+  background: #fff; }
+  /* line 15, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper h2, .confirmation-wrapper h3, .confirmation-wrapper h4 {
+    color: #4e2b63; }
+  /* line 19, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper .header-wrapper {
+    background-color: #4e2b63;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(35%, #4e2b63), color-stop(100%, rgba(0, 0, 0, 0.6)));
+    background-image: -webkit-linear-gradient(#4e2b63 35%, rgba(0, 0, 0, 0.6) 100%);
+    background-image: linear-gradient(#4e2b63 35%, rgba(0, 0, 0, 0.6) 100%);
+    padding: 8rem 1rem 0;
+    *zoom: 1;
+    display: block; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .confirmation-wrapper .header-wrapper:before, .confirmation-wrapper .header-wrapper:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .confirmation-wrapper .header-wrapper:after {
+      clear: both; }
+    @media screen and (min-width: 768px) {
+      .confirmation-wrapper .header-wrapper {
+        padding: 7rem 0 0; } }
+  /* line 29, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper .cta-wrapper, .confirmation-wrapper .gallery-wrapper {
+    padding: 1rem;
+    *zoom: 1;
+    display: block; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .confirmation-wrapper .cta-wrapper:before, .confirmation-wrapper .cta-wrapper:after, .confirmation-wrapper .gallery-wrapper:before, .confirmation-wrapper .gallery-wrapper:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .confirmation-wrapper .cta-wrapper:after, .confirmation-wrapper .gallery-wrapper:after {
+      clear: both; }
+    @media screen and (min-width: 768px) {
+      .confirmation-wrapper .cta-wrapper, .confirmation-wrapper .gallery-wrapper {
+        padding: 0; } }
+  @media screen and (min-width: 768px) {
+    .confirmation-wrapper .header, .confirmation-wrapper .gallery-title {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 74.44444%;
+      margin-left: 12.77778%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .confirmation-wrapper .header:last-child, .confirmation-wrapper .gallery-title:last-child {
+        margin-right: 0; } }
+  /* line 46, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper .header {
+    text-align: center; }
+    @media screen and (min-width: 768px) {
+      .confirmation-wrapper .header {
+        text-align: left; } }
+    /* line 53, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+    .confirmation-wrapper .header .title {
+      color: #fff; }
+      @media screen and (min-width: 768px) {
+        .confirmation-wrapper .header .title {
+          font-size: 2.5rem; } }
+    /* line 61, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+    .confirmation-wrapper .header .subtitle {
+      color: #fff;
+      font-weight: 400;
+      margin-top: -25px; }
+  /* line 68, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper .cta {
+    margin-top: 50px; }
+    /* line 71, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+    .confirmation-wrapper .cta .cta-back-to-campaign {
+      margin-top: 20px; }
+      /* line 74, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+      .confirmation-wrapper .cta .cta-back-to-campaign a {
+        color: #444;
+        text-decoration: underline;
+        font-weight: 400; }
+  /* line 82, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper .gallery {
+    padding-top: 20px; }
+    @media screen and (min-width: 768px) {
+      .confirmation-wrapper .gallery {
+        margin-left: 12.77778%; } }
+  /* line 90, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper .gallery-item {
+    text-align: center; }
+    @media screen and (min-width: 768px) {
+      .confirmation-wrapper .gallery-item {
+        float: left;
+        display: block;
+        margin-right: 2.54777%;
+        width: 26.75159%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .confirmation-wrapper .gallery-item:last-child {
+          margin-right: 0; }
+        /* line 70, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+        .confirmation-wrapper .gallery-item:nth-child(3n) {
+          margin-right: 0; }
+        /* line 75, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+        .confirmation-wrapper .gallery-item:nth-child(3n+1) {
+          clear: left; } }
+    /* line 99, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+    .confirmation-wrapper .gallery-item .gallery-description, .confirmation-wrapper .gallery-item h3 {
+      text-align: center; }
+    /* line 103, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+    .confirmation-wrapper .gallery-item h3 {
+      margin-bottom: 5px; }
+    /* line 107, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+    .confirmation-wrapper .gallery-item img {
+      max-width: 100%; }
+  /* line 112, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/confirmation */
+  .confirmation-wrapper .additional-text {
+    margin-top: 20px;
+    margin-bottom: 20px; }
+
+/* line 3, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-address */
+.modal .modal-content.modal--signup-data .form-actions {
+  text-align: center;
+  margin-top: 1rem; }
+/* line 8, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-address */
+.modal .modal-content.modal--signup-data .form-item-user-address-locality {
+  width: 50%;
+  padding-right: 1rem;
+  margin-right: 0; }
+/* line 14, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-address */
+.modal .modal-content.modal--signup-data .form-item-user-address-administrative-area {
+  width: 50%;
+  padding-right: 1rem;
+  padding-right: 0;
+  margin-right: 0; }
+/* line 21, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-address */
+.modal .modal-content.modal--signup-data .form-item-user-address-postal-code {
+  clear: both; }
+
+/* line 2, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+.modal .modal-content.modal--reportback {
+  background: url("images/campaign-pattern-default.png"); }
+  /* line 5, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback label {
+    color: #fff; }
+  /* line 9, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .form-actions {
+    text-align: center; }
+  /* line 15, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .inner-label .message.success {
+    color: #fff; }
+  /* line 19, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .inner-label .message.error {
+    color: #ddd; }
+  /* line 25, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .image-upload-container {
+    position: relative;
+    width: 300px;
+    height: 100px;
+    overflow: hidden; }
+    /* line 31, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+    .modal .modal-content.modal--reportback .image-upload-container input[type="file"] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-size: 200px;
+      opacity: 0;
+      cursor: pointer; }
+  /* line 42, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .filename {
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700; }
+  /* line 48, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .preview {
+    float: left;
+    width: auto;
+    height: auto;
+    max-width: 100px;
+    max-height: 200px;
+    background: #ddd;
+    border: 5px solid #fff;
+    margin: 0.25rem 1rem; }
+  /* line 59, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .submitted-image {
+    text-align: center; }
+    /* line 62, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+    .modal .modal-content.modal--reportback .submitted-image .legal {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 700; }
+    /* line 67, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+    .modal .modal-content.modal--reportback .submitted-image img {
+      max-width: 250px;
+      max-height: 300px;
+      width: auto;
+      height: auto;
+      background: #ddd;
+      border: 6px solid #fff; }
+  /* line 77, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+  .modal .modal-content.modal--reportback .form-type-radio {
+    clear: both;
+    margin-bottom: 0.25rem;
+    overflow: auto; }
+    /* line 82, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+    .modal .modal-content.modal--reportback .form-type-radio input[type="radio"] {
+      float: left; }
+    /* line 86, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/modal-reportback */
+    .modal .modal-content.modal--reportback .form-type-radio label {
+      clear: none;
+      float: left;
+      margin: 0 0 0 0.25rem;
+      width: auto; }
+
+/* line 5, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+.static_content-wrapper {
+  background: #fff; }
+  /* line 8, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .header-wrapper {
+    background-color: #4e2b63;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(35%, #4e2b63), color-stop(100%, rgba(0, 0, 0, 0.6)));
+    background-image: -webkit-linear-gradient(#4e2b63 35%, rgba(0, 0, 0, 0.6) 100%);
+    background-image: linear-gradient(#4e2b63 35%, rgba(0, 0, 0, 0.6) 100%);
+    padding: 8rem 1rem 0;
+    *zoom: 1;
+    display: block; }
+    /* line 49, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .static_content-wrapper .header-wrapper .title {
+      color: #fff;
+      font-size: 2rem;
+      line-height: 1;
+      text-align: center;
+      margin: 0 0 0.5rem; }
+      @media screen and (min-width: 768px) {
+        .static_content-wrapper .header-wrapper .title {
+          font-size: 4rem;
+          text-align: left;
+          margin: 0 0 0.5rem; } }
+    /* line 63, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .static_content-wrapper .header-wrapper .subtitle {
+      color: #fff;
+      font-size: 1rem;
+      font-weight: normal;
+      line-height: 1.5;
+      margin: 0 0 0.5rem;
+      text-align: center; }
+      @media screen and (min-width: 768px) {
+        .static_content-wrapper .header-wrapper .subtitle {
+          font-size: 1.25rem;
+          margin-bottom: 1.5rem;
+          text-align: left; } }
+    /* line 79, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .static_content-wrapper .header-wrapper .title, .static_content-wrapper .header-wrapper .subtitle {
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .static_content-wrapper .header-wrapper:before, .static_content-wrapper .header-wrapper:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .static_content-wrapper .header-wrapper:after {
+      clear: both; }
+    @media screen and (min-width: 768px) {
+      .static_content-wrapper .header-wrapper {
+        padding: 8rem 0 0; } }
+  /* line 19, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .intro-wrapper, .static_content-wrapper .additional-text-wrapper, .static_content-wrapper .gallery-wrapper {
+    padding: 1rem;
+    *zoom: 1;
+    display: block; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .static_content-wrapper .intro-wrapper:before, .static_content-wrapper .intro-wrapper:after, .static_content-wrapper .additional-text-wrapper:before, .static_content-wrapper .additional-text-wrapper:after, .static_content-wrapper .gallery-wrapper:before, .static_content-wrapper .gallery-wrapper:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .static_content-wrapper .intro-wrapper:after, .static_content-wrapper .additional-text-wrapper:after, .static_content-wrapper .gallery-wrapper:after {
+      clear: both; }
+    @media screen and (min-width: 768px) {
+      .static_content-wrapper .intro-wrapper, .static_content-wrapper .additional-text-wrapper, .static_content-wrapper .gallery-wrapper {
+        padding: 0; } }
+  /* line 27, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .cta-wrapper {
+    background-color: #f7f7f7;
+    border-bottom: 2px solid #ddd;
+    border-top: 2px solid #ddd;
+    padding: 1rem;
+    *zoom: 1;
+    display: block; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .static_content-wrapper .cta-wrapper:before, .static_content-wrapper .cta-wrapper:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .static_content-wrapper .cta-wrapper:after {
+      clear: both; }
+    @media screen and (min-width: 768px) {
+      .static_content-wrapper .cta-wrapper {
+        padding: 0; } }
+    /* line 98, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .static_content-wrapper .cta-wrapper .cta {
+      text-align: center;
+      padding: 2rem 0; }
+      /* line 102, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+      .static_content-wrapper .cta-wrapper .cta h3 {
+        color: #444;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem; }
+      @media screen and (min-width: 768px) {
+        .static_content-wrapper .cta-wrapper .cta {
+          float: left;
+          display: block;
+          margin-right: 2.22222%;
+          width: 74.44444%;
+          margin-left: 12.77778%; }
+          /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+          .static_content-wrapper .cta-wrapper .cta:last-child {
+            margin-right: 0; } }
+  @media screen and (min-width: 768px) {
+    .static_content-wrapper .header, .static_content-wrapper .intro, .static_content-wrapper .additional-text, .static_content-wrapper .gallery-title {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 74.44444%;
+      margin-left: 12.77778%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .static_content-wrapper .header:last-child, .static_content-wrapper .intro:last-child, .static_content-wrapper .additional-text:last-child, .static_content-wrapper .gallery-title:last-child {
+        margin-right: 0; } }
+  /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .intro-wrapper + .cta {
+    margin-top: 1.7rem; }
+  /* line 45, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .intro-wrapper + .additional-text-wrapper .additional-text {
+    margin-top: 0; }
+  /* line 50, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .intro {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem; }
+    /* line 54, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+    .static_content-wrapper .intro.no-title {
+      margin-top: 3rem; }
+    /* line 58, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+    .static_content-wrapper .intro .intro-content {
+      max-width: 100%; }
+    @media screen and (min-width: 768px) {
+      .static_content-wrapper .intro .intro-content-half-width {
+        float: left;
+        display: block;
+        margin-right: 2.98507%;
+        width: 48.50746%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .static_content-wrapper .intro .intro-content-half-width:last-child {
+          margin-right: 0; } }
+    /* line 68, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+    .static_content-wrapper .intro img, .static_content-wrapper .intro iframe {
+      width: 100%; }
+      @media screen and (min-width: 768px) {
+        .static_content-wrapper .intro img, .static_content-wrapper .intro iframe {
+          float: left;
+          display: block;
+          margin-right: 2.98507%;
+          width: 48.50746%;
+          margin-right: 0; }
+          /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+          .static_content-wrapper .intro img:last-child, .static_content-wrapper .intro iframe:last-child {
+            margin-right: 0; } }
+  /* line 78, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .gallery {
+    padding-top: 20px; }
+    @media screen and (min-width: 768px) {
+      .static_content-wrapper .gallery {
+        margin-left: 12.77778%; } }
+  /* line 86, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .gallery-item {
+    text-align: center; }
+    @media screen and (min-width: 768px) {
+      .static_content-wrapper .gallery-item {
+        float: left;
+        display: block;
+        margin-right: 2.54777%;
+        width: 26.75159%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .static_content-wrapper .gallery-item:last-child {
+          margin-right: 0; }
+        /* line 70, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+        .static_content-wrapper .gallery-item:nth-child(3n) {
+          margin-right: 0; }
+        /* line 75, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+        .static_content-wrapper .gallery-item:nth-child(3n+1) {
+          clear: left; } }
+    /* line 95, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+    .static_content-wrapper .gallery-item .gallery-description, .static_content-wrapper .gallery-item h3 {
+      text-align: center; }
+    /* line 99, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+    .static_content-wrapper .gallery-item .title {
+      color: #444;
+      margin-bottom: 5px; }
+    /* line 104, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+    .static_content-wrapper .gallery-item img {
+      max-width: 100%; }
+  /* line 109, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/static */
+  .static_content-wrapper .additional-text {
+    margin-top: 20px;
+    margin-bottom: 20px; }
+
+/* line 10, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+.node-type-fact p {
+  font-size: 18px; }
+
+/* line 17, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+.container--facts-list h3 {
+  margin-bottom: 0.5rem; }
+
+/* line 22, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+.fact-page {
+  background: #fff; }
+  /* line 25, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+  .fact-page h2, .fact-page h3, .fact-page h4 {
+    color: #4e2b63; }
+  /* line 29, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+  .fact-page ol {
+    list-style: none;
+    padding-left: 0; }
+  /* line 34, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+  .fact-page li {
+    margin-bottom: 1.5rem; }
+  /* line 39, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+  .fact-page .intro-wrapper, .fact-page .facts-wrapper, .fact-page .sources-wrapper {
+    padding: 1rem;
+    *zoom: 1;
+    display: block; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .fact-page .intro-wrapper:before, .fact-page .intro-wrapper:after, .fact-page .facts-wrapper:before, .fact-page .facts-wrapper:after, .fact-page .sources-wrapper:before, .fact-page .sources-wrapper:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .fact-page .intro-wrapper:after, .fact-page .facts-wrapper:after, .fact-page .sources-wrapper:after {
+      clear: both; }
+    @media screen and (min-width: 768px) {
+      .fact-page .intro-wrapper, .fact-page .facts-wrapper, .fact-page .sources-wrapper {
+        padding: 0; } }
+  /* line 49, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+  .fact-page .cta-wrapper {
+    background-color: #f7f7f7;
+    border-bottom: 2px solid #ddd;
+    border-top: 2px solid #ddd;
+    padding: 1rem;
+    *zoom: 1;
+    display: block; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .fact-page .cta-wrapper:before, .fact-page .cta-wrapper:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .fact-page .cta-wrapper:after {
+      clear: both; }
+    @media screen and (min-width: 768px) {
+      .fact-page .cta-wrapper {
+        padding: 0; } }
+    /* line 98, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+    .fact-page .cta-wrapper .cta {
+      text-align: center;
+      padding: 2rem 0; }
+      /* line 102, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/helpers/mixins */
+      .fact-page .cta-wrapper .cta h3 {
+        color: #444;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem; }
+      @media screen and (min-width: 768px) {
+        .fact-page .cta-wrapper .cta {
+          float: left;
+          display: block;
+          margin-right: 2.22222%;
+          width: 74.44444%;
+          margin-left: 12.77778%; }
+          /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+          .fact-page .cta-wrapper .cta:last-child {
+            margin-right: 0; } }
+  @media screen and (min-width: 768px) {
+    .fact-page .header, .fact-page .intro, .fact-page .facts, .fact-page .sources {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 74.44444%;
+      margin-left: 12.77778%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .fact-page .header:last-child, .fact-page .intro:last-child, .fact-page .facts:last-child, .fact-page .sources:last-child {
+        margin-right: 0; } }
+  @media screen and (min-width: 768px) {
+    .fact-page .facts-wrapper {
+      margin-top: 1.5rem; } }
+  @media screen and (min-width: 768px) {
+    .fact-page [role="banner"] .__title {
+      font-size: 3rem;
+      margin: 1.5rem 0; } }
+  /* line 76, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+  .fact-page .intro {
+    margin-top: 20px;
+    margin-bottom: 55px; }
+    @media screen and (min-width: 768px) {
+      .fact-page .intro .intro-content {
+        float: left;
+        display: block;
+        margin-right: 2.98507%;
+        width: 65.67164%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .fact-page .intro .intro-content:last-child {
+          margin-right: 0; } }
+  /* line 88, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/fact-page */
+  .fact-page .sources {
+    margin-bottom: 1rem; }
+
+/* line 6, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/search */
+.page-search .pager li {
+  display: inline-block;
+  padding: 0 1rem 0 0; }
+
+/* line 6, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+.view-explore-campaigns {
+  background: #fff; }
+  /* line 10, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+  .view-explore-campaigns .content-wrapper {
+    padding: 0 1rem; }
+  /* line 15, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+  .view-explore-campaigns .view-header {
+    text-align: center; }
+    @media screen and (min-width: 768px) {
+      .view-explore-campaigns .view-header {
+        text-align: left; } }
+    /* line 22, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+    .view-explore-campaigns .view-header h1 {
+      color: #fff; }
+      @media screen and (min-width: 768px) {
+        .view-explore-campaigns .view-header h1 {
+          font-size: 2.5rem; } }
+    /* line 30, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+    .view-explore-campaigns .view-header h3 {
+      color: #fff;
+      font-weight: 400;
+      margin-top: -25px; }
+  /* line 37, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+  .view-explore-campaigns .view-content {
+    margin: 2rem auto; }
+    @media screen and (min-width: 768px) {
+      .view-explore-campaigns .view-content {
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 74.44444%;
+        margin-left: 12.77778%; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .view-explore-campaigns .view-content:last-child {
+          margin-right: 0; } }
+    /* line 45, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+    .view-explore-campaigns .view-content .search-result {
+      text-align: center;
+      margin-bottom: 3rem; }
+      @media screen and (min-width: 768px) {
+        .view-explore-campaigns .view-content .search-result {
+          float: left;
+          display: block;
+          margin-right: 2.22222%;
+          width: 29.72222%; }
+          /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+          .view-explore-campaigns .view-content .search-result:last-child {
+            margin-right: 0; }
+          /* line 70, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+          .view-explore-campaigns .view-content .search-result:nth-child(3n) {
+            margin-right: 0; }
+          /* line 75, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+          .view-explore-campaigns .view-content .search-result:nth-child(3n+1) {
+            clear: left; } }
+      /* line 55, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+      .view-explore-campaigns .view-content .search-result .gallery-description, .view-explore-campaigns .view-content .search-result h3 {
+        text-align: center; }
+      /* line 59, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+      .view-explore-campaigns .view-content .search-result h3 {
+        margin-bottom: 5px; }
+      /* line 63, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/explore-campaigns */
+      .view-explore-campaigns .view-content .search-result img {
+        max-width: 100%; }
+
+/* line 16, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form p {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: normal; }
+/* line 22, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form input[type="checkbox"] {
+  left: -40px;
+  position: absolute;
+  top: 0; }
+/* line 28, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form label {
+  clear: none;
+  float: none;
+  display: block;
+  height: auto;
+  font-size: 0.8em;
+  font-weight: 400;
+  left: 0;
+  line-height: 1.2;
+  margin: 0;
+  padding: 0.75rem 0.5rem;
+  position: relative;
+  cursor: pointer;
+  -webkit-transition: left 0.1s linear;
+  -moz-transition: left 0.1s linear;
+  transition: left 0.1s linear; }
+  @media screen and (min-width: 768px) {
+    .finder--form label {
+      padding-bottom: 0.1rem;
+      padding-top: 0.1rem; } }
+/* line 53, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form label:hover {
+  left: 3px; }
+/* line 58, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form .disabled label:hover, .finder--form .checked label:hover {
+  left: 0; }
+/* line 62, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form .dropdown {
+  background: #fff;
+  margin-bottom: 1rem; }
+  @media screen and (min-width: 768px) {
+    .finder--form .dropdown {
+      margin-bottom: 0;
+      min-height: 72px;
+      float: left;
+      display: block;
+      margin-right: 2.54777%;
+      width: 34.07643%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .finder--form .dropdown:last-child {
+        margin-right: 0; } }
+  @media screen and (min-width: 960px) {
+    .finder--form .dropdown {
+      min-height: 100%; } }
+  @media screen and (min-width: 768px) {
+    .finder--form .dropdown.small {
+      float: left;
+      display: block;
+      margin-right: 2.54777%;
+      width: 26.75159%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .finder--form .dropdown.small:last-child {
+        margin-right: 0; } }
+  /* line 84, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown.last {
+    margin-right: 0; }
+  /* line 88, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown li {
+    display: block;
+    overflow: hidden;
+    padding: 0.1rem 0;
+    position: relative;
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+    column-break-inside: avoid; }
+    /* line 95, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--form .dropdown li.checked label {
+      background-color: #fed100; }
+    /* line 99, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--form .dropdown li.disabled {
+      color: #ddd; }
+  /* line 104, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown .caret-toggle {
+    color: #4e2b63;
+    cursor: pointer;
+    padding: 0.6rem 1rem; }
+  /* line 110, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown .__title {
+    position: relative;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0;
+    padding: 0 0 0.25rem 1.5rem; }
+    /* line 117, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--form .dropdown .__title:before {
+      position: absolute;
+      z-index: 1;
+      left: -0.25rem;
+      top: -0.5rem;
+      content: "\e609";
+      font-size: 32px;
+      font-family: 'icomoon';
+      speak: none;
+      font-style: normal;
+      font-weight: normal;
+      font-variant: normal;
+      text-transform: none;
+      line-height: 1;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-transform: rotate(-90deg);
+      -moz-transform: rotate(-90deg);
+      -ms-transform: rotate(-90deg);
+      -o-transform: rotate(-90deg);
+      transform: rotate(-90deg);
+      -webkit-transition-property: -webkit-transform;
+      -moz-transition-property: -moz-transform;
+      transition-property: transform;
+      -webkit-transition-duration: 0.25s;
+      -moz-transition-duration: 0.25s;
+      transition-duration: 0.25s; }
+  /* line 131, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown .__question {
+    color: #999;
+    line-height: 1;
+    padding-left: 1.5rem; }
+  /* line 137, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown .dropdown-menu {
+    display: none;
+    padding: 0 1rem 0.6rem; }
+    /* line 141, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--form .dropdown .dropdown-menu ul {
+      overflow: hidden;
+      padding-left: 1rem; }
+  /* line 149, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown.open .__title:before {
+    -webkit-transform: rotate(0);
+    -moz-transform: rotate(0);
+    -ms-transform: rotate(0);
+    -o-transform: rotate(0);
+    transform: rotate(0); }
+  /* line 153, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--form .dropdown.open .dropdown-menu {
+    display: block; }
+/* line 159, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form .two-col {
+  padding-left: 1rem; }
+  @media screen and (min-width: 550px) {
+    .finder--form .two-col {
+      -moz-column-count: 2;
+      -webkit-column-count: 2;
+      column-count: 2; } }
+  @media screen and (min-width: 768px) and (max-width: 1000px) {
+    .finder--form .two-col {
+      -moz-column-count: 1;
+      -webkit-column-count: 1;
+      column-count: 1; } }
+/* line 175, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form .campaign-search {
+  text-align: center;
+  margin-top: 1.5rem; }
+  @media screen and (min-width: 768px) {
+    .finder--form .campaign-search {
+      display: none; } }
+/* line 184, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--form .error {
+  clear: both; }
+
+/* line 191, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+.finder--results {
+  position: relative;
+  min-height: 300px;
+  *zoom: 1; }
+  /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .finder--results:before, .finder--results:after {
+    content: " ";
+    display: table; }
+  /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .finder--results:after {
+    clear: both; }
+  /* line 197, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results.-blankslate .campaign-result:nth-child(6) {
+    clear: both; }
+  /* line 203, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results.loading:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    -webkit-animation: fadeIn;
+    -moz-animation: fadeIn;
+    animation: fadeIn; }
+  /* line 216, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results.loading .spinner {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 60px;
+    width: 60px;
+    margin-top: -30px;
+    margin-left: -30px;
+    z-index: 101; }
+  /* line 229, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results p {
+    margin-bottom: 1em; }
+  /* line 233, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results .spinner {
+    display: none; }
+  /* line 237, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results .no-result {
+    background: #222 url("images/placeholder.png");
+    background-position: center center;
+    background-size: cover;
+    text-align: center;
+    min-height: 300px;
+    width: 100%; }
+    /* line 245, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--results .no-result > .wrapper {
+      padding: 2rem 1rem;
+      float: left;
+      display: block;
+      margin-right: 4.54545%;
+      width: 86.93182%;
+      margin-left: 6.53409%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .finder--results .no-result > .wrapper:last-child {
+        margin-right: 0; }
+    /* line 251, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--results .no-result p {
+      color: #ddd; }
+    /* line 255, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--results .no-result .message {
+      font-size: 1.75rem;
+      line-height: 1.2;
+      margin-bottom: 0.5rem; }
+      @media screen and (min-width: 768px) {
+        .finder--results .no-result .message {
+          font-size: 2.5rem; } }
+  /* line 266, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results .campaign-result {
+    float: left;
+    position: relative;
+    display: block;
+    width: 100%;
+    background: #222 url("images/placeholder.png");
+    background-size: cover;
+    -webkit-transition: background-image 0.5s ease-in-out;
+    -moz-transition: background-image 0.5s ease-in-out;
+    transition: background-image 0.5s ease-in-out; }
+    @media screen and (min-width: 450px) {
+      .finder--results .campaign-result {
+        width: 50%; } }
+    @media screen and (min-width: 768px) {
+      .finder--results .campaign-result {
+        float: left;
+        width: 25%; } }
+    @media screen and (min-width: 450px) {
+      .finder--results .campaign-result.big {
+        width: 100%; } }
+    @media screen and (min-width: 768px) {
+      .finder--results .campaign-result.big {
+        width: 50%; } }
+    /* line 297, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--results .campaign-result img {
+      display: block;
+      width: 100%;
+      height: auto;
+      opacity: 0;
+      -webkit-transition: opacity 0.5s ease-in;
+      -moz-transition: opacity 0.5s ease-in;
+      transition: opacity 0.5s ease-in; }
+    /* line 307, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--results .campaign-result .headline {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 2rem 1rem 1rem;
+      background: url("images/black-50.png");
+      background-color: transparent;
+      background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, transparent), color-stop(100%, #000));
+      background-image: -webkit-linear-gradient(transparent, #000);
+      background-image: linear-gradient(transparent, #000); }
+      /* line 316, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+      .finder--results .campaign-result .headline h3 {
+        color: #fff;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0; }
+      /* line 323, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+      .finder--results .campaign-result .headline p {
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 400;
+        line-height: 1.2;
+        margin-bottom: 0; }
+    /* line 332, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+    .finder--results .campaign-result .flag {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      background: #fed100;
+      color: #000;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 0.2em 0.5em; }
+      @media screen and (min-width: 768px) {
+        .finder--results .campaign-result .flag {
+          font-size: 1rem; } }
+  /* line 351, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/finder */
+  .finder--results .pagination-link {
+    clear: both;
+    background: #fff;
+    text-align: center;
+    padding: 1rem;
+    *zoom: 1;
+    display: block; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .finder--results .pagination-link:before, .finder--results .pagination-link:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .finder--results .pagination-link:after {
+      clear: both; }
+
+
+/* line 17, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.page-user-edit .chrome--nav a {
+  color: #222 !important; }
+/* line 21, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.page-user-edit .chrome--nav .hamburger {
+  color: #222 !important; }
+/* line 25, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.page-user-edit .chrome--nav .secondary-nav input[type="search"] {
+  color: #222;
+  border-color: #222; }
+/* line 31, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.page-user-edit .chrome--nav.is-visible a {
+  color: #fff !important; }
+/* line 35, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.page-user-edit .chrome--nav.is-visible .hamburger {
+  color: #fff !important; }
+/* line 41, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.page-user-edit #user-profile-form {
+  padding: 7rem 0 2rem;
+  float: left;
+  display: block;
+  margin-right: 4.54545%;
+  width: 86.93182%;
+  margin-left: 6.53409%;
+  float: none; }
+  /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+  .page-user-edit #user-profile-form:last-child {
+    margin-right: 0; }
+  @media screen and (min-width: 768px) {
+    .page-user-edit #user-profile-form {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 74.44444%;
+      margin-left: 12.77778%;
+      float: none; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .page-user-edit #user-profile-form:last-child {
+        margin-right: 0; } }
+  @media screen and (min-width: 1080px) {
+    .page-user-edit #user-profile-form {
+      float: left;
+      display: block;
+      margin-right: 2.22222%;
+      width: 61.66667%;
+      margin-left: 19.16667%;
+      float: none; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .page-user-edit #user-profile-form:last-child {
+        margin-right: 0; } }
+
+/* line 65, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile h1, .profile h2, .profile h3, .profile h4, .profile h5, .profile h6 {
+  margin-top: 0; }
+/* line 70, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile section {
+  padding-bottom: 0; }
+  /* line 73, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+  .profile section .banner {
+    font-size: 1.25rem;
+    margin-bottom: 0; }
+    @media screen and (min-width: 768px) {
+      .profile section .banner {
+        padding-left: 0;
+        padding-right: 0; }
+        /* line 81, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+        .profile section .banner > span {
+          margin-left: 12.77778%; } }
+  /* line 87, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+  .profile section > .wrapper {
+    padding: 1.5rem 1rem; }
+    @media screen and (min-width: 768px) {
+      .profile section > .wrapper {
+        padding-left: 0;
+        padding-right: 0;
+        float: left;
+        display: block;
+        margin-right: 2.22222%;
+        width: 74.44444%;
+        margin-left: 12.77778%;
+        float: none; }
+        /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+        .profile section > .wrapper:last-child {
+          margin-right: 0; } }
+  /* line 100, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+  .profile section .__segment {
+    padding-bottom: 0; }
+    /* line 104, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+    .profile section .__segment + .__segment > .wrapper {
+      padding-top: 0; }
+/* line 112, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile .tile .__tagline {
+  display: none; }
+
+/* line 118, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile--settings > .wrapper {
+  *zoom: 1; }
+  /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .profile--settings > .wrapper:before, .profile--settings > .wrapper:after {
+    content: " ";
+    display: table; }
+  /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .profile--settings > .wrapper:after {
+    clear: both; }
+/* line 122, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile--settings dl {
+  padding-right: 1rem;
+  *zoom: 1;
+  margin-bottom: 1rem; }
+  /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .profile--settings dl:before, .profile--settings dl:after {
+    content: " ";
+    display: table; }
+  /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+  .profile--settings dl:after {
+    clear: both; }
+  @media screen and (min-width: 930px) {
+    .profile--settings dl {
+      float: left;
+      display: block;
+      margin-right: 2.98507%;
+      width: 48.50746%;
+      margin-right: 0; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .profile--settings dl:last-child {
+        margin-right: 0; } }
+/* line 135, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile--settings dt, .profile--settings dd {
+  float: left;
+  margin-bottom: 0.5rem; }
+/* line 140, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile--settings dt {
+  clear: both;
+  font-weight: 700;
+  padding-right: 0.5rem; }
+/* line 146, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/user */
+.profile--settings .btn {
+  clear: both;
+  float: left; }
+
+
+/* line 1, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+.mcc--googleform {
+  background: #fff; }
+  /* line 4, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform label {
+    height: auto;
+    margin-bottom: 0.5em; }
+  /* line 9, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .required {
+    color: #ff4747;
+    margin-bottom: 0.5em; }
+  /* line 15, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .info-list p:first-child {
+    margin-bottom: 0.5em; }
+  /* line 19, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .info-list ul {
+    margin-bottom: 1.5rem; }
+  /* line 24, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-form-question {
+    clear: both;
+    margin-bottom: 1rem;
+    *zoom: 1; }
+    /* line 18, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .mcc--googleform .ss-form-question:before, .mcc--googleform .ss-form-question:after {
+      content: " ";
+      display: table; }
+    /* line 23, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/bourbon/addons/clearfix */
+    .mcc--googleform .ss-form-question:after {
+      clear: both; }
+    @media screen and (min-width: 1080px) {
+      .mcc--googleform .ss-form-question.-compact {
+        clear: none;
+        float: left;
+        width: 50%; }
+        /* line 35, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+        .mcc--googleform .ss-form-question.-compact.-alpha {
+          padding-right: 0.5rem; }
+        /* line 39, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+        .mcc--googleform .ss-form-question.-compact.-beta {
+          padding-left: 0.5rem; } }
+  @media screen and (min-width: 768px) {
+    .mcc--googleform .ss-form {
+      float: left;
+      display: block;
+      margin-right: 2.98507%;
+      width: 65.67164%;
+      margin-left: 17.16418%; }
+      /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+      .mcc--googleform .ss-form:last-child {
+        margin-right: 0; } }
+  /* line 53, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-form-desc {
+    margin-bottom: 2rem; }
+  /* line 57, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .required-message {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px; }
+  /* line 61, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-required-asterisk {
+    display: none; }
+  /* line 65, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .field-label-optional {
+    color: #ddd; }
+  /* line 69, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-choices {
+    list-style-type: none; }
+  /* line 73, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-choice-item label {
+    margin: 0.25em 0; }
+  /* line 77, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-q-other-container {
+    padding-left: 1.25rem; }
+    /* line 80, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+    .mcc--googleform .ss-q-other-container input {
+      max-width: 400px; }
+  /* line 85, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-datetime-box select {
+    float: left;
+    display: block;
+    margin-right: 4.54545%;
+    width: 21.59091%; }
+    /* line 40, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/span-columns */
+    .mcc--googleform .ss-datetime-box select:last-child {
+      margin-right: 0; }
+    /* line 70, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+    .mcc--googleform .ss-datetime-box select:nth-child(3n) {
+      margin-right: 0; }
+    /* line 75, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/bower_components/neue/scss/vendor/neat/grid/omega */
+    .mcc--googleform .ss-datetime-box select:nth-child(3n+1) {
+      clear: left; }
+  /* line 91, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-picker-button-container {
+    display: none; }
+  /* line 95, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-secondary-text {
+    color: #999;
+    font-size: 0.9rem;
+    padding-bottom: 1rem; }
+  /* line 102, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .error-message {
+    display: none; }
+  /* line 106, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+  .mcc--googleform .ss-navigate {
+    margin-bottom: 2rem; }
+    /* line 109, /var/lib/jenkins/jobs/Release/workspace/dist/profiles/dosomething/themes/dosomething/paraneue_dosomething/dist/scss/content/campaign/hunt-mcc */
+    .mcc--googleform .ss-navigate table {
+      margin: 0 auto; }
