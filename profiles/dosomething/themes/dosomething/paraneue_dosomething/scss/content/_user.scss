@@ -1,0 +1,151 @@
+// ----------------
+//  USER PROFILE
+// ----------------
+
+
+// @TODO: Ideally, make this universal... no scenarios where the nav shouldn't position abs on top of header.
+.page-user {
+  @include wrapper--nav-white;
+  @include wrapper--nav-floating;
+}
+
+
+// @TODO: Refactor and incorporate into default page styles.
+// I know this is fugly, but it's only temporary! Who are you to judge!?!
+.page-user-edit {
+  .chrome--nav {
+    a {
+      color: #222 !important;  // @TDOD: blarg!
+    }
+
+    .hamburger {
+      color: #222 !important;  // @TDOD: blarg!
+    }
+
+    .secondary-nav input[type="search"] {
+      color: #222;
+      border-color: #222;
+    }
+
+    &.is-visible {
+      a {
+        color: #fff !important;  // @TDOD: blarg!
+      }
+
+      .hamburger {
+        color: #fff !important;  // @TDOD: blarg!
+      }
+    }
+  }
+
+  #user-profile-form {
+    padding: 7rem 0 2rem;
+
+    @include span-columns(7);
+    @include shift(0.5);
+    float: none;
+
+    @include media($tablet) {
+      @include span-columns(12);
+      @include shift(2);
+      float: none;
+    }
+
+    @include media($desktop) {
+      @include span-columns(10);
+      @include shift(3);
+      float: none;
+    }
+  }
+}
+
+
+.profile {
+
+  h1, h2, h3, h4, h5, h6 {  // @TODO: remove from here and place globally.
+    margin-top: 0;
+  }
+
+
+  section {
+    padding-bottom: 0;  // @TODO: Ideally these sections would have some bottom padding globally, but on profile needs to be 0.
+
+    .banner {
+      font-size: $font-medium;
+      margin-bottom: 0;
+
+      @include media($tablet) {
+        padding-left: 0;
+        padding-right: 0;
+
+        > span {
+          @include shift(2 of 16);
+        }
+      }
+    }
+
+    > .wrapper {
+      padding: 1.5rem 1rem;
+
+      @include media($tablet) {
+        padding-left: 0;
+        padding-right: 0;
+
+        @include span-columns(12);
+        @include shift(2);
+        float: none;
+      }
+    }
+
+    .__segment {
+      padding-bottom: 0;
+
+      &+ .__segment {
+        > .wrapper {
+          padding-top: 0;
+        }
+      }
+    }
+  }
+
+  .tile {
+    .__tagline { display: none; }
+  }
+}
+
+// Profile Settings
+.profile--settings {
+  > .wrapper {
+    @include clearfix();
+  }
+
+  dl {
+    padding-right: 1rem;
+
+    @include clearfix();
+
+    @include media(930px) {
+      @include span-columns(6 of 12);
+      @include omega();
+    }
+
+    margin-bottom: 1rem;
+  }
+
+  dt, dd {
+    float: left;
+    margin-bottom: 0.5rem;
+  }
+
+  dt {
+    clear: both;
+    font-weight: $weight-bold;
+    padding-right: 0.5rem;
+  }
+
+  .btn {
+    clear: both;
+    float: left;
+  }
+
+}
