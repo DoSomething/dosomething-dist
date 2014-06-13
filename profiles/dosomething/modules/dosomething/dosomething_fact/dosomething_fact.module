@@ -1,0 +1,152 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Fact feature.
+ */
+
+include_once 'dosomething_fact.features.inc';
+
+/**
+ * Implements hook_form_alter().
+ */
+function dosomething_fact_form_fact_node_form_alter(&$form, &$form_state, $form_id) {
+  // Change title #type from text to textarea.
+  $form['title']['#type'] = 'textarea';
+  $form['title']['#description'] = t('Use numerals for all numbers. i.e. <em>"1 in 3"</em> or <em>"1/4"</em> <strong>NOT</strong> <em>"one in three"</em> or <em>"one-fourths"</em>. <p>Also for percentages always use %, never spell out "percent".</p>');
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function dosomething_fact_node_view($node, $view_mode, $langcode) {
+  // Make sure dosomething_helpers is enabled.
+  if (!module_exists('dosomething_helpers')) { return; }
+
+  // If viewing a fact node:
+  if ($node->type == 'fact' && $view_mode == 'full') {
+    $node->content['fact'] = array(
+      '#markup' => '<h1>' . $node->title . '</h1>',
+      '#weight' => -10,
+    );
+    $entityref_fields = array(
+      'field_facts',
+      'field_fact_problem',
+      'field_fact_solution',
+    );
+    dosomething_helpers_add_entityref_links($node, $entityref_fields);
+  }
+}
+
+/**
+ * Returns variables for multiple given Fact Entityreference fields.
+ *
+ * @param object|int $node
+ *   The nid or loaded node to return fact field values from.
+ * @param array $field_names
+ *   Array of field machine names to return values from.
+ *
+ * @return array
+ *   Multi-dimensional array with keys:
+ *   - facts: Array of fact values, indexed by keys of $field_names.
+ *   -   @see dosomething_fact_get_fact_vars()
+ *   - sources: Sequential array of all sources found in all $field_names.
+ */
+function dosomething_fact_get_mutiple_fact_field_vars($node, $field_names) {
+  // Initalize return array.
+  $vars = array(
+    'facts' => array(),
+    'sources' => array(),
+  );
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  foreach ($field_names as $field_name) {
+    $field_wrapper = $wrapper->{$field_name};
+    $i = count($vars['sources']);
+    // If values exist in this field:
+    if ($field_wrapper->value()) {
+      // Gather the field's fact vars.
+      $fact = dosomething_fact_get_fact_field_vars($field_wrapper, $i);
+      // Index vars by $field_name to reference $field_name specific facts.
+      $vars['facts'][$field_name] = $fact;
+      // Append sources to composite $sources array.
+      $vars['sources'] = array_merge($vars['sources'], $fact['sources']);
+    }
+  }
+  return $vars;
+}
+
+/**
+ * Returns array of values of a Fact entityreference field.
+ *
+ * @param object $fact_field_wrapper
+ *   A Fact entityreference field as returned by entity_metadata_wrapper.
+ *   e.g. dosomething_fact_get_fact_wrapper_values($wrapper->field_fact_problem)
+ * @param int $source_index
+ *   The array key from which the return sources should begin counting.
+ *
+ * @return mixed
+ *   Multi-dimensional array of facts and their sources.
+ */
+function dosomething_fact_get_fact_field_vars($fact_field_wrapper, $source_index = 0) {
+  // Make sure $fact_field_wrapper is an object.
+  if (!is_object($fact_field_wrapper)) { return NULL; }
+
+  $field_class = get_class($fact_field_wrapper);
+
+  // If EntityDrupalWrapper, single value field:
+  if ($field_class == 'EntityDrupalWrapper') {
+    return dosomething_fact_get_fact_vars($fact_field_wrapper, $source_index);
+  }
+  // If EntityListWrapper, multi-value field:
+  if ($field_class == 'EntityListWrapper') {
+    $values = array();
+    $i = 0;
+    foreach ($fact_field_wrapper->getIterator() as $delta => $fact) {
+      // Gather fact vars.
+      $fact = dosomething_fact_get_fact_field_vars($fact, $i);
+      // Add into return array.
+      $values['facts'][] = $fact;
+      // Append sources.
+      foreach ($fact['sources'] as $key => $source) {
+        $values['sources'][$key] = $source;
+        $i++;
+      }
+    }
+    return $values;
+  }
+}
+
+/**
+ * Returns array of values of a Fact node.
+ *
+ * @param object $fact
+ *   A Fact node entity_metadata_wrapper.
+ * @param int $source_index
+ *   The array key from which the return sources should begin counting.
+ *
+ * @return array
+ *   Array of a fact with keys:
+ *   - copy: The fact copy.
+ *   - footnotes: string of footnote numbers corresponding to fact sources
+ *   - sources: an array which beings indexing from given $source_index.
+ */
+function dosomething_fact_get_fact_vars($fact, $source_index = 0) {
+  // Initialize sources and footnotes return arrays.
+  $footnotes = array();
+  $sources = array();
+  // Loop through field_source_copy multi-values:
+  foreach ($fact->field_source_copy->value() as $delta => $source) {
+    // Store source safe_value for index $source_index.
+    $sources[$source_index] = $source['safe_value'];
+    // Add 1 to footnote display because $source_index is zero based.
+    $footnotes[] = $source_index + 1;
+    // Increment to count the next source.
+    $source_index++;
+  }
+  return array(
+    'fact' => $fact->title->value(),
+    'nid' => $fact->nid->value(),
+    'footnotes' => implode(' ', $footnotes),
+    'sources' => $sources,
+  );
+}
