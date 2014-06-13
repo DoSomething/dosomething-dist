@@ -1,0 +1,78 @@
+// ----------------------------------------------
+// Styles to make sense of Drupal's stock markup:
+// ----------------------------------------------
+
+// Quick and dirty fix for "Remove Signup" form being hidden
+// behind nav. @TODO Remove me when we fix "non-themed" template
+#dosomething-signup-node-unsignup-form {
+  padding-top: 8rem;
+  padding-bottom: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+
+// Drupal likes to label things with "hidden" headers, let's
+// hide them for real.
+.element-invisible {
+  display: none;
+}
+
+// Hide asterisks on required form fields.
+.form-required {
+  display: none;
+}
+
+// Form action styling
+.form-actions {
+  text-align: center;
+}
+
+// Make the admin tabs look pretty.
+.admin--tabs .tabs {
+  background: $light-gray;
+  background-image: image-url("admin-panel.png");
+  padding: 1rem 0;
+}
+
+// @TODO: Remove date.css to override this more cleanly
+.container-inline-date .date-padding {
+  padding: 0 !important;
+}
+
+.container-inline-date .form-item, .container-inline-date .form-item input {
+  width: 100% !important;
+}
+
+
+.container-inline-date .form-item input, .container-inline-date .form-item select, .container-inline-date .form-item option {
+  margin-right: 0 !important;
+}
+
+.container-inline-date > .form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+
+// Hide Drupal Admin Menu on mobile and show it on desktop.
+html {
+  body.html.admin-menu { // @TODO: yes, I know this is ugly :(
+    margin-top: 0 !important;
+  }
+
+  @include media($desktop) {
+    body.html.admin-menu { // @TODO: yes, I know this is ugly :(
+      margin-top: 29px !important;
+    }
+  }
+}
+
+#admin-menu {
+  display: none;
+
+  @include media($desktop) {
+    display: block;
+  }
+}
+
