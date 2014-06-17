@@ -1,0 +1,68 @@
+// --------
+//  Colors
+// --------
+
+// Primary
+$blue: #23b7fb;
+$purple: #4e2b63;
+$yellow: #fcd116;
+
+// Grayscale
+$off-black: #222;
+$dark-gray: #444;
+$med-gray: #999;
+$light-gray: #ddd;
+
+// System
+$light-yellow: #fcf6e5;
+$error: #ff4747;
+$warning: $purple;
+$success: $purple;
+
+// Body copy
+$copy-color: #444;
+
+// Modifiers
+$color-tint: 10%;
+
+// ------------
+//  Typography
+// ------------
+
+// Families
+$font-proxima-nova: "Proxima Nova", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+$font-handwritten: "CoveredGrace", cursive;
+
+// Weights
+$weight-normal: 400;
+$weight-sbold: 600;
+$weight-bold: 700;
+
+// Sizes
+$font-hero: 4rem;       // 72px
+$font-largest: 3rem;    // 54px
+$font-larger: 2.5rem;   // 45px
+$font-large: 1.75rem;   // 31.5px
+$font-medium: 1.25rem;  // 22.5px
+$font-regular: 1rem;    // 18px
+$font-small: 0.75rem;   // 13.5px
+$font-smaller: 0.6rem;  // 10.8px
+
+// Unicode
+$unicode-check: "\e60b";
+$unicode-error: "\e608";
+$unicode-flag: "\2691";
+
+// -------------
+//  Breakpoints
+// -------------
+
+$break-small: 730px;
+$break-large: 1160px;
+
+// ------------
+//  Decoration
+// ------------
+
+$sm-border-radius: 2px; // for accent (images, text fields, etc)
+$lg-border-radius: 5px; // used for primary interactive elements (buttons, etc)
