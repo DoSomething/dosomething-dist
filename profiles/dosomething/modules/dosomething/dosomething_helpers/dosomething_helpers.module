@@ -1,0 +1,510 @@
+<?php
+/**
+ * @file
+ * Code for the Dosomething helpers feature.
+ */
+
+include_once('dosomething_helpers.theme.inc');
+include_once('dosomething_helpers.strongarm.inc');
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function dosomething_helpers_ctools_plugin_api($module = NULL, $api = NULL) {
+  if ($module == "strongarm" && $api == "strongarm") {
+    return array("version" => "1");
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_helpers_menu() {
+  $items['admin/config/dosomething'] = array(
+    'title' => 'DoSomething config',
+    'description' => 'Configuration for DoSomething custom functionality.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  return $items;
+}
+
+
+/**
+ * Wrapper function for Drupal's ip_address function.
+ *
+ * Because varnish only likes to expose its own IP, and 
+ * apache and nginx will give different results as well.
+ *
+ * @return string
+ *   The IP address of the client machine.
+ */
+function dosomething_helpers_ip_address() {
+  return isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ip_address();
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function dosomething_helpers_form_alter(&$form, &$form_state, $form_id) {
+  // If we are on a node add/edit form.
+  if (array_key_exists('#node_edit_form', $form)) {
+    // Add css to alter all node forms.
+    drupal_add_css(drupal_get_path('module', 'dosomething_helpers') . '/dosomething_helpers_nodeform.css');
+    drupal_add_js(drupal_get_path('module', 'dosomething_helpers') . '/dosomething_helpers_nodeform.js');
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function dosomething_helpers_menu_alter(&$items) {
+  // This removes the default '/node' view on drupal.
+  unset($items['node']);
+}
+
+
+/**
+ * Gets node nid's that reference the given $nid in a given $field_name.
+ *
+ * @param int $nid
+ *  The node nid value stored as the given field's target_id.
+ * @param string $field_name
+ *  The machine name of the entityreference field to look for parents.
+ *
+ * @return mixed
+ *  Array of entity objects (not loaded).  FALSE if no parents found.
+ */
+function dosomething_helpers_get_entityref_parents($nid, $field_name) {
+  $query = new EntityFieldQuery;
+  $result = $query->entityCondition('entity_type', 'node')
+    ->fieldCondition($field_name, 'target_id', $nid)
+    ->execute();
+  if (isset($result['node'])) {
+    return $result['node'];
+  }
+  return NULL;
+}
+
+/**
+ * Returns links to nodes that reference a given $nid with given $field_name.
+ *
+ * @param int $nid
+ *  The node nid value stored as the given field's target_id.
+ * @param string $field_name
+ *  The machine name of the entityreference field to look for parents.
+ *
+ * @return string
+ *   Markup of results.
+ */
+function dosomething_helpers_get_entityref_parent_list($nid, $field_name) {
+  if ($parents = dosomething_helpers_get_entityref_parents($nid, $field_name)) {
+    $header = array('Title', 'Type', 'Published', 'Created');
+    foreach ($parents as $parent) {
+      $node = node_load($parent->nid);
+      $rows[] = array(
+        l($node->title, 'node/' . $parent->nid),
+        $node->type,
+        $node->status,
+        format_date($node->created, 'short'),
+      );
+    }
+    return theme('table', array('header' => $header, 'rows' => $rows));
+  }
+  else {
+    return t("Not referenced in @field.", array('@field' => $field_name));
+  }
+}
+
+/**
+ * Adds links to a node's content displaying instances in $field_name.
+ *
+ * @param object $node
+ *  The node, passed from a hook_node_view.
+ * @param array $fields
+ *  Array of machine name of fields to check for.
+ */
+function dosomething_helpers_add_entityref_links(&$node, $fields) {
+  $i = 30;
+  foreach ($fields as $fld) {
+    $node->content[$fld] = array(
+      '#prefix' => '<div><h3>' . $fld .'</h3>',
+      '#suffix' => '</div>',
+      '#markup' => dosomething_helpers_get_entityref_parent_list($node->nid, $fld),
+      '#weight' => $i,
+    );
+    $i = $i + 10;
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function dosomething_helpers_preprocess_html(&$vars) {
+  $dmoz_meta_tag = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'name' => 'robots',
+      'content' => 'NOODP'
+    )
+  );
+
+  drupal_add_html_head($dmoz_meta_tag, 'dmoz_meta_tag');
+}
+
+/**
+ * Returns array of values of a field collection field.
+ *
+ * @param object $wrapper
+ *   An entity_metadata_wrapper object.
+ * @param string $field_name
+ *   The field_collection field to return values from.
+ *
+ * @return mixed
+ *   Multi-dimensional array of field collection values or NULL if empty.
+ *
+ */
+function dosomething_helpers_get_field_collection_values($wrapper, $field_name) {
+  $values = array();
+
+  // Loop through the given field.
+  foreach ($wrapper->{$field_name}->getIterator() as $delta => $field) {
+    // Copy is returned as an array.
+    $copy = $field->field_compound_text_copy->value();
+    $values[] = array(
+      'header' => $field->field_compound_text_header->value(),
+      'copy' => $copy['safe_value'],
+    );
+  }
+  if (!empty($values)) {
+    return $values;
+  }
+  return NULL;
+}
+
+/*
+ * Returns array of nid and titles of all nodes with given $type.
+ *
+ * @return array
+ *  Array of nids and titles of all campaign group nodes.
+ */
+function dosomething_helpers_get_node_vars($type) {
+  $query = db_select('node', 'n')
+    ->fields('n', array('nid', 'title'))
+    ->condition('type', $type);
+  $results = $query->execute();
+
+  foreach($results as $key => $result) {
+    $vars[$key]['nid'] = $result->nid;
+    $vars[$key]['title'] = $result->title;
+  }
+  if ($vars) {
+    return $vars;
+  }
+  return NULL;
+}
+
+
+/**
+* Truncates text.
+*
+* Cuts a string to the length of $length and replaces the last characters
+* with the ending if the text is longer than length.
+*
+* @param string  $text String to truncate.
+* @param integer $length Length of returned string, including ellipsis.
+* @param string  $ending Ending to be appended to the trimmed string.
+* @param boolean $exact If false, $text will not be cut mid-word
+* @param boolean $considerHtml If true, HTML tags would be handled correctly
+* @return string Trimmed string.
+*/
+
+function dosomething_helpers_text_truncate($text, $length = 100, $ending = '...', $exact = true, $considerHtml = false) {
+    if ($considerHtml) {
+        // if the plain text is shorter than the maximum length, return the whole text
+        if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
+            return $text;
+        }
+       
+        // splits all html-tags to scanable lines
+        preg_match_all('/(<.+?>)?([^<>]*)/s', $text, $lines, PREG_SET_ORDER);
+
+        $total_length = strlen($ending);
+        $open_tags = array();
+        $truncate = '';
+       
+        foreach ($lines as $line_matchings) {
+            // if there is any html-tag in this line, handle it and add it (uncounted) to the output
+            if (!empty($line_matchings[1])) {
+                // if it's an "empty element" with or without xhtml-conform closing slash (f.e. <br/>)
+                if (preg_match('/^<(\s*.+?\/\s*|\s*(img|br|input|hr|area|base|basefont|col|frame|isindex|link|meta|param)(\s.+?)?)>$/is', $line_matchings[1])) {
+                    // do nothing
+                // if tag is a closing tag (f.e. </b>)
+                } else if (preg_match('/^<\s*\/([^\s]+?)\s*>$/s', $line_matchings[1], $tag_matchings)) {
+                    // delete tag from $open_tags list
+                    $pos = array_search($tag_matchings[1], $open_tags);
+                    if ($pos !== false) {
+                        unset($open_tags[$pos]);
+                    }
+                // if tag is an opening tag (f.e. <b>)
+                } else if (preg_match('/^<\s*([^\s>!]+).*?>$/s', $line_matchings[1], $tag_matchings)) {
+                    // add tag to the beginning of $open_tags list
+                    array_unshift($open_tags, strtolower($tag_matchings[1]));
+                }
+                // add html-tag to $truncate'd text
+                $truncate .= $line_matchings[1];
+            }
+           
+            // calculate the length of the plain text part of the line; handle entities as one character
+            $content_length = strlen(preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|&#x[0-9a-f]{1,6};/i', ' ', $line_matchings[2]));
+            if ($total_length+$content_length> $length) {
+                // the number of characters which are left
+                $left = $length - $total_length;
+                $entities_length = 0;
+                // search for html entities
+                if (preg_match_all('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|&#x[0-9a-f]{1,6};/i', $line_matchings[2], $entities, PREG_OFFSET_CAPTURE)) {
+                    // calculate the real length of all entities in the legal range
+                    foreach ($entities[0] as $entity) {
+                        if ($entity[1]+1-$entities_length <= $left) {
+                            $left--;
+                            $entities_length += strlen($entity[0]);
+                        } else {
+                            // no more characters left
+                            break;
+                        }
+                    }
+                }
+                $truncate .= substr($line_matchings[2], 0, $left+$entities_length);
+                // maximum lenght is reached, so get off the loop
+                break;
+            } else {
+                $truncate .= $line_matchings[2];
+                $total_length += $content_length;
+            }
+           
+            // if the maximum length is reached, get off the loop
+            if($total_length>= $length) {
+                break;
+            }
+        }
+    } else {
+        if (strlen($text) <= $length) {
+            return $text;
+        } else {
+            $truncate = substr($text, 0, $length - strlen($ending));
+        }
+    }
+   
+    // if the words shouldn't be cut in the middle...
+    if (!$exact) {
+        // ...search the last occurance of a space...
+        $spacepos = strrpos($truncate, ' ');
+        if (isset($spacepos)) {
+            // ...and cut the text in this position
+            $truncate = substr($truncate, 0, $spacepos);
+        }
+    }
+   
+    // add the defined ending to the text
+    $truncate .= $ending;
+   
+    if($considerHtml) {
+        // close all unclosed html-tags
+        foreach ($open_tags as $tag) {
+            $truncate .= '</' . $tag . '>';
+        }
+    }
+   
+    return $truncate;
+   
+}
+
+/**
+ * Adds form elements for non-field campaign and campaign group elements.
+ */
+function dosomething_helpers_form_extras(&$form, &$form_state) {
+  global $user;
+  $type = $form['type']['#value'];
+
+  // If this is a node create form, display help text and exit out of extras.
+  if (!isset($form['nid']['#value'])) {
+    $form['custom'] = array(
+      '#markup' => t('The signup data form and custom settings for this !type will be available upon save.', array('!type' => $type)),
+      '#weight' => 60,
+    );
+    return;
+  }
+
+  // Set prefix for custom variables.
+  $prefix = dosomething_helpers_get_custom_var_prefix($type, $form['nid']['#value']);
+  $form['custom'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Custom settings'),
+    '#weight' => 80,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $pitch_page_label = $prefix . 'pitch_page_label';
+  $form['custom'][$pitch_page_label] = array(
+    '#type' => 'textfield',
+    '#title' => t('Signup Form Button Label'),
+    '#default_value' => variable_get($pitch_page_label),
+    '#description' => t('If set, this will override the label on the signup form.'),
+  );
+  $form['custom']['styles'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Styles'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $alt_color = $prefix . 'alt_color';
+  $form['custom']['styles'][$alt_color] = array(
+    '#type' => 'textfield',
+    '#title' => t('Alt color'),
+    '#default_value' => variable_get($alt_color),
+    '#field_prefix' => '#',
+    '#size' => 6,
+  );
+
+  if ($type == 'campaign') {
+
+    // Alt bg pattern variable.
+    $alt_bg_fid = $prefix . 'alt_bg_fid';
+    $form['custom']['styles'][$alt_bg_fid] = array(
+      '#type' => 'managed_file',
+      '#title' => t('Alt background pattern'),
+      '#default_value' => variable_get($alt_bg_fid),
+      //@todo: /campaigns/[nid] directory?
+      '#upload_location' => 'public://',
+    );
+
+    $form['custom']['optins'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Third Party Opt-ins'),
+      '#description' => t('Custom campaign opt-in values.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+
+    $form['custom']['optins']['mailchimp_grouping_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t('MailChimp Grouping ID'),
+      '#default_value' => variable_get('dosomething_signup_nid_' . $form['nid']['#value'] . '_mailchimp_grouping_id'),
+      '#disabled' => TRUE,
+    );
+    $form['custom']['optins']['mailchimp_group_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('MailChimp Group Name'),
+      '#default_value' => variable_get('dosomething_signup_nid_' . $form['nid']['#value'] . '_mailchimp_group_name'),
+      '#disabled' => TRUE,
+    );
+    $form['custom']['optins']['mobilecommons'] = array(
+      '#type' => 'textfield',
+      '#title' => t('MobileCommons Opt-in Path'),
+      '#default_value' => variable_get('dosomething_signup_nid_' . $form['nid']['#value'] . '_mobilecommons_id'),
+      '#disabled' => TRUE,
+    );
+  }
+
+  $form['#submit'][] = 'dosomething_helpers_save_custom_vars';
+}
+
+/**
+ * Returns string of prefix used to identify a campaign or campaign group's custom variables.
+ */
+function dosomething_helpers_get_custom_var_prefix($type, $nid) {
+  return "dosomething_{$type}_nid_{$nid}_";
+}
+
+/**
+ * Saves custom variables.
+ */
+function dosomething_helpers_save_custom_vars(&$form, &$form_state) {
+  $values = $form_state['values'];
+  $nid = $values['nid'];
+  // Gather all possible custom vars.
+  $type = $form['type']['#value'];
+  $prefix = dosomething_helpers_get_custom_var_prefix($type, $nid);
+  $variables = array(
+    'alt_color',
+    'alt_bg_fid',
+    'pitch_page_label',
+  );
+  foreach ($variables as $variable) {
+    $$variable = "{$prefix}{$variable}";
+    // Save alt color and pitch page label.
+    if (in_array($variable, array('alt_color', 'pitch_page_label'))) {
+      dosomething_helpers_save_custom_var($$variable, $values[$$variable]);
+    }
+  }
+
+  // If a bg fid is set, or if a value already exists:
+  if (!empty($values[$alt_bg_fid]) || variable_get($alt_bg_fid)) {
+    // Save the bg fid.
+    dosomething_helpers_save_alt_bg_fid($alt_bg_fid, $nid, $values[$alt_bg_fid], $type);
+  }
+}
+
+/**
+ * Handles saving a given variable $varname with given $value.
+ *
+ * @param string $varname
+ *   The variable.name field to save (or delete).
+ * @param string $value
+ *   The variable.value to save. If empty, deletes variable $varname.
+ */
+function dosomething_helpers_save_custom_var($varname, $value) {
+  if (empty($value)) {
+    variable_del($varname);
+  }
+  else {
+    variable_set($varname, $value);
+  }
+}
+
+/**
+ * Handles saving a given $fid as alt_bg_fid variable for given node $nid.
+ *
+ * @param int $nid
+ *   The node nid associated with the fid.
+ * @param int $fid
+ *   The file fid to save.
+ */
+function dosomething_helpers_save_alt_bg_fid($varname, $nid, $fid, $type) {
+  // Get current value.
+  $current_value = variable_get($varname);
+  $module = "dosomething_{$type}";
+
+  // If it's the same, nothing to see here.  Keep moving.
+  if ($current_value == $fid) {
+    return;
+  }
+  // If we had a value and now we don't:
+  if (empty($fid) && is_numeric($current_value)) {
+    $file = file_load($current_value);
+    // Decrease the file's usage.
+    file_usage_delete($file, $module, 'node', $nid);
+    // Delete the variable.
+    variable_del($varname);
+    return;
+  }
+  // If we've made this far, we've got a new file to save.
+  $file = file_load($fid);
+  // And a value to set.
+  variable_set($varname, $fid);
+  // If file status not permanent, make it permanent.
+  if ($file->status != FILE_STATUS_PERMANENT) {
+    $file->status = FILE_STATUS_PERMANENT;
+    file_save($file);
+  }
+  // Increase file usage to avoid errors per https://drupal.org/comment/6866102.
+  file_usage_add($file, $module, 'node', $nid);
+  // If there was a file before:
+  if ($file = file_load($current_value)) {
+    // Decrease its usage.
+    file_usage_delete($file, $module, 'node', $nid);
+  }
+}

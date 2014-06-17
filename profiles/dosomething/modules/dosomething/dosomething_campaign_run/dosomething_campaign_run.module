@@ -1,0 +1,226 @@
+  <?php
+/**
+ * @file
+ * Code for the dosomething_campaign_run feature.
+ */
+
+include_once 'dosomething_campaign_run.features.inc';
+
+ /**
+ * Implements hook_menu().
+ */
+function dosomething_campaign_run_menu() {
+  $items = array();
+
+  $items['admin/content/campaign-run-config'] = array(
+    'title' => 'Campaign Run Config',
+    'description' => 'Admin form to manage default copy on campaign run nodes.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_campaign_run_default_copy_config'),
+    'access callback' => 'user_access',
+    // This permission is currently held by admins & editors.
+    'access arguments' => array('administer nodes'),
+    'file' => 'dosomething_campaign_run.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Adds loaded closed campaign_run node to the given parent campaign's $vars.
+ *
+ * @see dosomething_campaign_preprocess_node().
+ */
+function dosomething_campaign_run_preprocess_closed(&$vars) {
+  if (!isset($vars['nid'])) { return; }
+
+  // If a closed Campaign Run node exists:
+  if ($closed_run_nid = dosomething_campaign_run_get_closed_run_nid($vars['nid'])) {
+    // Load the closed campaign_run.
+    $wrapper = entity_metadata_wrapper('node', $closed_run_nid);
+    // Gather the campaign_run vars.
+    dosomething_campaign_run_preprocess_text_vars($vars, $wrapper);
+    dosomething_campaign_run_preprocess_winners($vars, $closed_run_nid);
+    dosomething_campaign_run_preprocess_klout_gallery($vars, $closed_run_nid);
+    // Preprocess the presignup form.
+    $label = variable_get('dosomething_campaign_run_signup_button_copy');
+    dosomething_signup_preprocess_signup_button($vars, $label, $presignup = TRUE);
+    // Preprocess the campaign reportback gallery.
+    dosomething_campaign_preprocess_reportback_gallery($vars, '300x300', 3);
+  }
+}
+
+/**
+ * Adds given campaign_run entity $wrapper values to $vars.
+ *
+ * @param array $vars
+ *   Array of variables via hook_preprocess_node.
+ * @param object $wrapper
+ *   Entity metadata wrapper of the campaign_run node to gather values from.
+ */
+function dosomething_campaign_run_preprocess_text_vars(&$vars, $wrapper) {
+  $text_fields = array(
+    'additional_text',
+    'additional_text_title',
+    'intro',
+    'total_participants',
+    'total_quantity',
+    'total_quantity_label',
+  );
+  foreach ($text_fields as $key => $label) {
+    $field = "field_{$label}";
+    $vars[$label] = $wrapper->{$field}->value();
+  }
+  // If there is no total yet, send default text.
+  if (!isset($vars['total_quantity'])) {
+    $placeholder_copy = variable_get('dosomething_campaign_run_no_total_copy');
+    // Replace the ['label'] section with the actual label (eg clothes or tacos).
+    $copy = str_replace('[label]', $vars['total_quantity_label'], $placeholder_copy);
+    $vars['total_quantity'] = $copy;
+  }
+}
+
+/**
+ * Adds the $winners array to the campaign node.
+ *
+ * @param array $vars
+ *   Array of variables via hook_preprocess_node.
+ * @param int $nid
+ *   Node id of the campaign run node.
+ */
+function dosomething_campaign_run_preprocess_winners(&$vars, $nid) {
+  $closed_node = node_load($nid);
+  // Get all winners
+  $winner_count =  count($closed_node->field_winners[LANGUAGE_NONE]);
+  // If there are no winners, send default text.
+  if ($winner_count == 0) {
+    $winners = variable_get('dosomething_campaign_run_no_winner_copy');
+  }
+  else {
+    $winners = array();
+    $text_fields = array(
+      'field_winner_type',
+      'field_winner_quote',
+      'field_winner_description',
+    );
+    for ($i = 0; $i < $winner_count; $i++) {
+      $entity_id = $closed_node->field_winners[LANGUAGE_NONE][$i]['value'];
+      $winner =  entity_load('field_collection_item', array($entity_id));
+      $winners[$i]['uid'] = $winner[$entity_id]->field_user[LANGUAGE_NONE][0]['target_id'];
+      // If there is no user, get the first name from the text field.
+      if (!isset($winners[$i]['uid'])) {
+        $winners[$i]['fname'] = $winner[$entity_id]->field_winner_name[LANGUAGE_NONE][0]['value'];
+      }
+      // Else, grab the first name from the user account.
+      else {
+        $winners[$i]['fname'] = user_load($winners[$i]['uid'])->field_first_name[LANGUAGE_NONE][0]['value'];
+      }
+      $image_nid = $winner[$entity_id]->field_gallery_image[LANGUAGE_NONE][0]['target_id'];
+      $winners[$i]['image'] = dosomething_image_get_themed_image($image_nid, 'square', '400x400');
+      foreach($text_fields as $text_field) {
+        $winners[$i][$text_field] = $winner[$entity_id]->{$text_field}[LANGUAGE_NONE][0]['value'];
+      }
+    }
+  }
+  $vars['winners'] = $winners;
+}
+
+/**
+ * Adds the $klout_gallery array to the campaign node.
+ *
+ * @param array $vars
+ *   Array of variables via hook_preprocess_node.
+ * @param int $nid
+ *   Node id of the campaign run node.
+ */
+function dosomething_campaign_run_preprocess_klout_gallery(&$vars, $nid) {
+  $closed_node = node_load($nid);
+  $klout_count =  count($closed_node->field_gallery_collection[LANGUAGE_NONE]);
+  $klout_gallery = array();
+  // Get the type of klout
+  for ($i = 0; $i < $klout_count; $i++) {
+    $klout_entity_id = $closed_node->field_gallery_collection[LANGUAGE_NONE][$i]['value'];
+    $klout =  entity_load('field_collection_item', array($klout_entity_id));
+    // Get the type of klout.
+    $klout_gallery[$i]['type'] = $klout[$klout_entity_id]->field_gallery_type[LANGUAGE_NONE][0]['value'];
+    $gallery_entity_id = $klout[$klout_entity_id]->field_gallery[LANGUAGE_NONE][0]['value'];
+    $single_gallery = entity_load('field_collection_item', array($gallery_entity_id));
+    $klout_gallery[$i]['title'] = $single_gallery[$gallery_entity_id]->field_gallery_title[LANGUAGE_NONE][0]['value'];
+    $single_gallery_count = count($single_gallery[$gallery_entity_id]->field_gallery_item[LANGUAGE_NONE]);
+    for ($a = 0; $a < $single_gallery_count; $a++) {
+      $gallery_item_entity_id = $single_gallery[$gallery_entity_id]->field_gallery_item[LANGUAGE_NONE][$a]['value'];
+      $gallery_items = entity_load('field_collection_item', array($gallery_item_entity_id));
+      $image_nid = $gallery_items[$gallery_item_entity_id]->field_gallery_image[LANGUAGE_NONE][0]['target_id'];
+      $klout_gallery[$i]['items'][$a]['image'] = dosomething_image_get_themed_image($image_nid, 'square', '400x400');
+      // @TODO: link this link?
+      $klout_gallery[$i]['items'][$a]['title'] = $gallery_items[$gallery_item_entity_id]->field_image_title[LANGUAGE_NONE][0]['title'];
+      $klout_gallery[$i]['items'][$a]['url'] = $gallery_items[$gallery_item_entity_id]->field_image_title[LANGUAGE_NONE][0]['url'];
+      $klout_gallery[$i]['items'][$a]['desc'] = $gallery_items[$gallery_item_entity_id]->field_image_description[LANGUAGE_NONE][0]['value'];
+    }
+  }
+  $vars['klout_gallery'] = $klout_gallery;
+}
+
+/**
+ * For given campaign $nid, return its closed Campaign Run nid.
+ *
+ * For now, this just returns a campaign_run node that references the $nid.
+ * As we build out multiple runs per campaign, we'll need to add logic
+ * to determine sequence.
+ *
+ * @param int $nid
+ *   A campaign node nid.
+ *
+ * @return mixed
+ *   Returns the closed campaign_run node $nid if exists, FALSE if not.
+ */
+function dosomething_campaign_run_get_closed_run_nid($nid) {
+   // Query field_data_field_campaigns for campaign_run node referencing $nid.
+   $result = db_select('field_data_field_campaigns', 'c')
+    ->fields('c', array('entity_id'))
+    ->condition('field_campaigns_target_id', $nid)
+    ->condition('bundle', 'campaign_run')
+    ->execute();
+  return $result->fetchField(0);
+}
+
+/**
+ * Given a campaign form and form state, check to see if there is a campgin run.
+ * Adds the campaign run nid to the campaign form.
+ *
+ * @param array $form
+ *  A drupal form array of a campaign node
+ * @param array $form_state
+ *  A drupal form_state array of a campaign node
+ */
+function dosomething_campaign_run_add_campaign_run_info(&$form, &$form_state) {
+  $nid = $form['nid']['#value'];
+  $closed_nid = dosomething_campaign_run_get_closed_run_nid($nid);
+  if (isset($closed_nid)) {
+    $form['field_campaign_status'][LANGUAGE_NONE]['#description'] = t('The current campaign run nid is ' . l($closed_nid, 'node/' . $closed_nid . '/edit'));
+    return $form;
+  }
+}
+
+/**
+ * Implements hook_form_NODE_TYPE_alter().
+ */
+function dosomething_campaign_run_form_campaign_run_node_form_alter(&$form, &$form_state, $form_id) {
+  // Add title help text.
+  $form['title']['#description'] = t('The title is not user facing, it just helps when searching for content. Suggestion: Use campaign name and year campaign ended (i.e. Comeback Clothes 2014).');
+
+  // If the campaign nid is set let's add some help text!
+  $campaign_nid = $form['#node']->field_campaigns[LANGUAGE_NONE][0]['target_id'];
+  if (isset($campaign_nid)) {
+    // Get totals & language from the campaign.
+    $signup_total_members = dosomething_signup_get_signup_total_by_nid($campaign_nid);
+    $reportback_quantity = dosomething_reportback_get_total_campaign_reportback_sums($campaign_nid);
+    $language = dosomething_reportback_get_noun_and_verb($campaign_nid);
+
+    // Add the text to the form.
+    // @TODO: why doesn't this work in the ['#description'] place?
+    $form['field_total_participants'][LANGUAGE_NONE]['#suffix'] = '<div class="description">' . $signup_total_members . ' members have signed up. </div>';
+    $form['field_total_quantity'][LANGUAGE_NONE]['#suffix'] = '<div class="description">' . $reportback_quantity . ' ' .$language->noun . ' ' . $language->verb . ' have been reported back. </div>';
+  }
+
+  drupal_add_css(drupal_get_path('module', 'dosomething_campaign_run') . '/campaign_run_node.css');
+  }
