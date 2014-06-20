@@ -1,0 +1,153 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Fact Page feature.
+ */
+
+include_once 'dosomething_fact_page.features.inc';
+
+/**
+ * Implements hook_block_info().
+ */
+function dosomething_fact_page_block_info() {
+  $blocks = array();
+  $blocks['fact_page_list'] = array(
+    'info' => t('DS Fact Page List'),
+    //@todo: Remove and set to DRUPAL_CACHE_GLOBAL when done testing.
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function dosomething_fact_page_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'fact_page_list':
+      // Gather list of Fact Page links.
+      $links = dosomething_fact_page_get_fact_page_list_links();
+      $block['content'] = theme('fact_page_list', array(
+        'links' => $links,
+      ));
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function dosomething_fact_page_theme($existing, $type, $theme, $path) {
+  return array(
+    'fact_page_list' => array(
+      'template' => 'fact-page-list',
+      'path' => drupal_get_path('module', 'dosomething_fact_page') . '/theme',
+      'variables' => array(
+        'links' => NULL, 
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function dosomething_fact_page_preprocess_node(&$vars) {
+  if ($vars['type'] == 'fact_page') {
+    $content = $vars['content'];
+    $template_vars = array(
+      'text' => array(
+        'subtitle',
+        'intro_title',
+        'intro',
+        'call_to_action',
+        'additional_text',
+      ),
+      'image' => array(
+        'intro_image',
+        'hero_image',
+      ),
+      'link' => array(
+        'cta_link'
+      ),
+    );
+
+    foreach ($template_vars as $key => $labels) {
+      foreach ($labels as $label) {
+        $field = "field_{$label}";
+          if (isset($content[$field])) {
+          switch ($key) {
+            case 'text':
+                $vars[$label] = $content[$field][0]['#markup'];
+              break;
+            case 'image':
+              $vars[$label] = dosomething_image_get_themed_image($vars[$field][0]['entity']->nid, 'landscape', '550x300', $label);
+            break;
+            case 'link':
+              $vars[$label] = l($content[$field][0]['#element']['title'], $content[$field][0]['#element']['url'], array('attributes' => array('class' => 'btn')));
+            break;
+            default:
+              break;
+          }
+        }
+      }
+    }
+
+    $node = entity_metadata_wrapper('node', $vars['node']);
+    $values = dosomething_fact_get_fact_field_vars($node->field_facts);
+    $vars['facts'] = $values['facts'];
+    $vars['sources'] = $values['sources'];
+  }
+}
+
+/**
+ * Returns links of published fact_page nodes.
+ *
+ * @param int $tid
+ *   Primary cause term tid to filter nodes by.
+ *
+ * @return array
+ *  Array of links.
+ */
+function dosomething_fact_page_get_fact_page_list_by_tid($tid) {
+  $query = db_select('node', 'n');
+  $query->innerJoin('field_data_field_primary_cause', 'c', 'c.entity_id = n.nid');
+  $query->condition('type', 'fact_page')
+    ->condition('field_primary_cause_tid', $tid)
+    ->condition('status', 1)
+    ->orderBy('title');
+  $query->fields('n', array('nid', 'title'));
+  $results = $query->execute();
+
+  foreach($results as $key => $result) {
+    $output[$key] = l($result->title, 'node/' . $result->nid);
+  }
+  if ($output) {
+    return $output;
+  }
+  // If no results, return null.
+  return NULL;
+}
+
+/**
+ * Returns multi-dimensional array of published fact_page nodes.
+ *
+ * @return array
+ *   Array of arrays of links, keyed by Primary Cause name. 
+ */
+function dosomething_fact_page_get_fact_page_list_links() {
+  $vocab = taxonomy_vocabulary_machine_name_load('cause');
+  $tree = taxonomy_get_tree($vocab->vid);
+  foreach ($tree as $term) {
+    if ($links = dosomething_fact_page_get_fact_page_list_by_tid($term->tid)) {
+      $results[$term->name] = $links;
+    }
+  }
+  if ($results) {
+    return $results;
+  }
+  return NULL;
+}

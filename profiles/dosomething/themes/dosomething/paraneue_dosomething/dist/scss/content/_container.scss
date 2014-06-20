@@ -1,0 +1,272 @@
+.container {
+
+  // @TODO: move this to apply globally, but not until it can be checked properly.
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+  }
+
+  > .wrapper {
+    padding: 1rem;
+    position: relative;
+    @include clearfix();
+
+    @include media($tablet) {
+      @include span-columns(12);
+      @include shift(2);
+      float: none;
+      padding: 1rem 0;
+    }
+
+    @include media($desktop) {
+      padding: 1.5rem 0;
+    }
+  }
+
+  // @TODO: (Revisit) Not supported in IE8; maybe use a class instead...
+  // but makes dictating extra padding on first item easy @_@
+  &:first-of-type {
+    > .wrapper {
+      padding-top: 2rem;
+    }
+
+    // If this is the first .container but has a header that's a .banner, then don't add the extra padding.
+    .container__title + .wrapper {
+      padding-top: 1.5rem;
+    }
+  }
+
+  > .gallery {
+    padding: 1rem 0;
+
+    @include media($desktop) {
+      padding: 1.5rem 0;
+    }
+  }
+
+  .-columned {
+    @include media($tablet) {
+      @include span-columns(6 of 12);
+
+      &.-even {
+        @include omega();
+      }
+    }
+  }
+
+  .-columned + .-columned {
+    margin-top: 1rem;
+
+    @include media($tablet) {
+      margin-top: 0;
+    }
+  }
+
+  aside {
+    img {
+      @include fluid-image();
+      width: 100%;
+    }
+  }
+
+  p + .__row,
+  .__row + .__row {
+    margin-top: 1.5rem;
+  }
+
+  p + .tabbed {
+    margin-top: 1.5rem;
+  }
+}
+
+
+// Styles for Container Titles.
+.container__title {
+  line-height: 1.1;
+  margin: 0 0 1rem;  // @TODO: remove margins. Should be done globally!
+
+  &.banner {
+    margin-bottom: 0;
+    padding: .75rem 1rem;
+
+    @include media($tablet) {
+      padding: .75rem 0;
+    }
+
+    > span {
+      display: inline-block;
+      line-height: 1; // @TODO: Move to Neue.
+
+      @include media($tablet) {
+        @include shift(2 of 16);
+      }
+    }
+  }
+
+  @include media($tablet) {
+    margin-bottom: 1.5rem;
+  }
+}
+
+
+// Styles for Container Body content.
+.container__body {
+  @include clearfix();
+
+  @include media($tablet) {
+    &.-compact {
+      @include span-columns(9 of 12);
+    }
+  }
+
+  h3 {
+    color: $purple;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  .__row {
+    @include clearfix();
+    clear: both;
+  }
+
+  // <p> tags following other items.
+  p + p,
+  ul + p {
+    margin-top: 1.5rem;
+  }
+
+  ul {
+    margin-bottom: 0;
+  }
+
+  // Items following a <p> tag.
+  p + ul,
+  p + aside {
+    margin-top: 1.5rem;
+  }
+
+  // Items following a list, <ul> or <ol>
+  ul + h3,
+  ol + h3 {
+    margin-top: 1.5rem;
+  }
+
+  p + .btn {
+    margin-top: 0.75rem;
+  }
+
+  // Form items inside Container Body.
+  form {
+    padding-top: 1rem;
+  }
+
+  .form-actions {
+    clear: both;
+    padding-top: 1rem;
+
+    @include media($tablet) {
+      text-align: left;
+    }
+  }
+
+  .media {
+    &.-inline {
+      float: none;
+      margin-bottom: 1.5rem;
+
+      @include media($desktop) {
+        margin-left: 2.5rem;
+        float: right;
+      }
+    }
+  }
+
+  .polaroid + p {
+    margin-top: 1.5rem;
+
+    @include media($tablet) {
+      margin-top: 0;
+    }
+  }
+}
+
+
+// IE BUG Fixes
+
+.ie8 & {
+  .-columned {
+    @include media($tablet) {
+      // Last-child not supported in IE8; using class as fallback.
+      &.-col-last {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+// @TODO: temporary?
+.container--campaigns {
+  .gallery.-mosaic {
+    background-color: #fff;
+  }
+}
+
+
+// @TODO: Need a better solution, good for now for this release for SMS Games Campaign.
+// The following is ugly and only temporary. Please ignore. Thanks much!
+.container__body {
+
+  .form-item-alpha-first-name {
+    @include media($tablet) {
+      @include span-columns(6 of 12);
+    }
+  }
+
+  .-columned.second-group {
+    margin-right: 0;
+  }
+}
+
+.container {
+  form {
+    .-columned + .-columned {
+      margin-top: 0;
+    }
+  }
+}
+
+
+// Page Specific Containers
+.campaign--pitch {
+  .container {
+    background-color: #111;
+
+    > .wrapper {
+      padding: 0.5rem 1rem;
+    }
+
+    .__tagline {
+      font-size: 0.9rem;
+      margin: 0;
+      text-align: center;
+    }
+  }
+}
+
+
+// JS Enabled
+
+.js {
+
+  .container__body {
+
+    p + .tabbed {
+      margin-top: 0.5rem;
+    }
+
+  }
+
+}
