@@ -1,0 +1,190 @@
+.campaign.closed {
+
+  // Overrides to maintain default spacing between headers and cta
+  // since the end date is removed
+  // @TODO: might be worth while to make this a pattern
+  [role="banner"] {
+    &.-hero {
+      .__subtitle {
+        margin-bottom: 1.5rem;
+        margin-top: 0;
+      }
+    }
+  }
+
+  // Overrides default pattern
+  // Content spans two lines instead of three
+  // and text rotation is set to none
+  // @TODO: since this is specific to closed campaigns only, might be
+  // worthwhile making this a pattern
+  .scholarship-callout {
+    &.-pitch {
+      width: 210px;
+
+      @include media($tablet) {
+        @include transform(rotate(0deg));
+      }
+    }
+  }
+
+  // Campaign statistics including number of participants and
+  // total quantity donated
+  // @TODO: move to neue
+  .statistic {
+    padding: 0.5rem 0;
+    position: relative;
+    text-align: center;
+
+    strong {
+      color: $purple;
+      display: block;
+      font-size: $font-largest;
+      line-height: 1;
+    }
+
+    em {
+      font-size: $font-medium;
+    }
+
+    @include media($desktop) {
+      strong {
+        font-size: $font-hero;
+      }
+    }
+
+    .placeholder {
+      p {
+        margin-top: .4em;
+      }
+    }
+
+    @include media($tablet) {
+      margin-top: 1rem;
+
+      .statistic__body {
+        padding: 0 2rem;
+      }
+
+      strong {
+        margin-top: 1.4rem;
+      }
+
+      &.-columned {
+        @include span-columns(6 of 12);
+        min-height: 138px;
+        margin-right: 0;
+      }
+    }
+
+    @include media($desktop) {
+      strong {
+        margin-top: 0;
+      } 
+    }
+  }
+
+  .statistic + .statistic {
+    margin-top: 1.7rem;
+    padding-top: 2rem;
+
+    @include media($tablet) {
+      border-left: 2px solid #989898;
+      margin-top: 1rem;
+      padding-top: 0.5rem;
+    }
+
+    &:before {
+      border-top: 2px solid #989898;
+      content: "";
+      left: 50%;
+      margin-left: -61px;
+      position: absolute;
+      top: 0;
+      width: 132px;
+
+      @include media($tablet) {
+        display: none;
+      }
+    }
+  }
+
+  // @TODO: move to neue
+  .placeholder {
+    text-align: center;
+    
+    p {
+      font-size: $font-medium;
+      font-style: italic;
+    }
+  }
+
+  .intro {
+    margin-top: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  // Items following a gallery
+
+
+  h3 + .gallery {
+    margin-top: 1.5rem;
+  }
+
+  .-psa {
+    margin-bottom: 3rem;
+  }
+
+  // This introduces a new gallery pattern with floated image
+  // and .__body
+  // TODO: move to neue
+  .gallery {
+    &.-duo {
+      > li {
+        @include media($tablet) {
+          @include span-columns(6 of 12);
+          @include omega(2n);
+
+          &:nth-child(3n) {
+            clear: left;
+          }
+        }
+      }
+
+      .tile--figure {
+        @include clearfix();
+        text-align: left;
+
+        img {
+          @include span-columns(4 of 12);
+          max-height: 150px;
+          max-width: 150px;
+        }
+
+        .__body {
+          @include span-columns(8 of 12);
+        }
+      }
+    }
+
+    &.-mention + h3 {
+      margin-top: 0;
+    }
+  }
+
+  div + .gallery {
+    margin-top: 2.5rem;
+  }
+
+  // Winners
+  .container--congrats {
+    h3 {
+      margin-bottom: 0;
+    }
+
+    h4 {
+      color: #444;
+      margin-bottom: 1rem;
+      text-transform: capitalize;
+    }
+  }
+}
