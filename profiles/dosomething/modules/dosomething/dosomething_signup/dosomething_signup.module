@@ -1,0 +1,744 @@
+<?php
+/**
+ * @file
+ * Code for the dosomething_signup feature.
+ */
+
+include_once 'dosomething_signup.features.inc';
+include_once 'dosomething_signup.forms.inc';
+include_once 'dosomething_signup.signup_data_form.inc';
+include_once 'dosomething_signup.theme.inc';
+include_once 'includes/dosomething_signup.mobilecommons.inc';
+include_once 'includes/dosomething_signup.variable.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_signup_menu() {
+  $items = array();
+
+  $items['admin/config/dosomething/optins'] = array(
+    'title' => t('Third Party Opt-Ins'),
+    'description' => 'Admin form to manage custom opt-ins',
+    'page callback' => 'dosomething_signup_opt_in_config_page',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer third party communication'),
+    'file' => 'dosomething_signup.admin.inc'
+  );
+  $items['node/%node/unsignup'] = array(
+    'title' => 'Remove signup',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_signup_node_unsignup_form', 1),
+    'access callback' => 'dosomething_signup_node_unsignup_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 70,
+  );
+  $items['signup/%signup'] = array(
+    'title' => 'Signup',
+    'page callback' => 'dosomething_signup_view_entity',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function dosomething_signup_entity_info() {
+  $info = array();
+  $info['signup'] = array(
+    'label' => t('Signup'),
+    'base table' => 'dosomething_signup',
+    'entity keys' => array(
+      'id' => 'sid',
+      'label' => 'sid',
+    ),
+    'entity class' => 'SignupEntity',
+    'uri callback' => 'entity_class_uri',
+    'controller class' => 'SignupEntityController',
+    'module' => 'dosomething_signup',
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function dosomething_signup_permission() {
+  return array(
+    'administer third party communication' =>  array(
+      'title' => t('Administer Third Party Communications'),
+      'description' => t('Manage Mobile Commons/MailChimp Opt-in IDs.'),
+    ),
+    'view any signup' =>  array(
+      'title' => t('View any signup'),
+      'description' => t('View any signup.'),
+    ),
+  );
+}
+
+/**
+ * Menu autoloader for /signup.
+ */
+function signup_load($id) {
+  return entity_load_single('signup', $id);
+}
+
+/**
+ * Callback for /signup/ID page.
+ */
+function dosomething_signup_view_entity($entity) {
+  return entity_view('signup', array($entity->sid => $entity), 'full');
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function dosomething_signup_admin_paths() {
+  $paths = array(
+    'node/*/signups' => TRUE,
+  );
+  return $paths;
+}
+
+/**
+ * Insert a user signup.
+ *
+ * @param int $nid
+ *   The node nid the user has signed up for.
+ * @param int $uid
+ *   Optional - the user uid who has signed up.
+ *   If not provided, uses global $user->uid.
+ * @param text $data
+ *   Optional - serialized data.
+ * @param int $timestamp
+ *   Optional - the timestamp of the signup.
+ *   If not provided, uses @dries time.
+ *
+ * @return mixed
+ *   The sid of the newly inserted signup, or FALSE if error.
+ */
+function dosomething_signup_create($nid, $uid = NULL, $data = NULL, $timestamp = NULL) {
+  // If a signup already exists, exit.
+  if (dosomething_signup_exists($nid, $uid)) { return FALSE; }
+
+  $values = array(
+    'nid' => $nid,
+    'uid' => $uid,
+    'data'=> $data,
+    'timestamp' => $timestamp,
+  );
+  try {
+    // Create a signup entity.
+    $entity = entity_create('signup', $values);
+    // The SignupEntityController save method handles any NULL values.
+    $entity->save();
+    return $entity->sid;
+  }
+  catch (Exception $e) {
+    // Keep message general in case a user ever sees it.
+    drupal_set_message(t("There was an error processing your request."));
+    // Log the error.
+    watchdog('dosomething_signup', $e, array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+/**
+ * Delete a user signup.
+ *
+ * @param int $nid
+ *   The node nid of the signup record to be deleted.
+ * @param int $uid
+ *   Optional - the user uid of signup record to be deleted.
+ *   If not given, uses global $user->uid.
+ */
+function dosomething_signup_delete_signup($nid, $uid = NULL) {
+  $sid = dosomething_signup_exists($nid, $uid);
+  try {
+    if ($sid) {
+      entity_delete('signup', $sid);
+    }
+    return TRUE;
+  }
+  catch (Exception $e) {
+    watchdog('dosomething_signup', $e, array(), WATCHDOG_ERROR);
+  }
+  return FALSE;
+}
+
+/**
+ * Checks if a signup record exists.
+ *
+ * @param int $nid
+ *   The node nid of the signup record to check.
+ * @param int $uid
+ *   Optional - the user uid of signup record to check.
+ *   If not given, uses global $user->uid.
+ * @param string $presignup
+ *   Optional - If true, query the presignups table, not regular signups.
+ *
+ * @return mixed
+ *   The sid of signup exists, FALSE if it doesn't exist.
+ */
+function dosomething_signup_exists($nid, $uid = NULL, $presignup = FALSE) {
+  if ($uid == NULL) {
+    global $user;
+    $uid = $user->uid;
+  }
+  $signup_tbl = 'dosomething_signup';
+  if ($presignup) {
+    $signup_tbl = 'dosomething_signup_presignup';
+  }
+  $result = db_select($signup_tbl, 's')
+    ->condition('uid', $uid)
+    ->condition('nid', $nid)
+    ->fields('s', array('sid'))
+    ->execute();
+  $sid = $result->fetchField(0);
+  // If a sid was found, return it.
+  if (is_numeric($sid)) {
+    return $sid;
+  }
+  // Otherwise return FALSE.
+  return FALSE;
+}
+
+/**
+ * Form constructor for user signup form.
+ *
+ * Displayed for an authenticated user to signup for a node.
+ *
+ * @param int $nid
+ *   The node nid to signup for.
+ * @param string $label
+ *   The label to display on the form submit button.
+ */
+function dosomething_signup_form($form, &$form_state, $nid, $label) {
+  $form['nid'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $nid,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => $label,
+    '#attributes' => array(
+      'class' => array(
+        'btn',
+        'medium',
+      ),
+    ),
+  );
+  return $form;
+}
+
+/**
+ * Form submission handler for dosomething_signup_form().
+ *
+ * @see dosomething_signup_form()
+ */
+function dosomething_signup_form_submit($form, &$form_state) {
+  // Shouldn't be able to submit form as anonymous user, but check.
+  if (!user_is_logged_in()) {
+    drupal_set_message("Please sign in first.");
+    return;
+  }
+  $nid = $form_state['values']['nid'];
+  dosomething_signup_user_signup($nid);
+}
+
+/**
+ * Implements hook_views_data().
+ */
+function dosomething_signup_views_data() {
+  // Define dosomething_signup table.
+  $data['dosomething_signup']['table']['group'] = t('Signups');
+  $data['dosomething_signup']['table']['base'] = array(
+    'field' => 'sid',
+    'title' => t('Signups'),
+    'help' => t('Dosomething Signups table.'),
+    'weight' => -10,
+  );
+  $data['dosomething_signup']['table']['join'] = array(
+    'node' => array(
+      'left_field' => 'nid',
+      'field' => 'nid',
+    ),
+    'users' => array(
+      'left_field' => 'uid',
+      'field' => 'uid',
+    ),
+  );
+
+  $data['dosomething_signup']['sid'] = array(
+    'title' => t('Signup sid'),
+    'help' => t('Signup sid that references a signup.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'base' => 'dosomething_signup',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Signup Sid'),
+    ),
+  );
+  $data['dosomething_signup']['nid'] = array(
+    'title' => t('Nid'),
+    'help' => t('Signup node nid.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'base' => 'node',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Signup Node Nid'),
+    ),
+  );
+  $data['dosomething_signup']['uid'] = array(
+    'title' => t('Uid'),
+    'help' => t('User id.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'base' => 'users',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Signup User'),
+    ),
+  );
+  $data['dosomething_signup']['timestamp'] = array(
+    'title' => t('Date submitted'),
+    'help' => t('Date submitted.'),
+    'field' => array(
+      'handler' => 'views_handler_field_date',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
+  return $data;
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function dosomething_signup_entity_insert($entity, $type) {
+  // If not a signup, exit out of function.
+  if ($type != 'signup') { return; }
+
+  $account = user_load($entity->uid);
+  $node = node_load($entity->nid);
+
+  // If this is a SMS Game Campaign node:
+  if (module_exists('dosomething_campaign') && dosomething_campaign_get_campaign_type($node) == 'sms_game') {
+    // Third party subscription is handled elsewhere,
+    // @see dosomething_signup_friends_form_submit.
+    // Exit out of function.
+    return;
+  }
+
+  // Send relevant third-party subscribe requests.
+  dosomething_signup_third_party_subscribe($account, $node);
+
+  // Check if inserted signup nid belongs to a Campaign Group.
+  if (module_exists('dosomething_campaign_group')) {
+    $group_nid = dosomething_campaign_group_get_parent_nid($entity->nid);
+    // If a campaign group exists:
+    if ($group_nid) {
+      // Create a signup for the group nid.
+      dosomething_signup_create($group_nid);
+    }
+  }
+}
+
+/**
+ * Sends third-party subscription requests for given $account and $node.
+ */
+function dosomething_signup_third_party_subscribe($account, $node) {
+  // Is there an override set on this campaign?
+  $opt_in_override = variable_get('dosomething_signup_nid_' . $node->nid . '_mobilecommons_id');
+  $opt_in_general = variable_get('dosomething_mobilecommons_campaign_general');
+  // Opt-in to mobilecommons.
+  $opt_in = isset($opt_in_override) ? $opt_in_override : $opt_in_general;
+  dosomething_signup_mobilecommons_opt_in($account, $opt_in, $node->title);
+  // Send message broker request.
+  dosomething_signup_mbp_request($account, $node);
+}
+
+/**
+ * Signup a user $uid for a given node $nid and display a confirmation message.
+ *
+ * This is most likely being within a form submit handler, hence displaying the
+ * confirmation message.
+ *
+ * @param int $nid
+ *   The node nid the user is signing up for.
+ * @param object account
+ *   Optional - the user object to sign up.
+ *   If not provided, uses global $user.
+ */
+function dosomething_signup_user_signup($nid, $account = NULL) {
+  if ($account == NULL) {
+    global $user;
+    $account = $user;
+  }
+
+  // Insert signup.
+  if ($sid = dosomething_signup_create($nid, $account->uid)) {
+    $node = node_load($nid);
+
+    // Check if a field_signup_confirm_msg field is set.
+    if (isset($node->field_signup_confirm_msg[LANGUAGE_NONE][0]['value'])) {
+      // Store that message.
+      $msg = $node->field_signup_confirm_msg[LANGUAGE_NONE][0]['value'];
+      // Display that message.
+      drupal_set_message($msg);
+      // Exit out of function.
+      return;
+    }
+
+    // Set default signup message if we're still in this function.
+    dosomething_signup_set_signup_message($node->title);
+  }
+}
+
+/**
+ * Sends mbp request for a signup.
+ *
+ * @param object account
+ *   Details about the user account that made the signup.
+ * @param object node
+ *   Details about the node that the signup was made on.
+ */
+function dosomething_signup_mbp_request($account, $node) {
+  // Send MBP request.
+  if (module_exists('dosomething_mbp')) {
+    // Gather mbp params for the signup.
+    $params = dosomething_signup_get_mbp_params($account, $node);
+    // Send campaign mbp request.
+    if ($node->type == 'campaign') {
+      dosomething_mbp_request('campaign_signup', $params);
+    }
+    elseif ($node->type == 'campaign_group') {
+      dosomething_mbp_request('campaign_group_signup', $params);
+    }
+  }
+}
+
+/**
+ * Get params for a signup mbp request.
+ *
+ * @param object $account
+ *   Details about the user account that made the signup.
+ * @param object $node
+ *   Details about the node that the signup was made on.
+ *
+ * @return array
+ *   Associative array of values to use as params to a mbp_request.
+ */
+function dosomething_signup_get_mbp_params($account, $node) {
+  if (!($node->type == 'campaign' || $node->type == 'campaign_group')) {
+    return FALSE;
+  }
+  $params = array(
+    'email' => $account->mail,
+    'uid' => $account->uid,
+    'first_name' => dosomething_user_get_field('field_first_name', $account),
+    'mobile' => dosomething_user_get_field('field_mobile', $account),
+    'event_id' => $node->nid,
+    'campaign_title' => $node->title,
+    'campaign_link' => url(drupal_get_path_alias('node/' . $node->nid), array('absolute' => TRUE)),
+  );
+  // Add additional values to $params based on campaign / campaign_group
+  dosomething_signup_get_mbp_params_campaign($params, $node);
+  dosomething_signup_get_mbp_params_campaign_group($params, $node);
+  // Add any mailchimp params if needed.
+  dosomething_signup_get_mbp_params_mailchimp($params, $node);
+  return $params;
+}
+
+/**
+ * Adds campaign params in a signup mbp request.
+ *
+ * @param array $params
+ *   Params array to be sent to a mbp request.
+ * @param object $node
+ *   Details about the node that the signup was made on.
+ */
+function dosomething_signup_get_mbp_params_campaign(&$params, $node) {
+  if ($node->type == 'campaign') {
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $params['call_to_action'] = $wrapper->field_call_to_action->value();
+    $params['step_one'] = $wrapper->field_pre_step_header->value();
+    $params['step_two'] = DOSOMETHING_CAMPAIGN_PIC_STEP_HEADER;
+    $params['step_three'] = $wrapper->field_post_step_header->value();
+  }
+}
+
+/**
+ * Adds campaign group params in a signup mbp request.
+ *
+ * @param array $params
+ *   Params array to be sent to a mbp request.
+ * @param object $node
+ *   Details about the node that the signup was made on.
+ */
+function dosomething_signup_get_mbp_params_campaign_group(&$params, $node) {
+  if ($node->type == 'campaign_group') {
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $params['transactional_email_copy'] = nl2br($wrapper->field_transactional_email_copy->value());
+  }
+}
+
+/**
+ * Checks if Mailchimp params should be included in a signup mbp request.
+ *
+ * @param array $params
+ *   Params array to be sent to a mbp request.
+ * @param object $node
+ *   Details about the node that the signup was made on.
+ */
+function dosomething_signup_get_mbp_params_mailchimp(&$params, $node) {
+  $nid = $node->nid;
+  $prefix = 'dosomething_signup_nid_' . $nid;
+  // Variable may be set as empty string, so set empty string as default.
+  $grouping_id = variable_get($prefix . '_mailchimp_grouping_id', '');
+  $group_name = variable_get($prefix . '_mailchimp_group_name', '');
+  // If a value is present for Mailchimp groups:
+  if (!empty($grouping_id) || !empty($group_name)) {
+    // Add it into the mbp_request params.
+    $params['mailchimp_grouping_id'] = $grouping_id;
+    $params['mailchimp_group_name'] = $group_name;
+  }
+}
+
+/**
+ * Sets Drupal message for a signup for given $title.
+ *
+ * @param string $title
+ *   Optional - Title of whatever user has signed up for.
+ */
+function dosomething_signup_set_signup_message($title = NULL) {
+  // If title exists:
+  if ($title) {
+    // Prepare it for the message.
+    $title = ' ' . t("for") . ' <em>' . $title . '</em>';
+  }
+  $message = t("You're signed up") . $title . '! ';
+  $message .=  t("Get started below.");
+  drupal_set_message($message);
+}
+
+/**
+ * Returns the confirmation message after submitting presignup form.
+ *
+ * @param string $title
+ *   The title of the presignup node.
+ *
+ * @return string
+ */
+function dosomething_signup_set_presignup_message($title) {
+  $link = l(t('find a campaign'), 'campaigns');
+  $message = t("Sweet, we'll send you an email as soon as @title re-opens. In the meantime, !link you can do right now.", array(
+    '@title' => $title,
+    '!link' => $link,
+  ));
+  drupal_set_message($message);
+}
+
+/**
+ * Returns array of campaign nid's that a user has signed up for.
+ *
+ * @param int $uid
+ *   The user uid to return signups for.
+ *
+ * @return array
+ *   Array of node nid's.
+ */
+function dosomething_signup_get_signup_nids_by_uid($uid) {
+  $query = db_select('dosomething_signup', 's');
+  $query->join('node', 'n', 'n.nid = s.nid');
+  $query->fields('s', array('nid'));
+  $query->condition('s.uid', $uid);
+  // Only return signups for campaign nodes.
+  $query->condition('n.type', 'campaign');
+  $query->orderBy('timestamp', 'DESC');
+  $result = $query->execute();
+  return array_keys($result->fetchAllAssoc('nid'));
+}
+
+/**
+ * Access callback for node unsignup page.
+ *
+ * @param object $node
+ *   Loaded node to unsignup from.
+ *
+ * @return bool
+ *   Whether or not logged in user can remove signup (and if it exists).
+ */
+function dosomething_signup_node_unsignup_access($node) {
+  // Only display for node types that implement signup forms.
+  if ($node->type == 'campaign' || $node->type == 'campaign_group') {
+    // Only allow access if user staff and is signed up.
+    return dosomething_user_is_staff() && dosomething_signup_exists($node->nid);
+  }
+  return FALSE;
+}
+
+/**
+ * Form constructor for a node unsignup form.
+ *
+ * @param int $nid
+ *   The node nid to remove signup from.
+ *
+ * @ingroup forms
+ */
+function dosomething_signup_node_unsignup_form($form, &$form_state, $node) {
+  $form['nid'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $node->nid,
+  );
+  $form['warning'] = array(
+    '#markup' => t("Are you sure you want to remove this signup?  This cannot be undone."),
+  );
+  $form['actions'] = array(
+    '#type' => 'actions',
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => t('Delete'),
+    ),
+  );
+  return $form;
+}
+
+/**
+ * Form submit handler for dosomething_signup_node_unsignup_form().
+ */
+function dosomething_signup_node_unsignup_form_submit($form, &$form_state) {
+  $nid = $form_state['values']['nid'];
+  if (dosomething_signup_delete_signup($nid)) {
+    drupal_set_message("Signup removed.");
+    $form_state['redirect'] = 'node/' . $nid;
+    return;
+  }
+  drupal_set_message("There was an error with your request.");
+}
+
+/**
+ * Checks if the current page should create a signup upon login.
+ *
+ * @return mixed
+ *   Returns the node $nid to create signup for if TRUE, else returns NULL.
+ */
+function dosomething_signup_get_login_signup_nid() {
+  $obj = menu_get_object();
+  if (isset($obj->type)) {
+    switch ($obj->type) {
+      case 'campaign':
+        if (module_exists('dosomething_campaign') && dosomething_campaign_get_campaign_type($obj) != 'sms_game') {
+          return $obj->nid;
+        }
+        break;
+      case 'campaign_group':
+        // Should only signup on login if the signup form is displayed.
+        if ($obj->field_display_signup_form[LANGUAGE_NONE][0]['value'] == 1) {
+          return $obj->nid;
+        }
+        break;
+      default:
+        return NULL;
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Insert a pre-signup for the global $user.
+ *
+ * @param int $nid
+ *   The node nid the user has pre-signed up for.
+ *
+ * @return mixed
+ *   The sid of the newly inserted signup, or FALSE if error.
+ */
+function dosomething_signup_presignup_create($nid) {
+  // If a pre-signup does not exist already:
+  if (!dosomething_signup_presignup_exists($nid)) {
+    global $user;
+    // Insert one.
+    $sid = db_insert('dosomething_signup_presignup')
+      ->fields(array(
+        'nid' => $nid,
+        'uid' => $user->uid,
+        'timestamp' =>  REQUEST_TIME,
+      ))
+      ->execute();
+  }
+}
+
+/**
+ * Checks if a pre-signup exists for given $nid for global $user.
+ *
+ * @return bool
+ */
+function dosomething_signup_presignup_exists($nid) {
+  global $user;
+  return dosomething_signup_exists($nid, $user->uid, $presignup = TRUE);
+}
+
+/**
+ * Presignup the global $user for given $nid.
+ */
+function dosomething_signup_user_presignup($nid) {
+  // Create the presignup record.
+  dosomething_signup_presignup_create($nid);
+  // @todo: Mailchimp subscription.
+  // For now, we know the presignup always lives on the node we're presigning up for.
+  $title = drupal_get_title();
+  // Set the confirmation message.
+  dosomething_signup_set_presignup_message($title);
+}
+
+/*
+ * Get the total number of campaign signups.
+ *
+ * @param int $nid
+ *   A campaign node id.
+ * @return int $result
+ *   The number of users who signedup for a camapgin.
+ */
+function dosomething_signup_get_signup_total_by_nid($nid) {
+  $result = db_select('dosomething_signup', 's')
+    ->fields('s', array('sid'))
+    ->condition('nid', $nid)
+    ->execute();
+  return $result->rowCount();
+}
