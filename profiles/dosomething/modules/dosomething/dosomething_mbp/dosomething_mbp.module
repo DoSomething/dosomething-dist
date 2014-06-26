@@ -1,0 +1,300 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething specific Message Broker Producer (mbp)
+ * functionality.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_mbp_menu() {
+
+  $items['admin/config/dosomething/dosomething_mbp'] = array(
+    'title' => 'DoSomething MBP',
+    'description' => 'DoSomething MBP (Message Broker Producer) settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_mbp_config_form'),
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'dosomething_mbp.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * A request to send a queue entry to the Message Broker system.
+ *
+ * @param string $origin
+ *   Where the message request came from.
+ * @param array $params
+ *   Optional keyed array of data to build payload from.
+ *
+ * @return bool
+ *   The status of the request.
+ */
+function dosomething_mbp_request($origin, $params = NULL) {
+
+  $production_type = NULL;
+  switch ($origin) {
+    case 'user_register':
+    case 'user_password':
+    case 'campaign_signup':
+    case 'campaign_group_signup':
+    case 'campaign_reportback':
+      $production_type = 'produceTransactional';
+      $payload = dosomething_mbp_get_transactional_payload($origin, $params);
+      break;
+
+    case 'create_campaign':
+    case 'update_campaign':
+      $production_type = 'produceCampaignCache';
+      $payload = dosomething_mbp_get_campaign_cache_payload($origin, $params);
+      break;
+
+  }
+
+  try {
+    return message_broker_producer_request($production_type, $payload);
+  }
+  catch (Exception $e) {
+    watchdog('dosomething_mbp', $e, array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+}
+
+/**
+ * Build payload for transactional producer requests.
+ *
+ * NOTE:
+ * Any adjustments to the data before it becomes payload should be done in
+ * this function.
+ *
+ * @param string $origin
+ *   Where the message request came from that's used to determine what the
+ *   payload should be.
+ * @param array $params
+ *   Optional keyed array of data to build payload from.
+ *
+ * @return array $payload
+ *   Composed values ready to be sent as a message payload.
+ */
+function dosomething_mbp_get_transactional_payload($origin, $params = NULL) {
+  $params['first_name'] = isset($params['first_name']) ? $params['first_name'] : 'Doer';
+  $payload = array(
+    'activity' => $origin,
+    'email' => $params['email'],
+    'uid' => $params['uid'],
+  );
+  switch ($origin) {
+    case 'user_register':
+      $payload['birthdate'] = $params['birthdate'];
+      $payload['subscribed'] = 1;
+      if (isset($params['mobile'])) {
+        $payload['mobile'] = $params['mobile'];
+      }
+      $payload['merge_vars'] = array(
+        'FNAME' => $params['first_name'],
+      );
+      break;
+
+    case 'user_password':
+      $payload['merge_vars'] = array(
+        'FNAME' => $params['first_name'],
+        'USERNAME' => $params['username'],
+        'RESET_LINK' => $params['reset_link'],
+      );
+      break;
+
+    case 'campaign_signup':
+      dosomething_mbp_get_common_campaign_payload($payload, $params);
+      $payload['merge_vars']['CALL_TO_ACTION'] = $params['call_to_action'];
+      $payload['merge_vars']['STEP_ONE'] = $params['step_one'];
+      $payload['merge_vars']['STEP_TWO'] = $params['step_two'];
+      $payload['merge_vars']['STEP_THREE'] = $params['step_three'];
+      break;
+      
+    case 'campaign_group_signup':
+      dosomething_mbp_get_common_campaign_payload($payload, $params);
+      $payload['merge_vars']['CAMPAIGN_COPY'] = $params['transactional_email_copy'];
+      break;
+
+    case 'campaign_reportback':
+      $payload['event_id'] = $params['event_id'];
+      $payload['merge_vars'] = array(
+        'FNAME' => $params['first_name'],
+        'CAMPAIGN_TITLE' => $params['campaign_title'],
+        'IMPACT_VERB' => $params['impact_verb'],
+        'IMPACT_NUMBER' => $params['impact_number'],
+        'IMPACT_NOUN' => $params['impact_noun'],
+      );
+      break;
+
+  }
+
+  return $payload;
+}
+
+/**
+ * Common payload for campaign / group_campaign transactional producer requests.
+ *
+ * NOTE:
+ * Any adjustments to the data before it becomes common campaign /
+ * group_campaign payload should be done in this function.
+ *
+ * @param array $params
+ *   Keyed array of data to build payload from.
+ *
+ * @return array $payload
+ *   Composed values ready to be sent as a message payload.
+ */
+function dosomething_mbp_get_common_campaign_payload(&$payload, $params) {
+  $payload['subscribed'] = 1;
+  $payload['event_id'] = $params['event_id'];
+  // Check for Mailchimp grouping_id+group_name:
+  $mailchimp = isset($params['mailchimp_group_name']) && isset($params['mailchimp_grouping_id']);
+  if ($mailchimp) {
+    $payload['mailchimp_grouping_id'] = $params['mailchimp_grouping_id'];
+    $payload['mailchimp_group_name'] = $params['mailchimp_group_name'];
+  }
+  $payload['merge_vars'] = array(
+    'FNAME' => $params['first_name'],
+    'CAMPAIGN_TITLE' => $params['campaign_title'],
+    'CAMPAIGN_LINK' => $params['campaign_link'],
+  );
+}
+
+/**
+ * Build payload for campaign cache message requests.
+ *
+ * @param string $origin
+ *   Where the message request came from.
+ * @param array $params
+ *   Optional keyed array of data to send externally.
+ *
+ * @return array $payload
+ *   Composed values ready to be sent as a message payload.
+ */
+function dosomething_mbp_get_campaign_cache_payload($origin, $params = NULL) {
+
+  switch ($origin) {
+    case 'create_campaign':
+    case 'update_campaign':
+      $payload = array(
+        'application_event' => $origin,
+        'application_id' => variable_get('message_broker_producer_application_id', '-1'),
+        'nid' => $params['nid'],
+        'title' => $params['title'],
+        'url' => $params['url'],
+        'call_to_action' => $params['call_to_action'],
+        'image_campaign_cover_markup' => $params['image_campaign_cover_markup'],
+        'do_it_title' => $params['do_it_title'],
+        'do_it_body' => $params['do_it_body'],
+        'fact_problem' => $params['fact_problem'],
+        'fact_solution' => $params['fact_solution'],
+        'high_season_start_timestamp' => $params['high_season_start_timestamp'],
+        'high_season_end_timestamp' => $params['high_season_end_timestamp'],
+        'low_season_start_timestamp' => $params['low_season_start_timestamp'],
+        'low_season_end_timestamp' => $params['low_season_end_timestamp'],
+      );
+      break;
+
+  }
+
+  return $payload;
+}
+
+/*
+ * Implements hook_node_insert().
+ *
+ * Respond to the creation of campaign nodes to produce Message Broker entries
+ * in the directCacheExchange.
+ *
+ * @param object $node
+ *   Submitted values for campaign
+ */
+function dosomething_mbp_node_insert($node) {
+  if ($node->type == 'campaign' && variable_get('dosomething_mbp_send_campaign_api', FALSE) == TRUE) {
+    dosomething_mbp_campaign_request('create_campaign', $node);
+  }
+}
+
+/*
+ * Implements hook_node_update().
+ *
+ * Respond to the update of campaign nodes to produce Message Broker entries
+ * in the directCacheExchange.
+ *
+ * @param object $node
+ *  Submitted values for campaign
+ */
+function dosomething_mbp_node_update($node) {
+  if ($node->type == 'campaign' && variable_get('dosomething_mbp_send_campaign_api', FALSE) == TRUE) {
+    dosomething_mbp_campaign_request('update_campaign', $node);
+  }
+}
+
+/*
+ * Collect and format values from campaign $node submissions and populate
+ * $params. The function responsible for ultimately triggering the request to
+ * produce a Message Broker caching transaction for campaign content creation
+ * and updates.
+ *
+ * @param string $action
+ *   Type of mbp request
+ * @param object $node
+ *   Submitted values for campaign
+ */
+function dosomething_mbp_campaign_request($action, $node) {
+
+  $params = array();
+  $params = array(
+    'nid' => $node->nid,
+    'title' => $node->title,
+  );
+  $campaign = dosomething_campaign_load($node);
+
+  $url = 'http://dosomething.org/' . drupal_lookup_path('alias', "node/" .
+    $node->nid);
+  $params['url'] = $url;
+
+  if (isset($campaign->call_to_action)) {
+    $params['call_to_action'] = $campaign->call_to_action;
+  }
+
+  $field = field_get_items('node', $node, 'field_image_campaign_cover');
+  if (isset($field[0]['target_id'])) {
+    $image_campaign_cover_target_id = $field[0]['target_id'];
+    $params['image_campaign_cover_markup'] = dosomething_image_get_themed_image($image_campaign_cover_target_id, 'square', '300x300');
+  }
+
+  $field = field_get_items('node', $node, 'field_step_pre');
+  if (isset($field[0]['value'])) {
+    $do_it_prestep_target_id = $field[0]['value'];
+    $do_it_enitity = entity_load('field_collection_item', array($do_it_prestep_target_id));
+    $params['do_it_title'] = $do_it_enitity[$do_it_prestep_target_id]->field_compound_text_header[LANGUAGE_NONE][0]['value'];
+    $params['do_it_body'] = $do_it_enitity[$do_it_prestep_target_id]->field_compound_text_copy[LANGUAGE_NONE][0]['value'];
+  }
+
+  if (isset($campaign->fact_problem)) {
+    $params['fact_problem'] = $campaign->fact_problem['fact'];
+  }
+  if (isset($campaign->fact_solution)) {
+    $params['fact_solution'] = $campaign->fact_solution['fact'];
+  }
+
+  $field = field_get_items('node', $node, 'field_high_season');
+  if (isset($field[0]['value'])) {
+    $params['high_season_start_timestamp'] = strtotime($field[0]['value']);
+    $params['high_season_end_timestamp'] = strtotime($field[0]['value2']);
+  }
+
+  $field = field_get_items('node', $node, 'field_low_season');
+  if (isset($field[0]['value'])) {
+    $params['low_season_start_timestamp'] = strtotime($field[0]['value']);
+    $params['low_season_end_timestamp'] = strtotime($field[0]['value2']);
+  }
+
+  dosomething_mbp_request($action, $params);
+}
