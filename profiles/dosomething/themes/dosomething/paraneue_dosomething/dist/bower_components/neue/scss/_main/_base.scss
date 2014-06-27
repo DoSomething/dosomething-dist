@@ -1,0 +1,149 @@
+// Set border-box on all the elements!
+* {
+  @include prefixer(box-sizing, border-box, webkit moz spec);
+}
+
+// Base HTML elements
+html {
+  height: 100%;
+  font-size: $font-regular;
+  background: $light-gray;
+}
+
+body {
+  width: 100%;
+  max-width: $max-width;
+  background: #fff;
+  color: $copy-color;
+  font-family: $font-proxima-nova;
+  font-size: $font-regular;
+  font-weight: $weight-normal;
+  line-height: 1.4;
+  margin: 0 auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+// Various heading weights.
+//
+// .banner - Stylized header banners.
+//
+// Styleguide 1.1 - Headings
+h1, h2, h3, h4 {
+  clear: both;
+  color: $purple;
+  font-weight: $weight-bold;
+  margin: 27px 0;
+
+  &.banner {
+    background: #000;
+    color: #fff;
+    text-transform: uppercase;
+    padding: 9px 0;
+
+    @include media($tablet) {
+      padding: 9px;
+    }
+  }
+}
+
+h1 {
+  font-size: $font-largest;
+
+  &.hero {
+    font-size: $font-hero;
+  }
+}
+
+h2 {
+  font-size: $font-large;
+}
+
+h3 {
+  color: $dark-gray;
+  font-size: $font-medium;
+  font-weight: $weight-sbold;
+}
+
+h4 {
+  color: $dark-gray;
+  font-size: $font-regular;
+  font-weight: $weight-sbold;
+  margin: 27px 0 9px;
+}
+
+// List of items with no ordering.
+//
+// Styleguide 1.2.1 - Unordered Lists
+ul {
+  list-style-type: disc;
+  padding-left: 2em;
+}
+
+// List of items with numerical ordering.
+//
+// Styleguide 1.2.2 - Ordered Lists
+ol {
+  list-style-type: decimal;
+  padding-left: 2em;
+}
+
+// Inline text elements.
+//
+// Styleguide 1.3 - Inline Elements
+p {
+  font-size: $font-regular;
+  color: $copy-color;
+  margin: 0 0 27px;
+}
+
+small {
+  font-size: $font-small;
+  margin: 0 0 27px;
+}
+
+a {
+  color: $blue;
+  font-weight: $weight-sbold;
+  text-decoration: none;
+
+  &:hover {
+    color: lighten($blue, $color-tint);
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: darken($blue, $color-tint);
+  }
+
+  &.secondary {
+    color: $med-gray;
+    font-weight: $weight-normal;
+    text-decoration: underline;
+  }
+}
+
+strong, b {
+  font-weight: $weight-sbold;
+}
+
+em {
+  font-style: italic;
+}
+
+mark {
+  background: #fdfbbd;
+}
+
+code {
+  font-family: "Menlo", "Consolas", "Courier New", serif;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+sup {
+  display: inline-block;
+  position: relative;
+  top: -0.4em;
+  font-size: 0.6em;
+  padding: 0;
+}
