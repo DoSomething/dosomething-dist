@@ -1,0 +1,158 @@
+.campaign {
+  > .wrapper {
+    position: relative;
+  }
+}
+
+
+
+// Page Specific Components
+.campaign--action,
+.campaign--sms {
+  .info-bar {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+  }
+}
+
+.campaign--action .container--prove,
+.campaign--sms .container--do {
+  background: $purple image-url("campaign-pattern-default.png") repeat center 63px;
+  padding-bottom: 126px;
+
+  @include media($tablet) {
+    padding-bottom: 90px;
+  }
+}
+
+.campaign--pitch,
+.campaign--grouped,
+.campaign--action .container--prove {
+  .message-callout {
+    .__copy {
+      left: 45px;
+    }
+  }
+}
+
+.campaign--pitch,
+.campaign--grouped {
+  [role="banner"] {
+    .message-callout {
+
+      .__copy {
+        &:before {
+          right: 35px;
+          top: -25px;
+        }
+      }
+
+      @include media($tablet) {
+        position: absolute;
+        left: 144px;
+        bottom: 0;
+        width: 165px;
+
+        .__copy {
+          text-align: center;
+
+          @include transform(rotate(-6deg));
+
+          &:before {
+            right: auto;
+            top: 50%;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+// Campaign Action Page
+.campaign--action {
+  [role="banner"] {
+    @include media($tablet) {
+      .message-callout {
+        @include visually-hidden();
+      }
+    }
+  }
+
+  .container--prove {
+
+    .container__body {
+      text-align: center;
+
+      @include media($desktop) {
+        text-align: left;
+      }
+    }
+
+    h3 {
+      color: #fff;
+      font-size: $font-large;
+      margin-bottom: 27px;
+    }
+
+    p, a {
+      color: #fff;
+    }
+
+    .message-callout {
+      @include media($desktop) {
+        .__copy {
+          left: 75px;
+          top: -10px;
+        }
+      }
+    }
+  }
+}
+
+// Campaign SMS Game Page
+.campaign--sms {
+  .form-actions {
+    text-align: left;
+  }
+
+  .container--do {
+    form {
+      .message-callout {
+        margin: 0 auto;
+        width: 270px;
+
+        @include media($tablet) {
+          margin: 0;
+          right: 20px;
+          position: absolute;
+        }
+
+        .__copy {
+          &:before {
+            right: -10px;
+          }
+        }
+      }
+    }
+
+    .message-callout.-right {
+      position: absolute;
+      left: 144px;
+      bottom: -15px;
+
+      @include media($tablet) {
+        bottom: 0;
+      }
+    }
+  }
+
+  // @TODO: find a better way to address the variations in gray; sass lists? (2014.06.24)
+  .disclaimer {
+    p, a {
+      color: darken($med-gray, 10%);
+    }
+  }
+}
+
