@@ -1,0 +1,130 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Static Content feature.
+ */
+
+include_once 'dosomething_static_content.features.inc';
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function dosomething_static_content_preprocess_node(&$vars) {
+  if ($vars['type'] == 'static_content') {
+    $content = $vars['content'];
+    $template_vars = array(
+      'text' => array(
+        'subtitle',
+        'intro_title',
+        'intro',
+        'additional_text_title',
+        'additional_text',
+        'call_to_action',
+      ),
+      'image' => array(
+        'hero_image',
+        'intro_image',
+      ),
+      'link' => array(
+        'cta_link'
+      ),
+    );
+
+    foreach ($template_vars as $key => $labels) {
+      foreach ($labels as $label) {
+        $field = "field_{$label}";
+          if (isset($content[$field])) {
+          switch ($key) {
+            case 'text':
+              $vars[$label] = $content[$field][0]['#markup'];
+              break;
+            case 'image':
+              if ($label == 'hero_image') {
+                $size = '800x300';
+              }
+              elseif ($label == 'intro_image') {
+                $size = '550x300';
+              }
+              $vars[$label] = dosomething_image_get_themed_image($vars[$field][0]['entity']->nid, 'landscape', $size);
+            break;
+            case 'link':
+              $vars[$label] = l($content[$field][0]['#element']['title'], $content[$field][0]['#element']['url'], array('attributes' => array('class' => 'btn')));
+            break;
+            default:
+              break;
+          }
+        }
+      }
+    }
+
+    $node = entity_metadata_wrapper('node', $vars['node']);
+    if ($node->field_video->value()->field_video_id) {
+      $vars['intro_video'] = theme('dosomething_video_embed', array('field' => $node->field_video->value()));
+    }
+
+    // Preprocess gallery variables.
+    dosomething_static_content_preprocess_gallery_vars($vars);
+
+    // If values present in the field_partners collection:
+    if (!empty($vars['field_partners'])) {
+      // Sets partners, sponsors, and partner_info arrays if present.
+      dosomething_helpers_preprocess_partners_vars($vars);
+    }
+  }
+}
+
+/**
+ * Preprocesses variables for the field_gallery field collection.
+ *
+ * @param array $vars
+ *   Variable array as passed from a hook_preprocess_node.
+ *
+ * @see dosomething_static_content_preprocess_node().
+ */
+function dosomething_static_content_preprocess_gallery_vars(&$vars) {
+  $content = $vars['content'];
+  $gallery_count = count($content['field_gallery']['#items']);
+
+  $vars['galleries'] = array();
+  // Loop through the galleries.
+  for ($i = 0; $i < $gallery_count; $i++) {
+    $vars['galleries'][$i] = array();
+    $collection_item = reset($content['field_gallery'][$i]['entity']['field_collection_item']);
+    $vars['galleries'][$i]['title'] = $collection_item['field_gallery_title'][0]['#markup'];
+    $collection_item = $collection_item['field_gallery_item'];
+
+    $gallery_item_count = count($collection_item['#items']);
+
+    for ($a = 0; $a < $gallery_item_count; $a++) {
+      $gallery_item = reset($collection_item[$a]['entity']['field_collection_item']);
+      $vars['galleries'][$i]['items'][$a]['image'] = dosomething_image_get_themed_image($gallery_item['field_gallery_image']['#items'][0]['target_id'], 'square', '300x300');
+
+      $link_field = $gallery_item['field_image_title'][0]['#element'];
+      
+      $vars['galleries'][$i]['items'][$a]['image_title'] = $link_field['url'] ? l(t($link_field['title']), $link_field['url'], array('target' => '_blank')) : $link_field['title'];
+      $vars['galleries'][$i]['items'][$a]['image_url'] = $link_field['url'];
+      $vars['galleries'][$i]['items'][$a]['image_description'] = $gallery_item['field_image_description'][0]['#markup'];
+
+      if (function_exists('paraneue_dosomething_get_gallery_item_order_class')) {
+        $vars['galleries'][$i]['items'][$a]['order_class'] = paraneue_dosomething_get_gallery_item_order_class($a);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_collection_is_empty_alter().
+ */
+function dosomething_static_content_field_collection_is_empty_alter(&$is_empty, $item) {
+  // If this is the field_video field_collection:
+  if ($item->field_name == 'field_video') {
+    // If a Video ID exists.
+    if (isset($item->field_video_id[LANGUAGE_NONE][0]['value'])) {
+      // If no value exists, consider this field collection empty.
+      $is_empty = empty($item->field_video_id[LANGUAGE_NONE][0]['value']);
+      return;
+    }
+    // Else assume this is an empty field collection.
+    $is_empty = TRUE;
+  }
+}
