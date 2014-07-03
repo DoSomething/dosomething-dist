@@ -1,0 +1,52 @@
+// Used to navigate between sections/panels/pages within an interface. Apply `.active` class to
+// link element for "active" state.
+//
+// .vertical - Vertical tab layout (for use in a sidebar).
+//
+// Styleguide 4.3.1 - Tabs
+.tabs {
+  padding: 54px 0;
+  font-size: 20px;
+  text-align: center;
+  overflow: hidden;
+
+  ul {
+    font-size: 0.9em;
+    margin: 18px;
+    padding: 0;
+  }
+
+  li {
+    display: inline;
+    margin: 0 0 9px;
+  }
+
+  a {
+    text-decoration: none;
+    padding: 0 9px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &.active, &.is-active {
+      color: #000;
+      font-weight: $weight-bold;
+    }
+  }
+
+  &.vertical {
+    font-size: 1.1em; // decreasing font size, starting at 1em
+    text-align: left;
+
+    ul {
+      font-size: 0.9em;
+      margin: 9px 18px 18px;
+    }
+
+    li {
+      display: block;
+      margin: 9px 0;
+    }
+  }
+}
