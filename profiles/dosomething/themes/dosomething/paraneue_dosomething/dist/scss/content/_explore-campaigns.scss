@@ -1,0 +1,63 @@
+
+// -------------------
+//  EXPLORE CAMPAIGNS
+// -------------------
+
+.view-explore-campaigns {
+  background: #fff;
+
+  // Set gutters on mobile
+  .content-wrapper {
+    padding: 0 18px;
+  }
+
+  // @TODO: Default content page headers -- same as campaign template -- abstract this
+  .view-header {
+    text-align: center;
+
+    @include media($tablet) {
+      text-align: left;
+    }
+
+    h1 {
+      color: #fff;
+
+      @include media($tablet) {
+        font-size: $font-larger;
+      }
+    }
+
+    h3 {
+      color: #fff;
+      font-weight: $weight-normal;
+      margin-top: -25px;
+    }
+  }
+
+  .view-content {
+    margin: 36px auto;
+
+    .search-result {
+      text-align: center;
+      margin-bottom: 54px;
+
+      @include media($tablet) {
+        // @TODO: Something's messed up here
+        @include span-columns(5);
+        @include omega(3n);
+      }
+
+      .gallery-description, h3 {
+        text-align: center;
+      }
+
+      h3 {
+        margin-bottom: 5px;
+      }
+
+      img {
+        max-width: 100%;
+      }
+    }
+  }
+}
