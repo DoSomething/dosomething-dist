@@ -1,0 +1,28 @@
+{
+  "name": "neue",
+  "version": "4.3.1",
+  "main": [
+    "dist/neue.css",
+    "dist/neue.min.js"
+  ],
+  "dependencies": {
+    "jquery": "^1.7"
+  },
+  "devDependencies": {
+    "jquery": "1.8.3",
+    "almond": "~0.2.9",
+    "html5shiv": "~3.7.2",
+    "respond": "~1.4.2",
+    "highlightjs": "~8.0.0"
+  },
+  "homepage": "https://github.com/DoSomething/neue",
+  "_release": "4.3.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v4.3.1",
+    "commit": "36bb1775d3dd0d81be60d4a4f2ee4a7875ed4b9b"
+  },
+  "_source": "git://github.com/DoSomething/neue.git",
+  "_target": "~4.3.1",
+  "_originalSource": "DoSomething/neue"
+}
