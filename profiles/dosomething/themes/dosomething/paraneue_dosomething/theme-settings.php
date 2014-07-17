@@ -1,0 +1,262 @@
+<?php
+
+function paraneue_dosomething_form_system_theme_settings_alter(&$form, &$form_state) {
+  $form['theme_settings'] = array(
+      '#type'          => 'fieldset',
+      '#title'         => t('Theme Settings'),
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+      '#weight'=> -19
+  );
+
+  $form['theme_settings']['asset_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Asset Path'),
+    '#description' => t('Path to load assets from. The <code>{ds_version}</code> string can be used to include the current <code>ds_version</code> value, or "latest" if not set. If left blank, assets will be loaded from the local theme folder.'),
+    '#default_value' => theme_get_setting('asset_path')
+  );
+
+  $form['theme_settings']['use_minified_assets'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Minify Assets'),
+    '#description' => t('Will use minified assets. Uncheck this if debugging in a browser without source maps. <strong>(Unminified assets are only created in production builds.)</strong>'),
+    '#default_value' => theme_get_setting('use_minified_assets')
+  );
+
+  $form['feature_flags'] = array(
+      '#type'          => 'fieldset',
+      '#title'         => t('Feature Flags'),
+      '#description'   => t('Allows features to be toggled on or off in different environments.'),
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+      '#weight'=> -19
+  );
+
+  $flags = array(
+    'show_campaign_finder' => array(
+      '#title' => t('Campaign Finder'),
+      '#description' => t('Toggles campaign finder on homepage/expore campaigns page.')
+    ),
+    'show_profile_link' => array(
+      '#title' => t('User Profile Link'),
+      '#description' => t('Toggles the user profile/create an account link in the main navigation.')
+    ),
+    'show_sponsors' => array(
+      '#title' => t('Show sponsors'),
+      '#description' => t('Toggles the sponsors block on the home page when finder is enabled.')
+    )
+  );
+
+  foreach ($flags as $name => $flag) {
+    $form['feature_flags'][$name] = $flag;
+    $form['feature_flags'][$name]['#type'] = 'checkbox';
+    $form['feature_flags'][$name]['#default_value'] = theme_get_setting($name);
+  }
+
+  // Lets break this up a little.
+  _paraneue_dosomething_theme_settings_header($form, $form_state);
+  _paraneue_dosomething_theme_settings_footer($form, $form_state);
+
+  if (!isset($form['#submit'])) {
+    $form['#submit'] = array();
+  }
+  $form['#submit'][] = 'paraneue_dosomething_theme_settings_handle_files';
+
+  // Work-around for this bug: https://drupal.org/node/1862892.
+  $theme_settings_path = drupal_get_path('theme', 'paraneue_dosomething') . '/theme-settings.php';
+  if (!in_array($theme_settings_path, $form_state['build_info']['files'])) {
+    $form_state['build_info']['files'][] = $theme_settings_path;
+  }
+}
+
+/**
+ * Sets setting form file status so it doesn't get removed by a cron job.
+ */
+function paraneue_dosomething_theme_settings_handle_files($form, &$form_state) {
+  // A shortcut to form values.
+  $input = &$form_state['input'];
+
+  // Act only when footer_affiliate_logo_file exists.
+  if (empty($input['footer_affiliate_logo_file']['fid'])) {
+    return;
+  }
+  $file = file_load($input['footer_affiliate_logo_file']['fid']);
+  if (empty($file)) {
+    return;
+  }
+
+  // Set footer_affiliate_logo_file status and record if it changed.
+  if (!empty($input['footer_affiliate_logo'])) {
+    // Logo is enabled, store file permanently.
+    $changed      = $file->status != FILE_STATUS_PERMANENT;
+    $file->status = FILE_STATUS_PERMANENT;
+  }
+  else {
+    // Logo is disabled, allow cron to cleanup the file.
+    $changed      = $file->status != 0;
+    $file->status = 0;
+  }
+
+  // Act only when file status actually changed.
+  if ($changed) {
+    file_save($file);
+
+    // Handle file usage reference.
+    if ($file->status == FILE_STATUS_PERMANENT) {
+      file_usage_add($file, 'paraneue_dosomething', 'paraneue_dosomething', $file->fid);
+    }
+    else {
+      // Remove usage reference if the logo disabled.
+      file_usage_delete($file, 'paraneue_dosomething', 'paraneue_dosomething');
+    }
+  }
+}
+
+function _paraneue_dosomething_theme_settings_header(&$form, $form_state) {
+  $form['header'] = array(
+    '#type'  => 'fieldset',
+    '#title' => t('Header'),
+  );
+
+  $form['header']['logo'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Logo Override'),
+    '#collapsible' => TRUE,
+    '#collapsed'   => TRUE,
+  );
+  $form_logo = &$form['header']['logo'];
+  $form_logo['header_logo_override'] = array(
+    '#type'              => 'managed_file',
+    '#title'             => t('File'),
+    '#upload_location'   => file_default_scheme() . '://theme/',
+    '#default_value'     => theme_get_setting('header_logo_override'),
+    '#upload_validators' => array(
+      'file_validate_extensions' => array('png'),
+    ),
+  );
+
+  $form['header']['who_we_are'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Who We Are?'),
+    '#collapsible' => TRUE,
+    '#collapsed'   => TRUE,
+  );
+
+  $form_who_we_are = &$form['header']['who_we_are'];
+  $form_who_we_are['header_who_we_are_text'] = array(
+    '#type'          => 'textfield',
+    '#title'         => 'Text',
+    '#default_value' => theme_get_setting('header_who_we_are_text'),
+  );
+  $form['header']['who_we_are']['header_who_we_are_link'] = array(
+    '#type'          => 'entity_autocomplete',
+    '#title'         => 'Link to',
+    '#bundles'       => array('static_content'),
+    '#default_value' => theme_get_setting('header_who_we_are_link'),
+  );
+}
+
+function _paraneue_dosomething_theme_settings_footer(&$form, $form_state) {
+  $form['footer'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Footer'),
+  );
+  $footer = &$form['footer'];
+
+  // Affiliate logo.
+  $footer['logo'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Affiliate logo'),
+    '#collapsible' => TRUE,
+  );
+  $footer['logo']['footer_affiliate_logo'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Enable affiliate logo'),
+    '#default_value' => theme_get_setting('footer_affiliate_logo'),
+  );
+  $footer['logo']['settings'] = array(
+    '#type' => 'container',
+    '#states' => array(
+      'invisible' => array(
+        'input[name="footer_affiliate_logo"]' => array('checked' => FALSE),
+      ),
+    ),
+  );
+  $form_logo_settings = &$footer['logo']['settings'];
+  $form_logo_settings['footer_affiliate_logo_text'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Text'),
+    '#default_value' => theme_get_setting('footer_affiliate_logo_text'),
+  );
+  $form_logo_settings['footer_affiliate_logo_file'] = array(
+    '#type'              => 'managed_file',
+    '#title'             => t('File'),
+    '#upload_location'   => file_default_scheme() . '://theme/footer-logo/',
+    '#default_value'     => theme_get_setting('footer_affiliate_logo_file'),
+    '#upload_validators' => array(
+      'file_validate_extensions' => array('png'),
+    ),
+  );
+
+  // Links.
+  $form['footer']['links'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Links',
+    '#description' => t('Manage the links in each column of the footer')
+  );
+
+  $footer['footer_social'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Toggle Social Links'),
+    '#options' => array(
+      'facebook' => t('Facebook'),
+      'twitter' => t('Twitter'),
+      'tumblr' => t('Tumblr'),
+      'instagram' => t('Instagram'),
+      'youtube' => t('Youtube'),
+    ),
+    '#default_value' => theme_get_setting('footer_social')
+  );
+
+  $links = &$form['links'];
+  $columns = array('first', 'second', 'third');
+  foreach ($columns as $column) {
+    $prefix = 'footer_links_' . $column;
+
+    $links[$prefix] = array(
+      '#type' => 'fieldset',
+      '#title' => t(ucwords($column) .' column'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE
+    );
+
+    $link_column = &$links[$prefix];
+
+    $link_column[$prefix . '_column_heading'] = array(
+      '#type' => 'textfield',
+      '#title' => t(ucwords($column) . ' Column Heading'),
+      '#default_value' => theme_get_setting('footer_links_' . $column . '_column_heading')
+    );
+
+    $link_column[$prefix . '_column_links'] = array(
+      '#type' => 'textarea',
+      '#title' => t(ucwords($column) . ' Column Links'),
+      '#default_value' => theme_get_setting('footer_links_' . $column . '_column_links')
+    );
+
+    $link_column[$prefix. '_advanced'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Advanced options'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE
+    );
+
+    $link_column[$prefix . '_advanced'][$prefix . '_column_class'] = array(
+      '#type' => 'textfield',
+      '#title' => t(ucwords($column) . ' Column Class'),
+      '#default_value' => theme_get_setting('footer_links_' . $column . '_column_class')
+    );
+
+  }
+
+}
