@@ -1,0 +1,54 @@
+<?php
+/**
+ * @file
+ * Helper functions for theming.
+ */
+
+/**
+ * Returns a css class name (either 'first', 'second', 'third') for a given $index.
+ *
+ * @param int $index
+ *   An index of an array being iterated.
+ *
+ * @return string
+ *   CSS class name
+ */
+function paraneue_dosomething_get_gallery_item_order_class($index) {
+  $index++;
+  switch ($index % 3) {
+    case 0:
+      return '-third';
+      break;
+    case 1:
+      return '-first';
+      break;
+    case 2:
+      return '-second';
+      break;
+    default:
+      return;
+  }
+}
+
+/**
+ * Returns a gallery css class name for a given gallery cms $style
+ *
+ * @param string $style
+ *   CSS class selected from gallery style dropdown
+ *
+ * @return string
+ *   Gallery css class name
+ */
+function paraneue_dosomething_get_gallery_style($style) {
+  switch ($style) {
+    case '2col':
+      return '-duo';
+      break;
+    case '3col_short':
+      return '-triad -aligned';
+      break;
+    default:
+      return '-triad';
+      break;
+  }
+}
