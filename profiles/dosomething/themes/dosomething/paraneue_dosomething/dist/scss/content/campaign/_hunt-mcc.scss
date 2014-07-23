@@ -1,0 +1,113 @@
+.mcc--googleform {
+  background: #fff;
+
+  label {
+    height: auto;
+    margin-bottom: 0.5em;
+  }
+
+  .required {
+    color: $error;
+    margin-bottom: 0.5em;
+  }
+
+  .info-list {
+    p:first-child {
+      margin-bottom: 0.5em;
+    }
+
+    ul {
+      margin-bottom: 27px;
+    }
+  }
+
+  .ss-form-question {
+    clear: both;
+    margin-bottom: 18px;
+    @include clearfix;
+
+    &.-compact {
+      @include media($desktop) {
+        clear: none;
+        float: left;
+        width: 50%;
+
+        &.-alpha {
+          padding-right: 9px;
+        }
+
+        &.-beta {
+          padding-left: 9px;
+        }
+      }
+    }
+  }
+
+  .ss-form {
+    @include media($tablet) {
+      @include span-columns(8 of 12);
+      @include shift(2);
+    }
+  }
+
+  .ss-form-desc {
+    margin-bottom: 36px;
+  }
+
+  .required-message {
+    @include visually-hidden;
+  }
+
+  .ss-required-asterisk {
+    display: none;
+  }
+
+  .field-label-optional {
+    color: $light-gray;
+  }
+
+  .ss-choices {
+    list-style-type: none;
+  }
+
+  .ss-choice-item label {
+    margin: 4px 0;
+  }
+
+  .ss-q-other-container {
+    padding-left: 22px;
+
+    input {
+      max-width: 400px;
+    }
+  }
+
+  .ss-datetime-box select {
+    @include span-columns(2 of 8);
+    @include omega(3n);
+  }
+
+  // Hide Google Datepicker control
+  .ss-picker-button-container {
+    display: none;
+  }
+
+  .ss-secondary-text {
+    color: $med-gray;
+    font-size: 16px;
+    padding-bottom: 18px;
+  }
+
+  // These should be hidden since we're not running Google's JS
+  .error-message {
+    display: none;
+  }
+
+  .ss-navigate {
+    margin-bottom: 36px;
+
+    table {
+      margin: 0 auto;
+    }
+  }
+}
