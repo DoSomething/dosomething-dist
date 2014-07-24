@@ -1,0 +1,9 @@
+name = "Message Broker Producer"
+description = "This module provided producer access to the Message Broker system."
+version = 0.1.21
+core = 7.x
+
+dependencies[] = libraries
+
+files[] = message_broker_producer.module
+configure = admin/config/services/message-broker-producer
