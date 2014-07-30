@@ -1,0 +1,26 @@
+EXAMPLE FILE - set values and save as config.inc
+
+<?php
+/*
+ * Configuration values that should not be in the repo
+ */
+if (isset($argv) && ($argv[0] == TRUE || $_GET['test'] == TRUE)) {
+  putenv("MANDRILL_APIKEY=<TEST APIKEY>");
+}
+else {
+  putenv("MANDRILL_APIKEY=<APIKEY>");
+}
+
+// @todo Consider connecting using different Rabbit user based on application
+// making the connection. Set enviroment vars based on application in config.inc
+
+// RabbitMQ
+putenv("RABBITMQ_HOST=<HOST NAME>");
+putenv("RABBITMQ_PORT=<PORT>");
+putenv("RABBITMQ_USERNAME=<USERNAME>");
+putenv("RABBITMQ_PASSWORD=<PASSWORD>");
+
+// RabbitMQ Queues
+putenv("TRANSACTIONAL_EXCHANGE=transactionals");
+putenv("TRANSACTIONAL_QUEUE=transactionals-queue");
+putenv("RABBITMQ_DOSOMETHING_VHOST=<VHOST>");
