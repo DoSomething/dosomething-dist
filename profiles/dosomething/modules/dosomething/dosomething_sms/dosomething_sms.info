@@ -1,0 +1,7 @@
+name = DoSomething SMS
+description = Provides SMS integration for DoSomething.org
+core = 7.x
+dependencies[] = conductor_sms
+package = DoSomething
+configure = admin/config/dosomething/dosomething_sms
+files[] = includes/dosomething_sms.inc
