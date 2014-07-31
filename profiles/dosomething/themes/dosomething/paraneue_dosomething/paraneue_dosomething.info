@@ -1,0 +1,114 @@
+name = Paraneue DoSomething
+description = A Paraneue subtheme for DoSomething.org
+screenshot = screenshot.png
+engine = phptemplate
+core = 7.x
+php = 5.2
+
+features[] = favicon
+features[] = name
+features[] = slogan
+features[] = main_menu
+features[] = secondary_menu
+
+; ### Settings.
+; Assets
+settings[asset_path] = ''
+settings[use_minified_assets] = 1
+; Blocks
+settings[show_campaign_finder] = 0
+settings[show_sponsors] = 1
+; Header
+settings[header_who_we_are_text] = 'What is DoSomething.org?'
+settings[header_who_we_are_subtext] = 'Young people + Social change'
+settings[header_who_we_are_link] = '538'
+settings[header_explore_campaigns_text] = 'Explore Campaigns'
+settings[header_explore_campaigns_subtext] = 'Any cause, anytime, anywhere.'
+; settings[header_explore_campaigns_link] = 'campaigns'
+; Footer
+settings[footer_affiliate_logo] = 0
+; Footer social networks menu
+settings[footer_social_facebook_enabled]  = 1
+settings[footer_social_facebook_url]      = https://www.facebook.com/dosomething
+settings[footer_social_facebook_alt]      = dosomething on Facebook
+settings[footer_social_twitter_enabled]   = 1
+settings[footer_social_twitter_url]       = https://twitter.com/dosomething
+settings[footer_social_twitter_alt]       = @dosomething on Twitter
+settings[footer_social_tumblr_enabled]    = 1
+settings[footer_social_tumblr_url]        = http://dosomething.tumblr.com/
+settings[footer_social_tumblr_alt]        = @dosomething on Tumblr
+settings[footer_social_instagram_enabled] = 1
+settings[footer_social_instagram_url]     = http://instagram.com/dosomething
+settings[footer_social_instagram_alt]     = @dosomething on Instagram
+settings[footer_social_youtube_enabled]   = 1
+settings[footer_social_youtube_url]       = http://www.youtube.com/user/DoSomething1
+settings[footer_social_youtube_alt]       = dosomething1 on YouTube
+
+; Footer menu
+settings[footer_links_first_column_heading] = 'Help'
+settings[footer_links_first_column_links] = 'Contact Us|node/516
+Hotlines|node/518
+FAQs|node/1052'
+settings[footer_links_first_column_class] = 'help'
+settings[footer_links_second_column_heading] = 'Get to Know Us'
+settings[footer_links_second_column_links] = 'Partners|node/532
+Donate|node/539
+TMI Agency|http://www.tmiagency.org'
+settings[footer_links_second_column_class] = 'knowus'
+settings[footer_links_third_column_heading] = 'About'
+settings[footer_links_third_column_links] = 'What is DoSomething.org?|node/538
+Our Team|node/1044
+Jobs|node/565
+Internships|node/940
+Old People|node/329
+Sexy Financials|node/540
+International|node/523'
+settings[footer_links_third_column_class] = 'about'
+
+;Exclude
+;javascript
+exclude[js][] = 'misc/jquery.js'
+exclude[js][] = 'misc/jquery.cookie.js'
+exclude[js][] = 'misc/jquery.once.js'
+exclude[js][] = 'modules/contextual/contextual.js'
+exclude[js][] = 'modules/user/user.js'
+exclude[js][] = 'misc/textarea.js'
+exclude[js][] = 'misc/form.js'
+
+;css
+exclude[css][] = 'misc/vertical-tabs.css'
+exclude[css][] = 'modules/aggregator/aggregator.css'
+exclude[css][] = 'modules/block/block.css'
+exclude[css][] = 'modules/book/book.css'
+exclude[css][] = 'modules/comment/comment.css'
+exclude[css][] = 'modules/ctools/css/ctools.css'
+exclude[css][] = 'modules/date/date_api/date.css'
+exclude[css][] = 'modules/dblog/dblog.css'
+exclude[css][] = 'modules/field/theme/field.css'
+exclude[css][] = 'modules/field/theme/field.css'
+exclude[css][] = 'modules/field_group/field_group.field_ui.css'
+exclude[css][] = 'modules/file/file.css'
+exclude[css][] = 'modules/filter/filter.css'
+exclude[css][] = 'modules/forum/forum.css'
+exclude[css][] = 'modules/help/help.css'
+exclude[css][] = 'modules/menu/menu.css'
+exclude[css][] = 'modules/node/node.css'
+exclude[css][] = 'modules/openid/openid.css'
+exclude[css][] = 'modules/poll/poll.css'
+exclude[css][] = 'modules/search/search.css'
+exclude[css][] = 'modules/statistics/statistics.css'
+exclude[css][] = 'modules/syslog/syslog.css'
+exclude[css][] = 'modules/system/admin.css'
+exclude[css][] = 'modules/system/maintenance.css'
+exclude[css][] = 'modules/system/system.admin.css'
+exclude[css][] = 'modules/system/system.base.css'
+exclude[css][] = 'modules/system/system.css'
+exclude[css][] = 'modules/system/system.maintenance.css'
+exclude[css][] = 'modules/system/system.menus.css'
+exclude[css][] = 'modules/system/system.messages.css'
+exclude[css][] = 'modules/system/system.theme.css'
+exclude[css][] = 'modules/taxonomy/taxonomy.css'
+exclude[css][] = 'modules/tracker/tracker.css'
+exclude[css][] = 'modules/update/update.css'
+exclude[css][] = 'modules/user/user.css'
+exclude[css][] = 'modules/views/css/views.css'
