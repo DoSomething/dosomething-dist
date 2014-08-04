@@ -1,0 +1,7 @@
+$neue-path: "assets/images/";
+
+// Helper to generate Neue URLs
+// @method neue-image-url
+@function neue-image-url($file) {
+  @return url("#{$neue-path}#{$file}");
+}
