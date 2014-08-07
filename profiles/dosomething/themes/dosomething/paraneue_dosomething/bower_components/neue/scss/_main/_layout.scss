@@ -1,0 +1,24 @@
+// Basic layout classes, used in styleguide.
+.sidebar {
+  margin-top: 9px; // keep top of sidebar inline with body text
+  margin-bottom: 54px;
+
+  @include media($tablet) {
+    @include span-columns(3);
+    @include omega;
+
+    nav.is-stuck {
+      position: fixed;
+      top: 0;
+    }
+  }
+}
+
+.sidebar-content {
+  margin: 0 18px 54px;
+
+  @include media($tablet) {
+    @include shift(2);
+    @include span-columns(10);
+  }
+}
