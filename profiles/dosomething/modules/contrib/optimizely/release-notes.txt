@@ -1,0 +1,32 @@
+9 August 2013 - 7.x-2.11
+
+- Bug fix: Check for unique wildcard paths "*" in either existing oe the addition of projects was not validating correctly
+- Bug fix: Check for valid paths that included wildcards "*" not validating correctly
+- Bug fix: Logic in hook_init function not supporting wildcards "*"
+- Bug fix: Added support for parameters in project paths
+- Bug Fix: Added check for unique path within new project path submission
+- Added support for complete alias lookups when adding / editing project paths to all for entries using both alias and source values
+- Added support for <front> to also check related alias and source values
+- Added support for https (secure pages) to Optimizely snippet calls
+- Added path alias details to project listing when path is <front>
+- Removed support for "exclude" project paths (the logic to support both include and exclude project settings was not maintainable)
+- Added addtional Simple test coverage to help fight regressions
+
+
+16 August 2013 - 7.x-2.12
+
+-> Fix issue with merge comments "=== and >>>" in code - removed and tested
+-> Adjusted comments in Add / Edit project form to better respond to default project code / Optimizely account ID not being set and preventing the enabling of the default project entry.
+-> Fixed support for parameters "?" in project path settings to use the base path
+
+
+17 August 2013 - 7.x-2.13
+
+Fixed weird git merge issues that resulted in duplicate functions.
+
+
+19 August 2013 - 7.x-2.14
+
+- Fixed message display for project code setting to respond to when the Optimizely account ID is not set
+- Fixed undefined variable warning for project code setting message logic for adding new project
+- Fixed duplicate path check when one path has parameter values

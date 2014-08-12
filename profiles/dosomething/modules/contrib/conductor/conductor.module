@@ -1,0 +1,359 @@
+<?php
+
+/**
+ * @file
+ *   conductor.module provides a workflow editor with a GUI (or it will).
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function conductor_menu() {
+  $items = array();
+  $items['conductor/ajax'] = array(
+    'title' => 'Conductor',
+    'description' => 'Ajax callback for workflow manipulation.',
+    'page callback' => 'conductor_ajax',
+    'theme callback' => 'ajax_base_page_theme',
+    'delivery callback' => 'ajax_deliver',
+    'access arguments' => array('administer conductor workflows'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/ajax.inc',
+  );
+  return $items;
+}
+
+/*
+ * Implements hook_permission().
+ */
+function conductor_permission() {
+  return array(
+    'administer conductor workflows' => array(
+      'title' => t('Administer workflows'),
+      'description' => t('Access the conductor workflow administration pages.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function conductor_theme() {
+  $theme = array();
+  ctools_include('plugins');
+  $activity_plugins = ctools_get_plugins('conductor', 'activity');
+  foreach ($activity_plugins as $activity_name => $activity_plugin) {
+    /*
+    TODO: add the ability to setup custom rendering for each of your plugins.
+    $theme['conductor_activity_' . $activity_name] = array(
+    );
+    */
+  }
+  return $theme;
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function conductor_ctools_plugin_api($owner, $api) {
+  if ($owner == 'conductor' && ($api == 'plugins' || $api == 'workflow')) {
+    return array('version' => 1.0);
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function conductor_ctools_plugin_type() {
+  return array(
+    'activity' => array(
+      'process' => 'conductor_activity_process',
+      'child plugins' => TRUE,
+      'classes' => array('handler'),
+    ),
+    'storage' => array(
+      'child plugins' => TRUE,
+      'classes' => array('handler'),
+    ),
+  );
+}
+
+/**
+ * Ensure an activity has a minimal set of data.
+ */
+function conductor_activity_process(&$plugin) {
+  $plugin += array(
+    'category' => t('Miscellaneous'),
+    'description' => '',
+    'conductor_ui_template' => 'conductor_activity',
+    'conductur_ui_js_object' => 'activity',
+  );
+  foreach (module_implements('conductor_activity_process') as $module) {
+    // Enable other modules to modify the plugin data.
+    $function = $module . '_conductor_activity_process';
+    $function($plugin);
+  }
+  drupal_alter('conductor_activity_process', $plugin);
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * @param string $owner
+ *   The system name of the module owning the plugin type for which a base
+ *   directory location is being requested.
+ * @param string $plugin_type
+ *   The name of the plugin type for which a base directory is being requested.
+ * @return string
+ *   The path where CTools' plugin system should search for plugin files,
+ *   relative to your module's root. Omit leading and trailing slashes.
+ */
+function conductor_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'conductor') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Load a conductor activity handler.
+ *
+ * @param $activity
+ *   A string representing the name of the actiivty plugin.
+ */
+function conductor_get_activity_handler($name) {
+  ctools_include('plugins');
+  $activity_plugin = ctools_get_plugins('conductor', 'activity', $name);
+  $class_name = ctools_plugin_get_class($activity_plugin, 'handler');
+  $handler = FALSE;
+  if ($class_name != FALSE) {
+    // TODO: plugin_info should probably be handed in to the constructor as configuration...
+    $handler = new $class_name;
+    $handler->plugin_info = $activity_plugin;
+  }
+  return $handler;
+}
+
+/**
+ * Load a conductor state storage handler.
+ *
+ * @param $name
+ *   A string representing the name of the storage plugin.
+ */
+function conductor_get_storage_handler($name) {
+  ctools_include('plugins');
+  $storage_plugin = ctools_get_plugins('conductor', 'storage', $name);
+  $class_name = ctools_plugin_get_class($storage_plugin, 'handler');
+  $handler = FALSE;
+  if ($class_name != FALSE) {
+    $handler = new $class_name;
+    $handler->plugin_info = $storage_plugin;
+  }
+  return $handler;
+}
+
+/**
+ * Menu callback to load a workflow via AJAX.
+ */
+function conductor_ajax() {
+  if (isset($_REQUEST['conductor_name'])) {
+  }
+}
+
+
+/**
+ * Get a workflow from the database or from default workflows.
+ *
+ * This function is just a static wrapper around workflows::load(). This function
+ * isn't called 'workflows_load()' primarily because it might get a workflow
+ * from the default workflows which aren't technically loaded from the database.
+ *
+ * @param $name
+ *   The name of the workflow.
+ * @param $reset
+ *   If TRUE, reset this entry in the load cache.
+ * @return workflow
+ *   A reference to the $workflow object. Use $reset if you're sure you want
+ *   a fresh one.
+ */
+function conductor_get_workflow($name, $reset = FALSE) {
+  $workflow = FALSE;
+  $cache = &drupal_static('ctools_export_load_object');
+  if ($reset) {
+    unset($cache['conductor_workflow'][$name]);
+    cache_clear_all('conductor_workflow_' . $name);
+  }
+  if (isset($cache['conductor_workflow'][$name])) {
+    $workflow = $cache['conductor_workflow'][$name];
+  }
+  else if ($cached_data = cache_get('conductor_workflow_' . $name)) {
+    $workflow = $cached_data->data;
+    $cache['conductor_workflow'][$name] = $workflow;
+  }
+  if (!$workflow) {
+    ctools_include('export');
+    $workflow = ctools_export_crud_load('conductor_workflow', $name);
+    if ($workflow) {
+      cache_set('conductor_workflow_' . $name, $workflow);
+      $workflow->indexActivities();
+    }
+  }
+  if ($workflow) {
+    $workflow = clone $workflow;
+  }
+  // Return a clone of the workflow to ensure that we never inadvertantly cache a
+  return $workflow;
+}
+
+/**
+ * Load a single workflow.
+ */
+function conductor_load_workflow($name) {
+  ctools_include('export');
+  $result = ctools_export_load_object('conductor_workflow', 'names', array($name));
+  if (isset($result[$name])) {
+    return $result[$name]->cloneWorkflow();
+  }
+}
+
+/**
+ * Save a single workflow.
+ */
+function conductor_save_workflow(ConductorWorkflow &$workflow) {
+  cache_clear_all('conductor_workflow_' . $workflow->name);
+  return $workflow->save();
+}
+
+/**
+ * Delete a single workflow.
+ */
+function conductor_delete_workflow(ConductorWorkflow &$workflow) {
+  $workflow->destroy();
+  return $workflow->delete();
+}
+
+/**
+ * Export CRUD callback to export a workflow.
+ */
+function conductor_export_workflow(ConductorWorkflow &$workflow, $indent = '') {
+  return $workflow->export($indent);
+}
+
+/**
+ * Create an empty workflow to work with.
+ *
+ * This function simply instantiates a new ConductorWorkflow, populating it
+ * with the `start` and `end` workflow activities required by all Conductor
+ * workflows for processing.
+ *
+ * @return ConductorWorkflow
+ *   A fully formed, empty $workflow object.
+ */
+function conductor_new_workflow() {
+  $workflow = new ConductorWorkflow();
+  $workflow->wid = 'new';
+  $activity = $workflow->newActivity('start');
+  $activity->name = 'start';
+  $activity->title = t('Start');
+  $activity->x = 100;
+  $activity->y = 100;
+  $activity = $workflow->newActivity('end');
+  $activity->name = 'end';
+  $activity->title = t('End');
+  $activity->x = 300;
+  $activity->y = 100;
+  return $workflow;
+}
+
+/**
+ * Start an instance of a workflow.
+ *
+ * @param $name
+ *   The name of the workflow to start.
+ * @param $options
+ *   An array of options passed to conductor_create_workflow_instace().
+ */
+function conductor_start_workflow($name, $options = array()) {
+  $workflow = conductor_create_workflow_instance($name, $options);
+  return $workflow->run();
+}
+
+/**
+ * Factory function for workflow instances.
+ *
+ * A workflow instance is an
+ *
+ * Dependency injection is expected to keep Conductor flexible
+ * and to allow us to extend it unforseen ways.  This may have
+ * gotten out of control though.
+ *
+ * @param $options
+ *   An array of options used for dependency injection to configure
+ *   a create the desired workflow instance.
+ *   - "context": An associative array of context information handed
+ *     into the first activity.
+ *   - "observers": TODO: document.
+ *   - "state": a ConductorState descended object to be used as the workflow
+ *     state for this instance.
+ *   - "activity_state": TODO: document.
+ */
+function conductor_create_workflow_instance($name, $options = array()) {
+
+  // Get the workflow object.
+  $workflow = conductor_get_workflow($name);
+
+  // If a state object has been provided, use it.
+  if (isset($options['state'])) {
+    $workflow->setState($options['state']);
+  }
+
+  // If no state object has been created the workflow will instantiate the default.
+  $workflowState = $workflow->getState();
+  $startActivity = $workflow->getFirstActivity();
+
+  // If an activity state object has been provided, use it.
+  if (isset($options['activity_state'])) {
+    $startActivity->setState($options['activity_state']);
+  }
+  $startState = $startActivity->getState();
+
+  // If we have a context with which to start this workflow, set it.
+  if (isset($options['context'])) {
+    $startState->context = $options['context'];
+  }
+
+  // Set the activity state on the workflow.
+  $workflowState->setActivityState($startState);
+
+
+  // Get the first activity, we may need it to set the initial context.
+  // TODO: Decide if workflow state should instantiate the activity state?  how could we inject the dependency?
+  // NOTE: it would prevent the call to setActivityState.
+  //$startState = $workflowState->getActivityState($startActivity->name);
+
+  // Register any necessary observers for workflow processing.
+  // TODO: Load the default observers if any are configured when this is blank.
+  if (isset($options['observers'])) {
+    foreach ($options['observers'] as $observer) {
+      $workflow->state->registerObserver($observer);
+    }
+  }
+  return $workflow;
+}
+
+/**
+ * TODO: recieve context here?
+ */
+function conductor_load_workflow_instance_from_pointer($pointer_key) {
+  // TODO: Allow this to be overridden with options.
+  $storage = conductor_get_storage_handler(variable_get('conductor_default_storage_handler', 'database'));
+  if ($pointer = $storage->loadPointer($pointer_key)) {
+    $workflow = conductor_get_workflow($pointer['workflowName']);
+    $state = $workflow->getState()->loadFromUniqueId($pointer['instanceId']);
+  }
+  else {
+    $workflow = FALSE;
+  }
+  return $workflow;
+}
+
+
