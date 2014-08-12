@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * Installation and schema hooks for dosomething_fact.module.
+ */
+
+/**
+ * Remove body from Fact content type.
+ */
+function dosomething_fact_update_7001(&$sandbox) {
+  if ($instance = field_info_instance('node', 'body', 'fact')) {
+    field_delete_instance($instance);
+  }
+}
+
+/**
+ * Remove unused dosomething_fact custom table.
+ */
+function dosomething_fact_update_7002(&$sandbox) {
+  $table = 'dosomething_fact';
+  if (db_table_exists($table)) {
+    db_drop_table($table);
+  }
+}
