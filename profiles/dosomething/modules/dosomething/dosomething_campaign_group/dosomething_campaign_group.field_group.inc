@@ -1,0 +1,247 @@
+<?php
+/**
+ * @file
+ * dosomething_campaign_group.field_group.inc
+ */
+
+/**
+ * Implements hook_field_group_info().
+ */
+function dosomething_campaign_group_field_group_info() {
+  $export = array();
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_additional_text|node|campaign_group|form';
+  $field_group->group_name = 'group_additional_text';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Additional Text',
+    'weight' => '9',
+    'children' => array(
+      0 => 'field_additional_text',
+      1 => 'field_additional_text_title',
+      2 => 'field_additional_text_image',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-additional-text field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $export['group_additional_text|node|campaign_group|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_header|node|campaign_group|form';
+  $field_group->group_name = 'group_header';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Basic Info',
+    'weight' => '0',
+    'children' => array(
+      0 => 'field_call_to_action',
+      1 => 'field_image_campaign_cover',
+      2 => 'title',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'label' => 'Basic Info',
+      'instance_settings' => array(
+        'required_fields' => 1,
+        'classes' => 'group-header field-group-fieldset',
+        'description' => '',
+      ),
+      'formatter' => 'collapsible',
+    ),
+  );
+  $export['group_header|node|campaign_group|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_intro|node|campaign_group|form';
+  $field_group->group_name = 'group_intro';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Intro',
+    'weight' => '2',
+    'children' => array(
+      0 => 'field_intro',
+      1 => 'field_intro_image',
+      2 => 'field_intro_title',
+      3 => 'field_video',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-intro field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $export['group_intro|node|campaign_group|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_post_signup|node|campaign_group|form';
+  $field_group->group_name = 'group_post_signup';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Post Sign Up',
+    'weight' => '7',
+    'children' => array(
+      0 => 'field_post_signup_title',
+      1 => 'field_post_signup_copy',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-post-sign-up field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $export['group_post_signup|node|campaign_group|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_pre_launch|node|campaign_group|form';
+  $field_group->group_name = 'group_pre_launch';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Pre Launch',
+    'weight' => '8',
+    'children' => array(
+      0 => 'field_pre_launch_copy',
+      1 => 'field_pre_launch_title',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-pre-launch field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $export['group_pre_launch|node|campaign_group|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_signup_form|node|campaign_group|form';
+  $field_group->group_name = 'group_signup_form';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Signup Form',
+    'weight' => '6',
+    'children' => array(
+      0 => 'field_signup_confirm_msg',
+      1 => 'field_display_signup_form',
+      2 => 'field_signup_form_button_text',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-signup-form field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $export['group_signup_form|node|campaign_group|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_taxonomy|node|campaign_group|form';
+  $field_group->group_name = 'group_taxonomy';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Taxonomy and Discovery',
+    'weight' => '15',
+    'children' => array(
+      0 => 'field_cause',
+      1 => 'field_action_type',
+      2 => 'field_active_hours',
+      3 => 'field_staff_pick',
+      4 => 'field_tags',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-taxonomy field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $export['group_taxonomy|node|campaign_group|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_timing|node|campaign_group|form';
+  $field_group->group_name = 'group_timing';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'campaign_group';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Timing',
+    'weight' => '10',
+    'children' => array(
+      0 => 'field_display_end_date',
+      1 => 'field_high_season',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-timing field-group-fieldset',
+        'required_fields' => 1,
+      ),
+    ),
+  );
+  $export['group_timing|node|campaign_group|form'] = $field_group;
+
+  return $export;
+}
