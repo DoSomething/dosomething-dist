@@ -1,0 +1,355 @@
+<?php
+/**
+ * @file
+ * Code for the dosomething_reward feature.
+ */
+
+include_once 'dosomething_reward.features.inc';
+include_once 'dosomething_reward.forms.inc';
+
+DEFINE('DOSOMETHING_REWARD_LOG', variable_get('dosomething_reward_log') ? TRUE : FALSE);
+DEFINE('DOSOMETHING_REWARD_NUM_REPORTBACK_COUNT', 2);
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_reward_menu() {
+  $items = array();
+  $items['admin/config/dosomething/dosomething_reward'] = array(
+    'title' => 'DoSomething Reward',
+    'description' => 'Admin configuration form for DoSomething Reward.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reward_admin_config_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'file' => 'dosomething_reward.admin.inc',
+  );
+  $items['admin/users/rewards/%reward/edit'] = array(
+    'title' => 'Edit Reward',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reward_form', 3),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function dosomething_reward_entity_info() {
+  $info = array();
+  $info['reward'] = array(
+    'label' => t('Reward'),
+    'base table' => 'dosomething_reward',
+    'entity keys' => array(
+      'id' => 'id',
+      'label' => 'id',
+    ),
+    'entity class' => 'RewardEntity',
+    'uri callback' => 'entity_class_uri',
+    'controller class' => 'RewardEntityController',
+    'module' => 'dosomething_reward',
+  );
+  return $info;
+}
+
+/**
+ * Menu autoloader for /reward.
+ */
+function reward_load($id) {
+  return entity_load_single('reward', $id);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function dosomething_reward_theme($existing, $type, $theme, $path) {
+  return array(
+    'reward_redeem_reportback_count' => array(
+      'template' => 'reward-redeem-reportback-count',
+      'path' => drupal_get_path('module', 'dosomething_reward') . '/theme',
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_data().
+ */
+function dosomething_reward_views_data() {
+  // Define dosomething_reward table.
+  $data['dosomething_reward']['table']['group'] = t('Rewards');
+  $data['dosomething_reward']['table']['base'] = array(
+    'field' => 'id',
+    'title' => t('Rewards'),
+    'help' => t('Dosomething Reward table.'),
+    'weight' => -10,
+  );
+  $data['dosomething_reward']['table']['join'] = array(
+    'users' => array(
+      'left_field' => 'uid',
+      'field' => 'uid',
+    ),
+  );
+  $data['dosomething_reward']['id'] = array(
+    'title' => t('Reward id'),
+    'help' => t('Reward id.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'base' => 'dosomething_reward',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Reward id'),
+    ),
+  );
+  $data['dosomething_reward']['uid'] = array(
+    'title' => t('Uid'),
+    'help' => t('User id.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'base' => 'users',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Reward User'),
+    ),
+  );
+  $data['dosomething_reward']['reward_type'] = array(
+    'title' => t('Reward type'),
+    'help' => t('Reward type.'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+  $data['dosomething_reward']['entity_type'] = array(
+    'title' => t('Reward Entity type'),
+    'help' => t('The type of the Entity associated with the Reward.'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+  $data['dosomething_reward']['entity_id'] = array(
+    'title' => t('Reward Entity id'),
+    'help' => t('The id of the Entity associated with the Reward.'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+  $data['dosomething_reward']['created'] = array(
+    'title' => t('Date created'),
+    'help' => t('Date created.'),
+    'field' => array(
+      'handler' => 'views_handler_field_date',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
+  $data['dosomething_reward']['redeemed'] = array(
+    'title' => t('Date redeemed'),
+    'help' => t('Date redeemed.'),
+    'field' => array(
+      'handler' => 'views_handler_field_date',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
+  return $data;
+}
+
+/**
+ * Checks if a Reward exists.
+ *
+ * @param string $reward_type
+ *   The type of Reward to check for.
+ * @param int $uid
+ *   (optional) The User uid of Reward record to check.
+ *   If not given, uses global $user->uid.
+ *
+ * @return
+ *   The Reward object, or FALSE.
+ */
+function dosomething_reward_exists($reward_type, $uid = NULL) {
+  if ($uid == NULL) {
+    global $user;
+    $uid = $user->uid;
+  }
+  $result = db_select('dosomething_reward', 'r')
+    ->condition('uid', $uid)
+    ->condition('reward_type', $reward_type)
+    ->fields('r', array('id'))
+    ->execute();
+  $id = $result->fetchField(0);
+  // If an id was found, return the Reward.
+  if (is_numeric($id)) {
+    return entity_load_single('reward', $id);
+  }
+  // Otherwise return FALSE.
+  return FALSE;
+}
+
+/**
+ * Creates a Reportback Count Reward for a Reportback, if applicable.
+ *
+ * This function is to be called when a Reportback has been inserted.
+ * @see ReportbackEntityController->save()
+ *
+ * @param object $reportback
+ *   The newly inserted Reportback entity.
+ *
+ * @return
+ *   The Reward object, or FALSE.
+ */
+function dosomething_reward_reportback_count($reportback) {
+  // If Reportback Count is not enabled:
+  if (!variable_get('dosomething_reward_enable_reportback_count', FALSE)) {
+    return FALSE;
+  }
+  $reward_type = 'reportback_count';
+  $uid = $reportback->uid;
+  $account = user_load($uid);
+
+  $log_category = 'dosomething_reward_reportback_count';
+
+  if (DOSOMETHING_REWARD_LOG) {
+    watchdog($log_category, 'Reportback @reportback', array(
+      '@reportback' => json_encode($reportback),
+    ));
+    watchdog($log_category, 'User @account', array(
+      '@account' => json_encode($account),
+    ));
+  }
+
+  // Old people are not eligible for the Reward.
+  if (dosomething_user_is_old_person($account)) {
+    if (DOSOMETHING_REWARD_LOG) {
+      watchdog($log_category, 'User uid @uid is an old person.', array(
+        '@uid' => $account->uid,
+      ));
+    }
+    return FALSE;
+  }
+
+  // Check if User already has a Reportback Count Reward.
+  if ($reward = dosomething_reward_exists($reward_type, $uid)) {
+    if (DOSOMETHING_REWARD_LOG) {
+      watchdog($log_category, 'Reward already exists: @reward', array(
+        '@reward' => json_encode($reward),
+      ));
+    }
+    // Exit out of function because User already has earned a Reward.
+    return FALSE;
+  }
+
+  $rb_count = dosomething_reportback_get_count_by_uid($uid);
+  if (DOSOMETHING_REWARD_LOG) {
+    watchdog($log_category, 'Count == @count', array(
+      '@count' => json_encode($rb_count),
+    ));
+  }
+  if ($rb_count >= DOSOMETHING_REWARD_NUM_REPORTBACK_COUNT) {
+    // Create a Reward entity:
+    try {
+      $reward = entity_create('reward', array(
+        'reward_type' => $reward_type,
+        'uid' => $uid,
+        'entity_type' => 'reportback',
+        'entity_id' => $reportback->rbid,
+      ));
+      if (DOSOMETHING_REWARD_LOG) {
+        watchdog($log_category, 'entity_create @reward', array(
+          '@reward' => json_encode($reward),
+        ));
+      }
+      $reward->save();
+      return $reward;
+    }
+    catch (Exception $e) {
+      watchdog('dosomething_reward', $e, array(), WATCHDOG_ERROR);
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * For a given $reward, return an array of relevant Redeem Form variables.
+ */
+function dosomething_reward_get_redeem_form_vars($reward) {
+  // Initialize return array.
+  $vars = array();
+  // Get the Redeem Form for this $reward.
+  $vars['form'] = drupal_get_form('dosomething_reward_redeem_form', $reward);
+  // Set copy variables.
+  $copy_vars = array(
+    'form_copy',
+    'form_header',
+    'form_link',
+    'page_copy',
+    'page_header',
+    'page_image',
+    'page_subtitle',
+    'page_title',
+  );
+  foreach ($copy_vars as $key) {
+    $var_name = 'dosomething_reward_redeem_' . $key;
+    $vars[$key] = variable_get($var_name);
+  }
+  // Store the image HTML.
+  if ($img_nid = $vars['page_image']) {
+    $img_ratio = 'landscape';
+    $img_size = '300x300';
+    $vars['page_image'] = dosomething_image_get_themed_image($img_nid, $img_ratio, $img_size);
+  }
+  return $vars;
+}
