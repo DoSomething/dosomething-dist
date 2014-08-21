@@ -1,0 +1,141 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function conductor_sms_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'conductor') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function conductor_sms_ctools_plugin_api($owner, $api) {
+  if ($owner == 'conductor' && ($api == 'plugins' || $api == 'workflow')) {
+    return array('version' => 1.0);
+  }
+}
+
+/**
+ * Takes context given from a message and runs it through a ConductorWorkflow
+ * to generate a response.
+ *
+ * @param string &$output
+ *   The output response message
+ * @param array $context
+ *   Context values defining the message received
+ */
+function conductor_sms_response(&$output, $context) {
+
+  $keyword = $context['keyword'];
+  $number = $context['sender'];
+  $message = $context['message'];
+
+  $storage = conductor_get_storage_handler(variable_get('conductor_default_storage_handler', 'database'));
+
+  $startNewWorkflow = FALSE;
+
+  // Allow modules to specify sms keyword / workflow matches by implementing
+  // hook_conductor_sms_keywords().
+  $map = module_invoke_all('conductor_sms_keywords');
+  foreach ($map as $key => $val) {
+    // If message starts with a keyword, find its corresponding workflow
+    if (strpos(strtolower($message), strtolower($key)) === 0) {
+      // If keyword found, always start a new workflow
+      $keyword = $key;
+      $startNewWorkflow = TRUE;
+      break;
+    }
+  }
+
+  // Check if there's a workflow currently in progress with this number
+  $workflowInProgress = FALSE;
+  $pointer = $storage->loadPointer('sms_prompt:' . $number);
+  if ($pointer && isset($pointer['workflowName'])) {
+    $workflowInProgress = conductor_get_workflow($pointer['workflowName']);
+  }
+
+  // Verify workflow in progress matches the keyword
+  if ($workflowInProgress && $workflowInProgress->name != $map[$keyword]) {
+    $startNewWorkflow = TRUE;
+  }
+
+  // And if there is a workflow in progress and we need to start a new one,
+  // stop the current one in progress.
+  if ($workflowInProgress && $startNewWorkflow) {
+    // Deactivate current activity
+    $currentActivity = $workflowInProgress->getActivity($pointer['activityName']);
+    $workflowInProgress->getState()->deactivateActivity($currentActivity);
+
+    // Remove pointer and mark workflow as complete to remove from storage
+    $storage->deletePointer('sms_prompt:' . $number);
+    $workflowInProgress->getState()->workflowComplete();
+  }
+  elseif ($workflowInProgress == FALSE) {
+    $startNewWorkflow = TRUE;
+  }
+
+  $workflow = FALSE;
+  if ($startNewWorkflow) {
+    // If the keyword is set, load the corresponding workflow
+    if (isset($map[$keyword])) {
+      $workflow = conductor_get_workflow($map[$keyword]);
+    }
+
+    $workflow->getActivity('start')->getState()->setContext('sms_number', $number);
+    $workflow->run();
+  }
+  else {
+    $workflow = $workflowInProgress;
+
+    // Resume context resumes wtih the pointer and a context array to hand into
+    // that activity upon resume.
+    $resume_context = array(
+      'sms_prompt:' . $number => array(
+        $pointer['activityName'] . ':message' => $message,
+        'sms_response' => FALSE
+      ),
+    );
+    $workflow->getState()->resume($resume_context);
+  }
+
+  if ($workflow) {
+    if ($new_workflow_name = $workflow->getState()->getContext('start_new_workflow')) {
+      $newWorkflow = conductor_get_workflow($new_workflow_name);
+      $newWorkflow->getActivity('start')->getState()->setContext('sms_number', $number);
+      $newWorkflow->run();
+
+      // Prepend new workflow response with previous workflow response, if any
+      $output = $workflow->getState()->getContext('sms_response') . ' ';
+      $output .= $newWorkflow->getState()->getContext('sms_response');
+    }
+    elseif ($workflow->getState()->getContext('sms_response')) {
+      $output = $workflow->getState()->getContext('sms_response');
+    }
+
+
+    if (empty($output)) {
+      // If this context is set, then don't worry about no response being sent
+      if ($workflow->getState()->getContext('ignore_no_response_error') != TRUE) {
+        $exceptions = '';
+        $states = $workflow->getState()->getFailedActivities();
+        foreach ($states as $state) {
+          if ($state->getContext('failException')) {
+            $e = $state->getContext('failException');
+            $exceptions .= '<pre>';
+            $exceptions .= $e->getMessage() . ': ' . $e->getTraceAsString();
+            $exceptions .= '</pre>';
+          }
+        }
+        watchdog('conductor_sms', 'An sms failed to generate a response for user with mobile number @number. !exceptions', array('@number' => $number, '!exceptions' => $exceptions), WATCHDOG_ERROR);
+        $output = t('Aw snap! Something went wrong! We\'ll get right on it!');
+      }
+    }
+  }
+  else {
+    watchdog('conductor_sms', 'Text recieved without registered keyword with keyword "@keyword" and message "@message" from "@number"', array('@keyword' => $keyword, '@message' => $message, '@number' => $number));
+  }
+}
+
