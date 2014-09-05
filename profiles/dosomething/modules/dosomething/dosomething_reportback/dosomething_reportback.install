@@ -1,0 +1,304 @@
+<?php
+/**
+ * @file
+ * Installation and schema hooks for dosomething_reportback.module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function dosomething_reportback_schema() {
+  $schema = array();
+  $schema['dosomething_reportback'] = array(
+    'description' => 'Table of user reportbacks.',
+    'fields' => array(
+      'rbid' => array(
+        'description' => 'Primary key.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid that reported back.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => 'The {node}.nid that the user has reported back for.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the reportback was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'The Unix timestamp when the reportback was last updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'quantity' => array(
+        'description' => 'The quantity of reportback_nouns reportback_verbed.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'why_participated' => array(
+        'description' => 'Why the user participated.',
+        'type' => 'text',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'num_participants' => array(
+        'description' => 'The number of participants, if applicable.',
+        'type' => 'int',
+      ),
+    ),
+    'primary key' => array('rbid'),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'nid' => array('nid'),
+    ),
+  );
+  $schema['dosomething_reportback_log'] = array(
+    'description' => 'Table of reportback update activity.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary key of log table.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'rbid' => array(
+        'description' => 'Reportback rbid updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid that updated.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'op' => array(
+        'description' => 'Operation performed on the reportback.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp of the update.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'quantity' => array(
+        'description' => 'The quantity of reportback_nouns reportback_verbed.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'why_participated' => array(
+        'description' => 'Why the user participated.',
+        'type' => 'text',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'files' => array(
+        'description' => 'Comma separated list of file fids attached to reportback.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'num_files' => array(
+        'description' => 'The number of files attached to reportback.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'remote_addr' => array(
+        'description' => 'The IP address of the user that submitted the form.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
+      ),
+      'field_data' => array(
+        'description' => 'Any values stored in dosomething_reportback_field_data.',
+        'type' => 'text',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  $schema['dosomething_reportback_file'] = array(
+    'description' => 'Table of files associated with reportbacks.',
+    'fields' => array(
+      'rbid' => array(
+        'description' => 'Reportback rbid',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'fid' => array(
+        'description' => 'File fid',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'remote_addr' => array(
+        'description' => 'The IP address of the user that submitted the file.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('rbid', 'fid'),
+  );
+  // Add a custom cache table.
+  $schema['cache_dosomething_reportback'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
+ * Drops field_image_user_reportback, adds dosomething_reportback_file table.
+ */
+function dosomething_reportback_update_7001(&$sandbox) {
+  field_delete_field('field_image_user_reportback');
+  $table_name = 'dosomething_reportback_file';
+  $schema = dosomething_reportback_schema();
+  db_create_table($table_name, $schema[$table_name]);
+}
+
+/**
+ * Adds remote_addr field to reportback file and log tables.
+ */
+function dosomething_reportback_update_7002() {
+  $field_name = 'remote_addr';
+  // Tables to add remote_addr to.
+  $tables = array('dosomething_reportback_log', 'dosomething_reportback_file');
+  // Load schema for field definitions.
+  $schema = dosomething_reportback_schema();
+  foreach ($tables as $tbl_name) {
+    // If the field doesn't exist already:
+    if (!db_field_exists($tbl_name, $field_name)) {
+      // Add it per the schema field definition.
+      db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+    }
+  }
+}
+
+/**
+ * Updates log records where uid==0 due to bug in $reportback->insertLog().
+ */
+function dosomething_reportback_update_7003() {
+  // Update records with uid==0 to the uid value stored on the reportback.
+  $sql = 'UPDATE dosomething_reportback_log log
+    INNER JOIN dosomething_reportback rb ON (rb.rbid = log.rbid)
+    SET log.uid = rb.uid
+    WHERE log.uid = 0;';
+  db_query($sql);
+}
+
+/**
+ * Adds dosomething_reportback_field and dosomething_reportback_field_data tables.
+ */
+function dosomething_reportback_update_7004() {
+  // No longer applicable.
+  // @see dosomething_reportback_update_7012().
+}
+
+/**
+ * Adds a dosomething_reportback_field for Comeback Clothes (nid 362).
+ */
+function dosomething_reportback_update_7005() {
+  // No longer applicable.
+  // @see dosomething_reportback_update_7012().
+}
+
+/**
+ * Deletes empty records in the dosomething_reportback_field table.
+ */
+function dosomething_reportback_update_7006() {
+  // No longer applicable.
+  // @see dosomething_reportback_update_7012().
+}
+
+/**
+ * Adds num_participants to the dosomething_reportback table.
+ */
+function dosomething_reportback_update_7007() {
+  $tbl_name = 'dosomething_reportback';
+  $fld_name = 'num_participants';
+  $schema = dosomething_reportback_schema();
+  if (!db_field_exists($tbl_name, $fld_name)) {
+    // Add it per the schema field definition.
+    db_add_field($tbl_name, $fld_name, $schema[$tbl_name]['fields'][$fld_name]);
+  }
+}
+
+/**
+ * Sets dosomething_reportback_num_participants_label variable.
+ */
+function dosomething_reportback_update_7008() {
+  $var_name = 'dosomething_reportback_num_participants_label';
+  $value = 'How many people did you do this with?';
+  variable_set($var_name, $value);
+}
+
+/**
+ * Add index to nid on dosomething_reportback table.
+ */
+function dosomething_reportback_update_7009() {
+  $table = 'dosomething_reportback';
+  $column = 'nid';
+  if (!db_index_exists($table, $column)) {
+    db_add_index($table, $column, array($column));
+  }
+}
+
+/**
+ * Add index to rbid on dosomething_reportback_field_data table.
+ */
+ function dosomething_reportback_update_7010() {
+  // No longer applicable.
+  // @see dosomething_reportback_update_7012().
+ }
+
+/**
+ * Creates dosomething reportback cache table.
+ */
+ function dosomething_reportback_update_7011() {
+   if (!db_table_exists('cache_dosomething_reportback')) {
+     $schema = drupal_get_schema_unprocessed('system', 'cache');
+     db_create_table('cache_dosomething_reportback', $schema);
+   }
+ }
+
+/**
+ * Deletes Reportback Field tables.
+ */
+ function dosomething_reportback_update_7012() {
+  $delete_tables = array(
+    'dosomething_reportback_field',
+    'dosomething_reportback_field_data',
+  );
+  foreach ($delete_tables as $table) {
+    if (db_table_exists($table)) {
+      db_drop_table($table);
+    }
+  }
+  $table = 'dosomething_reportback_log';
+  $field = 'field_data';
+  if (db_field_exists($table, $field)) {
+    db_drop_field($table, $field);
+  }
+ }
