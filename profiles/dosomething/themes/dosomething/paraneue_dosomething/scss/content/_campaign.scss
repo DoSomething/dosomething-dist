@@ -1,0 +1,297 @@
+.campaign {
+  > .wrapper {
+    position: relative;
+  }
+}
+
+
+
+// Page Specific Components
+.campaign--action,
+.campaign--sms {
+  .info-bar {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+  }
+}
+
+.campaign--action .container--prove,
+.campaign--sms .container--do {
+  background: $purple asset-url("images/campaign-pattern-default.png") repeat center 63px;
+  padding-bottom: 126px;
+
+  @include media($tablet) {
+    padding-bottom: 90px;
+  }
+}
+
+// @TODO update this in neue
+.message-callout {
+  @include media($tablet) {
+    @include transform(rotate(-3deg));
+  }
+
+  &.-dynamic-right {
+    .__copy {
+      padding-bottom: 3px;
+      padding-top: 3px;
+    }
+  }
+}
+
+.campaign--pitch,
+.campaign--grouped,
+.campaign--action .container--prove {
+  .message-callout {
+    .__copy {
+      left: 12px;
+    }
+  }
+}
+
+.campaign--pitch,
+.campaign--grouped {
+  [role="banner"] {
+    .message-callout {
+      .__copy {
+        &:before {
+          right: 35px;
+          top: -25px;
+        }
+      }
+
+      @include media($tablet) {
+        position: absolute;
+        left: 144px;
+        bottom: 0;
+        width: 180px;
+
+        .__copy {
+          text-align: center;
+
+          &:before {
+            right: auto;
+            top: 50%;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+// Campaign Action Page
+.campaign--action {
+  [role="banner"] {
+    @include media($tablet) {
+      .message-callout {
+        @include visually-hidden();
+      }
+    }
+
+    &.has-promotions {
+      > .wrapper {
+        @include media($tablet) {
+          padding-bottom: 12px;
+        }
+
+        @include media($desktop) {
+          padding-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .container--do {
+    .polaroid {
+      @include media($tablet) {
+        left: 104%;
+        position: absolute;
+        top: 117px;
+      }
+
+      // @TODO: might have to replace neue pattern for
+      // .polaroid + p definition with the following
+      & + h3 {
+        margin-top: 27px;
+
+        @include media($tablet) {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  .container--prove {
+
+    .container__body {
+      text-align: center;
+
+      @include media($tablet) {
+        text-align: left;
+      }
+    }
+
+    h3 {
+      color: #fff;
+      font-size: $font-large;
+      margin-bottom: 27px;
+    }
+
+    p, a {
+      color: #fff;
+    }
+
+    .message-callout {
+      @include media($desktop) {
+        .__copy {
+          left: 75px;
+          top: -10px;
+        }
+      }
+    }
+  }
+}
+
+
+// Campaign Pitch Page
+.campaign--pitch {
+  // Remove additional top padding if tagline is first container item on Pitch page.
+  .container--tagline {
+    > .wrapper {
+      padding-top: 9px;
+    }
+  }
+}
+
+
+// Campaign SMS Game Page
+.campaign--sms {
+  .form-actions {
+    text-align: left;
+  }
+
+  .container--do {
+    form {
+      .message-callout {
+        margin: 0 auto;
+        width: 270px;
+
+        @include media($tablet) {
+          margin: 0;
+          right: 20px;
+          position: absolute;
+        }
+
+        .__copy {
+          &:before {
+            right: -10px;
+          }
+        }
+      }
+    }
+
+    .message-callout.-right {
+      position: absolute;
+      left: 144px;
+      bottom: -15px;
+
+      @include media($tablet) {
+        bottom: 0;
+      }
+    }
+  }
+
+  // @TODO: find a better way to address the variations in gray; sass lists? (2014.06.24)
+  .disclaimer {
+    p, a {
+      color: darken($med-gray, 10%);
+    }
+  }
+}
+
+
+// @TODO: update in Neue: _forms.scss
+.-media-options {
+  @include clearfix();
+
+  .form-item {
+    @include span-columns(4);
+    position: relative;
+
+    label {
+      height: auto;
+      margin-top: 0;
+      max-width: 150px;
+      position: relative;
+
+      .inner-label {
+        top: 0;
+      }
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      @include visually-hidden();
+    }
+
+    img {
+      cursor: pointer;
+      border: 2px solid $med-gray;
+      border-radius: $sm-border-radius;
+      max-width: 100px;
+
+      @include media($tablet) {
+        max-width: none;
+      }
+
+      &:hover {
+        border-color: $blue;
+      }
+    }
+
+    // Last-child not supported in IE8; using class as fallback.
+    &.-second {
+      margin-right: 0;
+    }
+
+    &:before {
+      font-size: $font-regular;
+      font-weight: $weight-sbold;
+      height: 30px;
+      left: -50%;
+      margin: -15px 0 0 23px;
+      position: absolute;
+      text-align: center;
+      text-transform: uppercase;
+      top: 50%;
+      width: 40px;
+
+      @include media($tablet) {
+        font-size: $font-medium;
+        margin-left: 45px;
+        margin-top: -25px;
+      }
+    }
+
+    &.form-type-radio {
+      &:before {
+        content: "or";
+      }
+    }
+
+    &:first-child {
+      &:before {
+        content: "";
+      }
+    }
+
+    &.selected {
+      img {
+        border-color: $blue;
+        border-width: 4px;
+      }
+    }
+  }
+}
