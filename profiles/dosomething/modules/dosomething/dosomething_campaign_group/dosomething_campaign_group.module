@@ -1,0 +1,207 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Campaign Group feature.
+ */
+
+include_once 'dosomething_campaign_group.features.inc';
+
+
+function dosomething_campaign_group_preprocess_node(&$vars) {
+  if ($vars['type'] == 'campaign_group') {
+    $content = $vars['content'];
+    $template_vars = array(
+      'text' => array(
+        'additional_text',
+        'additional_text_title',
+        'intro_title',
+        'intro',
+        'signup_form_button_text',
+        'call_to_action',
+      ),
+      'image' => array(
+        'additional_text_image',
+        'intro_image',
+      ),
+    );
+
+    $vars['campaigns'] = dosomething_campaign_group_get_campaigns($vars['node']);
+
+    // If there are no published campaigns, 
+    // Display pre_launch vars and remove campaigns from vars.
+    if (!isset($vars['campaigns']['published'])) {
+      $template_vars['text'][] = 'pre_launch_copy';
+      $template_vars['text'][] = 'pre_launch_title';
+      unset($vars['campaigns']);
+    }
+
+    // If current user is signed up:
+    $sid = dosomething_signup_exists($vars['node']->nid);
+    if ($sid) {
+      // Set the post_signup vars.
+      $template_vars['text'][] = 'post_signup_title';
+      $template_vars['text'][] = 'post_signup_copy';
+    }
+
+    foreach ($template_vars as $key => $labels) {
+      foreach ($labels as $label) {
+        $field = "field_{$label}";
+          if (isset($content[$field])) {
+          switch ($key) {
+            case 'text':
+              $vars[$label] = $content[$field][0]['#markup'];
+              break;
+            case 'image':
+              $size = '550x300';
+              $vars[$label] = dosomething_image_get_themed_image($vars[$field][0]['entity']->nid, 'landscape', $size);
+            default:
+              break;
+          }
+        }
+      }
+    }
+
+    $node = menu_get_object();
+    $wrapper = entity_metadata_wrapper('node', $node);
+
+    // Timing.
+    $display_date = $wrapper->field_display_end_date->value();
+    // Check if there is a value in the date field.
+    $high_season = $wrapper->field_high_season->value();
+    if ($display_date == 1 && isset($high_season)) {
+      $end_date = date('F d', $wrapper->field_high_season->value2->value());
+      $vars['end_date'] = 'Ends ' . $end_date;
+    }
+
+    // Hero Images.
+    dosomething_helpers_preprocess_hero_images($vars);
+
+    // Add inline css based on vars.
+    dosomething_helpers_add_inline_css($vars);
+
+    $wrapper = entity_metadata_wrapper('node', $vars['node']);
+    if ($wrapper->field_video->value()->field_video_id) {
+      $vars['intro_video'] = theme('dosomething_video_embed', array('field' => $wrapper->field_video->value()));
+    }
+
+    $scholarship = $wrapper->field_scholarship_amount->value();
+    if (isset($scholarship)) {
+      $vars['scholarship'] = 'Win a $' . number_format($scholarship, 0, '', ',') . ' Scholarship';
+    }
+
+    // Collect all field_collection values as vars.
+    $field_collections = array('faq');
+    foreach ($field_collections as $fc) {
+      $vars[$fc] = dosomething_helpers_get_field_collection_values($wrapper, 'field_' . $fc);
+    }
+
+    if (!empty($vars['field_partners'])) {
+      // Sets partners, sponsors, and partner_info arrays if present.
+      dosomething_helpers_preprocess_partners_vars($vars);
+    }
+
+    // Preprocess gallery variables.
+    dosomething_static_content_preprocess_gallery_vars($vars);
+
+    if (empty($sid)) {
+      $vars['display_signup_form'] = $vars['field_display_signup_form'][0]['value'];
+      if ($vars['display_signup_form']) {
+        $label = NULL;
+        if (module_exists('dosomething_helpers')) {
+          // Check if a Signup Form Submit Label has been set.
+          $label = dosomething_helpers_get_variable($node->nid, 'signup_form_submit_label');
+        }
+        dosomething_signup_preprocess_signup_button($vars, $label);
+      }
+    }
+
+
+    // Theme modal items if any exist.
+    $modal_items = array();
+
+    if (isset($vars['faq'])) {
+      $modal_items['faq'] = $vars['faq'];
+    }
+
+    if (isset($vars['partner_info']) && !empty($vars['partner_info'])) {
+      $modal_items['partner_info'] = $vars['partner_info'];
+    }
+
+    if (!empty($modal_items)) {
+      $vars['modals'] = theme('modal_links', array('modals' => $modal_items));
+    }
+   
+    // Include Zendesk Form
+    $vars['zendesk_form'] = drupal_get_form('dosomething_zendesk_form', $node);
+
+  }
+}
+
+
+/**
+ * Returns a Campaign Group parent nid for a given node $nid.
+ *
+ */
+function dosomething_campaign_group_get_parent_nid($nid) {
+  $result = db_select('field_data_field_campaigns', 'c')
+    ->condition('field_campaigns_target_id', $nid)
+    ->condition('bundle', 'campaign_group')
+    ->condition('deleted', 0)
+    ->fields('c', array('entity_id'))
+    ->execute();
+  return $result->fetchField(0);
+}
+
+/**
+ * Returns whether a Campaign Group nid requires automatic parent signup.
+ *
+ * @param int $nid
+ *   The Campaign Group Node nid to check.
+ *
+ * @return bool
+ */
+function dosomething_campaign_group_is_automatic_parent_signup($nid) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'campaign_group')
+    ->propertyCondition('nid', $nid)
+    ->fieldCondition('field_automatic_parent_signup', 'value', 1);
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Returns an array with title, cta, and image for published and unpublished campaigns.
+ *
+ */
+function dosomething_campaign_group_get_campaigns($campaign_group_node) {
+  $campaigns = array();
+  $image_size = '400x400';
+  // Signup source to pass to the query string in campaign links.
+  $source = 'node/' . $campaign_group_node->nid;
+
+  if (!empty($campaign_group_node->field_campaigns)) {
+    foreach ($campaign_group_node->field_campaigns[LANGUAGE_NONE] as $campaign_field) {
+      $status = $campaign_field['entity']->status;
+      $vars = dosomething_campaign_get_campaign_block_vars($campaign_field['entity']->nid, $image_size, $source);
+      if ((int)$status === 0) {
+        $vars['title'] = t('Stay Tuned');
+      }
+      $campaign = array(
+        '#markup' => theme('campaign_block', $vars),
+      );
+
+      if ((int)$status === 1) {
+        $campaigns['published'][] = $campaign;
+      } 
+      else {
+        $campaigns['unpublished'][] = $campaign;
+      }
+    }
+  }
+
+  return $campaigns;
+}
