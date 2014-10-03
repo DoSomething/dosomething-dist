@@ -1,0 +1,17 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Settings feature.
+ */
+
+include_once 'dosomething_settings.features.inc';
+
+/**
+ * Determines whether current site is an international affiliate.
+ *
+ * @return bool
+ *   TRUE for international affiliates.
+ */
+function dosomething_settings_is_affiliate() {
+  return (bool) variable_get('dosomething_is_affiliate', FALSE);
+}
