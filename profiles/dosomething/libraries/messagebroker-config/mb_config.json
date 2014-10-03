@@ -1,0 +1,368 @@
+{
+  "rabbit" :
+  {
+    "__comment" : "General RabbitMQ configuration. Define the exchanges and related queues. Note that it possible for more than one change to send messages to a queue through the 'exclusive' setting. The hierarchy in the structure of this file is an effort to make the process easier rather a set of strict rules.",
+    "exchanges": [
+      {
+        "transactionalExchange" :
+          {
+            "__comment" : "Exchange - All transactional email events from the Drupal application go to this exchange.",
+            "name" : "transactionalExchange",
+            "type" : "topic",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "transactionalQueue" :
+                  {
+                    "__comment" : "Queue - Email events, queue items are used to generate single transaction request to Mandrill.",
+                    "name" : "transactionalQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "transactional",
+                    "binding_pattern" : "*.*.transactional",
+                    "consume" :
+                      {
+                        "tag" : "transactional",
+                        "no_local" : "0",
+                        "no_ack" : "0",
+                        "nowait" : "0"
+                      }
+                  },
+                "loggingQueue" :
+                  {
+                    "__comment" : "Queue - Mongo based logging of all transactions.",
+                    "name" : "loggingQueue",
+                    "passive" : "0",
+                    "durable" : "0",
+                    "exclusive" : "1",
+                    "auto_delete" : "0",
+                    "routing_key" : "logging",
+                    "binding_pattern" : "*.*.transactional",
+                    "consume" :
+                      {
+                        "tag" : "logging",
+                        "no_local" : "0",
+                        "no_ack" : "1",
+                        "exclusive" : "0",
+                        "nowait" : "1"
+                      }
+                  },
+                "activityStatsQueue" :
+                  {
+                    "__comment" : "Queue - transactional activity to be consumed by the lobby dashboard app.",
+                    "name" : "activityStatsQueue",
+                    "passive" : "0",
+                    "durable" : "0",
+                    "exclusive" : "1",
+                    "auto_delete" : "0",
+                    "routing_key" : "activityStats",
+                    "binding_pattern" : "*.*.transactional",
+                    "consume" :
+                      {
+                        "tag" : "activityStats",
+                        "no_local" : "0",
+                        "no_ack" : "1",
+                        "exclusive" : "0",
+                        "nowait" : "1"
+                      }
+                  },
+                "userRegistrationQueue" :
+                  {
+                    "__comments" : "Queue - Submit user registration details to Mailchimp.",
+                    "name" : "userRegistrationQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "serRegistration",
+                    "binding_pattern" : "user.registration.*"
+                  },
+                "mobileCommonsQueue" :
+                  {
+                    "__comment" : "Queue - All transactions with mobile information is submitted to Mobile Commons.",
+                    "name" : "mobileCommonsQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "mobileCommonsRegistration",
+                    "binding_pattern" : "user.registration.*",
+                    "consume" :
+                      {
+                        "tag" : "mobile",
+                        "no_local" : "0",
+                        "no_ack" : "0",
+                        "exclusive" : "0",
+                        "nowait" : "0"
+                      }
+                  },
+                "mailchimpCampaignSignupQueue" :
+                  {
+                    "__comment" : "Queue - All member campaign activity is added to the user account on Mailchimp.",
+                    "name" : "mailchimpCampaignSignupQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "mailchimpCampaignSignup",
+                    "binding_pattern" : "campaign.signup.*"
+                  },
+                "userCampaignActivityQueue" :
+                  {
+                    "__comment" : "Queue - Adds campaign activity (campaign signup and report backs) to mb-users database.",
+                    "name" : "userCampaignActivityQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "userCampaignActivty",
+                    "binding_pattern" : "campaign.*.*"
+                  },
+                "userAPIRegistrationQueue" :
+                  {
+                    "__comment" : "Queue - New user registrations information is added to the mb-user database.",
+                    "name" : "userAPIRegistrationQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "userAPIRegistration",
+                    "binding_pattern" : "user.registration.#"
+                  },
+                "userAPICampaignActivityQueue" :
+                  {
+                    "__comment" : "Queue - All user campaign activity (signups and report backs) is added to the mb-user database.",
+                    "name" : "userAPICampaignActivityQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "userAPICampaignActivity",
+                    "binding_pattern" : "campaign.*.*"
+                  },
+                "userMailchimpStatusQueue" :
+                  {
+                    "__comment" : "Queue - When email accounts are added or updated on Mailchimp a status is returned including any errors or issues that will prevent sending further messages to the email address. This queue logs these issues and updates the mb-user database.",
+                    "name" : "userMailchimpStatusQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "userMailchimpStatus",
+                    "binding_pattern" : "*.mailchimp.error"
+                  }
+              }    
+            ]
+          },
+        "directMailchimpWebhooks" :
+          {
+            "__comment" : "Exchange - Entries made by webhook activity sent by Mailchimp. Used to track user unsubscribes via Mailchimp unsubscribe links in Mailchimp generated mass mailouts.",
+            "name" : "directMailchimpWebhooks",
+            "type" : "direct",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "mailchimpUnsubscribeQueue" :
+                  {
+                    "__comment" : "Queue - Webhook unsubscribe events from Mailchimp.",
+                    "name" : "mailchimpUnsubscribeQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "binding_key" : "mailchimpUnsubscribe"
+                  }
+              }
+            ]
+          },
+        "directUserEvent" :
+          {
+            "__comment" : "Exchange - User account events by time - birthday, 13th birthday, anniversary, etc.",
+            "name" : "directUserEvent",
+            "type" : "direct",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "userEventBirthdayQueue" :
+                  {
+                    "__comment" : "Queue - Users who have a birthday today.",
+                    "name" : "userEventBirthdayQueue",
+                    "passive" : "0",
+                    "durable" : "0",
+                    "exclusive" : "0",
+                    "auto_delete" : "1",
+                    "routing_key" : "userEventBirthday",
+                    "binding_key" : "userEventBirthday"
+                  },
+                "userEvent13BirthdayQueue" :
+                  {
+                    "__comment" : "Queue - Users who turn 13 years of age and thus start to get general DoSomething.org broadcasts..",
+                    "name" : "userEvent13BirthdayQueue",
+                    "passive" : "0",
+                    "durable" : "0",
+                    "exclusive" : "0",
+                    "auto_delete" : "1",
+                    "routing_key" : "userEvent13Birthday",
+                    "binding_key" : "userEvent13Birthday"
+                  },
+                "userEventAnniversaryQueue" :
+                  {
+                    "__comment" : "Queue - User who have signed up to DoSomehting.org one year ago.",
+                    "name" : "userEventAnniversaryQueue",
+                    "passive" : "0",
+                    "durable" : "0",
+                    "exclusive" : "0",
+                    "auto_delete" : "1",
+                    "routing_key" : "userEventAnniversary",
+                    "binding_key" : "userEventAnniversary"
+                  }
+              }
+            ]
+          },
+        "directUserDigestExchange" :
+          {
+            "__comment" : "Exchange - Summary email messages for allof a users campaign activity.",
+            "name" : "directUserDigestExchange",
+            "type" : "direct",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "userDigestQueue" :
+                  {
+                    "__comment" : "Queue - Users that have campaign activity that could get sent a digest message.",
+                    "name" : "userDigestQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "userDigest",
+                    "binding_key" : "userDigest"
+                  }
+              }
+            ]
+          },
+          
+        "directUserMailchimpStatus" :
+          {
+            "__comment" : "Exchange - Error message reported by Mailchimp after batch submit. The status / subscription of the user will be updated for reference on future messaging.",
+            "name" : "directUserMailchimpStatus",
+            "type" : "direct",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "userMailchimpResubscribeQueue" :
+                  {
+                    "__comment" : "Queue - Users that have campaign activity that could get sent a digest message.",
+                    "name" : "userMailchimpResubscribeQueue",
+                    "passive" : "0",
+                    "durable" : "1",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "routing_key" : "userMailchimpResubscribe",
+                    "binding_key" : "userMailchimpResubscribe"
+                  }
+              }
+            ]
+          },
+        "directUserImport" :
+          {
+            "__comment" : "Exchange - Summary email messages for allof a users campaign activity.",
+            "name" : "directUserImport",
+            "type" : "direct",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "userImportQueue" :
+                  {
+                    "__comment" : "Queue - User information imported from sources outside of DoSomething.org.",
+                    "name" : "userImportQueue",
+                    "passive" : "0",
+                    "durable" : "0",
+                    "exclusive" : "0",
+                    "auto_delete" : "0",
+                    "binding_key" : "userImport",
+                    "consume" :
+                      {
+                        "tag" : "userImport",
+                        "no_local" : "0",
+                        "no_ack" : "0",
+                        "exclusive" : "0",
+                        "nowait" : "0"
+                      }
+                  }
+              }
+            ]
+          },
+        "directUserImportExistingLogging" :
+          {
+            "__comment" : "Exchange - Log all user import results checkoing with each service (Mailchimp, Mobile Commons and Drupal) for existing sites.",
+            "name" : "directUserImportExistingLogging",
+            "type" : "direct",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "userImportExistingLoggingQueue" :
+                {
+                  "__comment" : "Queue - User information imported from sources outside of DoSomething.org.",
+                  "name" : "userImportExistingLoggingQueue",
+                  "passive" : "0",
+                  "durable" : "0",
+                  "exclusive" : "0",
+                  "auto_delete" : "0",
+                  "binding_key" : "userImportExistingLogging",
+                  "consume" : [
+                    {
+                      "tag" : "userImportExistingLogging",
+                      "no_local" : "0",
+                      "no_ack" : "0",
+                      "exclusive" : "0",
+                      "nowait" : "0"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+        "directHeartbeatExchange" :
+          {
+            "__comment" : "Exchange - Summary email messages for allof a users campaign activity.",
+            "name" : "directHeartbeatExchange",
+            "type" : "direct",
+            "passive" : "0",
+            "durable" : "1",
+            "auto_delete" : "0",
+            "queues" : [
+              {
+                "heartbeatQueue" :
+                {
+                  "__comment" : "Queue - Heartbeat activities to monitor as it flows through the system.",
+                  "name" : "heartbeatQueue",
+                  "passive" : "0",
+                  "durable" : "0",
+                  "exclusive" : "0",
+                  "auto_delete" : "1",
+                  "binding_key" : "heartbeat"
+                }
+              }
+            ]
+          }
+      }
+    ]
+  }
+}
