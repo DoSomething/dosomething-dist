@@ -1,0 +1,321 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething UK.
+ * TODO: set oauth_common_enable_provider = false;
+ */
+define('DOSOMETHING_UK_WATCHDOG', 'dosomething_uk');
+
+// @todo: define debugging mode.
+// require_once dirname(__FILE__) . '/misc/dosomething_uk-example.inc';
+
+// -----------------------------------------------------------------------
+// Hook implementations.
+
+/**
+ * Implements hook_menu().
+ */
+function  dosomething_uk_menu() {
+  $items = array();
+  $items['admin/config/dosomething/dosomething_uk'] = array(
+    'title'            => 'DoSomething UK',
+    'description'      => 'Setup DoSomething UK integration settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('dosomething_uk_admin_settings'),
+    'file'             => 'dosomething_uk.admin.inc',
+    'access arguments' => array('administer modules'),
+   );
+  return $items;
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function dosomething_uk_preprocess_page(&$vars) {
+  drupal_add_js(array('dsValidation' => array('dateFormat' => 'DD/MM/YYYY',)), 'setting');
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * Moves the hook_form_alter() implementation to the bottom.
+ * That way we ensure to run last and have the final word in form callbacks
+ * altering.
+ */
+function dosomething_uk_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_alter' && isset($implementations['dosomething_uk'])) {
+    $group = $implementations['dosomething_uk'];
+    unset($implementations['dosomething_uk']);
+    $implementations['dosomething_uk'] = $group;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() form user_login_form().
+ */
+function dosomething_uk_form_user_login_alter(&$form, &$form_state, $form_id) {
+  _dosomething_alter_login($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() form user_login_block_form().
+ */
+function dosomething_uk_form_user_login_block_alter(&$form, &$form_state) {
+  _dosomething_alter_login($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() form user_register_form().
+ */
+function dosomething_uk_form_user_register_form_alter(&$form, $form_state) {
+  _dosomething_alter_registration($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() form user_profile_form().
+ */
+function dosomething_uk_form_user_profile_form_alter(&$form, $form_state) {
+  // @todo Implement profile sync.
+}
+
+// -----------------------------------------------------------------------
+// Callbacks.
+
+/**
+ * Validates user_login_form.
+ */
+function dosomething_uk_login_validate($form, &$form_state) {
+  $values = &$form_state['values'];
+
+  // Fallback to default validation when name or pass not set.
+  if (empty($values['name']) || empty($values['pass'])) {
+    return;
+  }
+
+  $name = $values['name'];
+  $password = $values['pass'];
+
+  // Check whether local account exists.
+  $account = dosomething_user_get_user_by_email($name);
+
+  // Process user with existing local account:
+  if ($account) {
+    dosomething_uk_process_existing_user($name, $password, $account);
+  }
+  else {
+    $account = dosomething_uk_process_new_user($name, $password);
+    if ($account) {
+      form_set_value($form['name'], $account->name, $form_state);
+    }
+    else {
+      // @todo: Log unexpected response.
+      // form_set_error('name', t('Something went wrong.'));
+    }
+  }
+}
+
+/**
+ * Validates user_register.
+ */
+function dosomething_uk_register_validate($form, &$form_state) {
+  if (form_get_errors()) {
+    return FALSE;
+  }
+  $values = &$form_state['values'];
+
+  // -- Required user data. --
+  $dob = new DateObject($values['field_birthdate'][LANGUAGE_NONE][0]['value']);
+  $user_data = array(
+    'first_name' => $values['field_first_name'][LANGUAGE_NONE][0]['value'],
+    'password'   => $values['pass'],
+    'email'      => $values['mail'],
+    'dob'        => $dob,
+    'last_name'  => $values['field_last_name'][LANGUAGE_NONE][0]['value'],
+    'postcode'   => $values['field_address'][LANGUAGE_NONE][0]['postal_code'],
+  );
+  $sso_user = DosomethingUkSsoUser::fromArray($user_data);
+
+  // -- Optional user data. --
+  // Determines whether the user agreed to receive e-mail newsletter.
+  if (!empty($values['field_opt_in_email'][LANGUAGE_NONE][0]['value'])) {
+    $sso_user->setContactable(TRUE);
+  }
+
+  // Use unpreprocessed cell number.
+  // Actual value is unset during validation of the number format,
+  // @see dosomething_user_register_validate().
+  // However, it's fine to use the raw value since it will be validated on SSO
+  // anyways. Appropriate error message will be rendered on validation fail.
+  //
+  // WARNING! If you are copying this block, please be aware that
+  // $form_state['input'] is not the same as $form_state['values'] and may
+  // contain unsafe data values.
+  //
+  // @todo: use normal value when the international phone validator is ready.
+  if (!empty($form_state['input']['field_mobile'][LANGUAGE_NONE][0]['value'])) {
+    $phone = $form_state['input']['field_mobile'][LANGUAGE_NONE][0]['value'];
+    $sso_user->setPhoneNumber($phone);
+
+    // Save the phone number as is to the local DB only
+    // when it passed the remote validation.
+    form_set_value(
+      $form['field_mobile'],
+      array(LANGUAGE_NONE => array(0 => array('value' => $phone))),
+      $form_state
+    );
+  }
+
+  $sso = DosomethingUkSsoController::signup($sso_user);
+  $result = $sso->getLastResult();
+
+  if (!$result) {
+    if ($error_messages = $sso->getErrorMessages()) {
+      dosomething_uk_remote_errors_to_local_form($error_messages, $form);
+    }
+
+    if (!form_get_errors()) {
+      // @todo: Log unexpected response.
+      // form_set_error('form', t('Something went wrong.'));
+      throw new Exception("Response messages parsing error ");
+    }
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+// -----------------------------------------------------------------------
+// OAuth processing.
+
+function dosomething_uk_process_existing_user($name, $password, $account) {
+  // Check whether the user is already authrorized on SSO.
+  $sso = DosomethingUkSsoController::initForLocalUser($account->uid);
+  if ($sso->remoteUserAdmitted()) {
+    // Todo: update local password and/or profile data.
+    return TRUE;
+  }
+
+  // Todo: try to create remote user based on local.
+  return TRUE;
+}
+
+function dosomething_uk_process_new_user($name, $password) {
+  // Check whether remote account with requested name exists:
+  try {
+    $sso = DosomethingUkSsoController::init()->authorizeRemoteRedirect();
+    $sso_user = dosomething_uk_authorize_remote_user($name, $password, $sso);
+  }
+  catch (Exception $e) {
+    form_set_error('name', t('Unexpected login error.'));
+    return FALSE;
+  }
+
+  if (!$sso_user) {
+    // Todo: link to forgot password page.
+    form_set_error('name', t('Sorry, unrecognized username or password.'));
+    return FALSE;
+  }
+
+  $account = dosomething_uk_new_user_from_remote($name, $password, $sso_user);
+  if (!$account) {
+    return FALSE;
+  }
+  $sso->authorizeUserAccess($account->uid);
+  return $account;
+}
+
+// -----------------------------------------------------------------------
+// OAuth helpers.
+
+function dosomething_uk_authorize_remote_user($name, $password, $sso) {
+  $url = $sso->getAuthorizationUrl(TRUE, TRUE);
+  if (!$url) {
+    throw new Exception('Unexpected login error: request token.');
+  }
+
+  // Impersonate remote user logged into SSO.
+  $impersonator = DosomethingUkSsoImpersonator::login($name, $password);
+
+  if (!$impersonator->isLoggedIn()) {
+    // Todo: link to forgot password page.
+    // Remote login failed: wrong credentials.
+    return FALSE;
+  }
+
+  // Accept OAuth authorization impersonating SSO user.
+  if (!$impersonator->acceptRemoteOAuth($url)) {
+    // Todo: session expired.
+    // @see /includes/form.inc:1173
+    throw new Exception('The form has become outdated.');
+  }
+
+  // Retrieve SSO user data.
+  $sso_user = $sso->authorizeAccessToken()->getRemoteUser();
+  if (!$sso_user) {
+    throw new Exception('Unexpected login error: request token.');
+  }
+  return $sso_user;
+}
+
+function dosomething_uk_new_user_from_remote($name, $password, $sso_user) {
+  $edit = array(
+    'mail'    => $name,
+    'name'    => $name,
+    'pass'    => $password,
+    'status'  => 1,
+    'created' => REQUEST_TIME,
+  );
+
+  $dob = new DateObject($sso_user['dob']);
+  $fields = array(
+    'birthdate'  => $dob->format(DATE_FORMAT_DATE),
+    'first_name' => $sso_user['first_name'],
+    'last_name'  => $sso_user['last_name'],
+    'user_registration_source' => DosomethingUkSsoUser::REGISTRATION_SOURCE,
+  );
+  _dosomething_uk_utility_set_user_fields($edit, $fields);
+  try {
+    $account = user_save('', $edit);
+  }
+  catch (Exception $e) {
+    watchdog_exception(DOSOMETHING_UK_WATCHDOG, $e);
+  }
+  return $account;
+}
+
+// -----------------------------------------------------------------------
+// Miscellaneous.
+
+function _dosomething_alter_login(&$form) {
+  // Run login validator **BEFORE** everything else.
+  array_unshift($form['#validate'], 'dosomething_uk_login_validate');
+}
+
+function _dosomething_alter_registration(&$form) {
+  // Run registration validator **AFTER** everything else.
+  array_push($form['#validate'], 'dosomething_uk_register_validate');
+}
+
+function dosomething_uk_remote_errors_to_local_form($error_messages, &$form) {
+  foreach ($error_messages as $field_name => $field_errors) {
+    foreach ($field_errors as $error) {
+      // @todo Map and assign fields.
+      // @todo Fix message 'Sorry, but vinspired is only for 14 to 25 year olds'
+      $human_name = ucwords(preg_replace('/[^\da-z]/i', ' ', $field_name));
+      $error_text = $human_name . ': ' . $error;
+      form_set_error($field_name, $error_text);
+    }
+  }
+}
+
+function _dosomething_uk_utility_set_user_fields(&$values, $fields) {
+  foreach ($fields as $field_key => $field_value) {
+    if (empty($field_value)) {
+      continue;
+    }
+    $name = 'field_' . $field_key;
+    $values[$name] = array(LANGUAGE_NONE => array(
+      0 => array('value' => $field_value),
+    ));
+  }
+}
