@@ -1,0 +1,105 @@
+.home--wrapper {
+  background: #fff;
+  overflow: hidden;
+}
+
+.home--hero {
+  @include row;
+  @include header-gradient;
+  background-size: cover;
+  padding: 100px 0 36px;
+
+  @include media($tablet) {
+    padding-top: 126px;
+  }
+
+  .header {
+    margin-bottom: 18px;
+    @include row;
+    // TODO: Possibly rethink the mobile grid to allow for thinner gutters.
+    @include span-columns(7);
+    @include shift(0.5);
+    @include omega();
+
+    @include media($tablet) {
+      @include span-columns(14);
+      @include shift(1);
+    }
+
+    .title {
+      color: #fff;
+      font-size: $font-larger;
+      font-weight: $weight-bold;
+      line-height: 1.1;
+      margin: 27px 0 9px;
+      text-align: center;
+
+      @include visually-hidden();
+
+      @include media($tablet) {
+        @include visually-restored();
+        margin: 27px 0;
+      }
+
+      @include media($desktop) {
+        font-size: 54px;
+      }
+    }
+
+    .subtitle {
+      color: #fff;
+      font-size: 27px;
+      font-weight: normal;
+      line-height: 1.2;
+      margin: 0 0 10px;
+      text-align: center;
+
+      @include media($tablet) {
+        @include visually-hidden();
+      }
+    }
+  }
+}
+
+
+.home--sponsors {
+  clear: both;
+  width: 100%;
+  background: #fff;
+  text-align: center;
+  overflow: hidden;
+  padding: 36px 0;
+
+  @include media($tablet) {
+    @include span-columns(12);
+    @include shift(2);
+  }
+
+  h4 {
+    color: $light-gray;
+    margin-top: 0;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  li {
+    display: inline-block;
+    margin: 9px 18px;
+  }
+
+  img {
+    max-width: 90px;
+    max-height: 30px;
+    vertical-align: middle;
+    opacity: 0.2;
+
+    @include media($tablet) {
+      /* retina sizing, see Image Style preset */
+      max-width: 125px;
+      max-height: 40px;
+    }
+  }
+
+}
