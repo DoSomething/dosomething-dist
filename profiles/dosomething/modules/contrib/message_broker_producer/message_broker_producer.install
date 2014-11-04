@@ -1,0 +1,226 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions
+ * for the Message Broker Producer module.
+ */
+
+/**
+ * Implements hook_schema().
+ *
+ * List of "production" entries that consist of exchange and related queue
+ * entries / settings to be used when generating Message Broker messages.
+ */
+function message_broker_producer_schema() {
+
+  $schema['message_broker_producer_productions'] = array(
+    'description' => 'Message Broker Producer production entries. Configuration entries in this table are based on setting found in the mb_config.json file.',
+    'fields' => array(
+      'machine_name' => array(
+        'description' => 'The unique machine friendly production name to be referenced to access specific entries.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'config' => array(
+        'description' => 'Serialized array of exchanges and related queues to be included in the payload sent in the production request.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'routing_key' => array(
+        'description' => 'A key to be used when sending a message to an exchange that determines the distribution of the message.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'A flag to indicate if the entry can be used.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'A timestamp of the last update to the entry based on mb_config.json.',
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('machine_name'),
+  );
+
+  return $schema;
+
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function message_broker_producer_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+
+    $phplib_library = libraries_detect('messagebroker-phplib');
+    $config_library = libraries_detect('messagebroker-config');
+
+    // Get name of appropriate localization function.
+    $t = get_t();
+
+    if (empty($library['installed'])) {
+      $requirements['messagebroker-phplib'] = array(
+        'title' => $t('Message Broker PHP Library'),
+        'value' => $t('Any version'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => $t(
+          'You need to download the !messagebroker, extract the archive and place the message-broker-php-lib directory in the %path directory on your server.',
+          array(
+            '!messagebroker' => l($t('Message Broker PHP Library'), $library['download url']),
+            '%path' => 'sites/all/libraries',
+          )
+        ),
+      );
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Clean up / remove all data created by the module.
+ */
+function message_broker_producer_uninstall() {
+
+  // Remove all message_broker_producer settings in the variable table.
+  $cleanup_status = (bool) db_delete('variable')
+    ->condition('name', '%message_broker_producer_%', 'LIKE')
+    ->execute();
+
+  if ($cleanup_status == TRUE) {
+    drupal_set_message(st('Message Broker Producer variables deleted.'), 'status');
+  }
+  else {
+    drupal_set_message(st('No entries found when deleting Message Broker Producer variables.'), 'warning');
+  }
+
+  // hook_uninstall removes schema automatically.
+  drupal_set_message(st('Message Broker Producer database table dropped.'), 'status');
+
+}
+
+/**
+ * Implements hook_enable().
+ *
+ * User enabled module
+ */
+function message_broker_producer_enable() {
+
+  drupal_set_message(st('The Message Broker Producer module has been enabled including message_broker_producer_productions database table. Administer the production entries and RabbitMQ connections settings in ') .
+      ' ' . l(st('Account Settings'), 'admin/config/services/message-broker-producer/production-options') . '.',
+    'status');
+}
+
+/**
+ * Implements hook_update_xx().
+ *
+ * Deletes exchange_cache and queue_cache system variables
+ */
+function message_broker_producer_update_7001(&$sandbox) {
+
+  // Exchange.
+  variable_del('message_broker_producer_exchange_cache_name');
+  variable_del('message_broker_producer_exchange_cache_type');
+  variable_del('message_broker_producer_exchange_cache_passive');
+  variable_del('message_broker_producer_exchange_cache_durable');
+  variable_del('message_broker_producer_exchange_cache_auto_delete');
+
+  // Queue.
+  variable_del('message_broker_producer_queue_campaign_cache_name');
+  variable_del('message_broker_producer_queue_campaign_cache_passive');
+  variable_del('message_broker_producer_queue_campaign_cache_durable');
+  variable_del('message_broker_producer_queue_campaign_cache_exclusive');
+  variable_del('message_broker_producer_queue_campaign_cache_auto_delete');
+  variable_del('message_broker_producer_queue_campaign_cache_binding_key');
+
+  variable_del('message_broker_producer_queue_campaign_cache_routing_key');
+
+}
+
+/**
+ * Implements hook_update_xx().
+ *
+ * Delete all system variables related to the previous version
+ */
+function message_broker_producer_update_7002(&$sandbox) {
+
+  // Remove all message_broker_producer settings in the variable table except the rabbitmq config details.
+  $cleanup_status = (bool) db_delete('variable')
+    ->condition('name', '%message_broker_producer_%', 'LIKE')
+    ->condition('name', '%message_broker_producer_rabbitmq_%', 'NOT LIKE')
+    ->condition('name', 'message_broker_producer_application_id', !=)
+    ->execute();
+
+  if ($cleanup_status == TRUE) {
+    drupal_set_message(st('Message Broker Producer variables deleted.'), 'status');
+  }
+  else {
+    drupal_set_message(st('No system variable entries found when updating Message Broker Producer variables.'), 'warning');
+  }
+
+  // Define schema to allow upgrade path as hook_schema
+  // may change in future versions.
+  $schema['message_broker_producer_productions'] = array(
+    'description' => 'Message Broker Producer production entries. Configuration entries in this table are based on setting found in the mb_config.json file.',
+    'fields' => array(
+      'machine_name' => array(
+        'description' => 'The unique machine friendly production name to be referenced to access specific entries.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'config' => array(
+        'description' => 'Serialized array of exchanges and related queues to be included in the payload sent in the production request.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'routing_key' => array(
+        'description' => 'A key to be used when sending a message to an exchange that determines the distribution of the message.',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'A flag to indicate if the entry can be used.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'updated' => array(
+        'description' => 'A timestamp of the last update to the entry based on mb_config.json.',
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('machine_name'),
+  );
+
+  // Remove check once upgrade is complete. DS specific fix to deal with race condition with dosomething_mbp hook_install
+  if (!db_table_exists('message_broker_producer_productions')) {
+    db_create_table('message_broker_producer_productions', $schema['message_broker_producer_productions']);
+  }
+}
