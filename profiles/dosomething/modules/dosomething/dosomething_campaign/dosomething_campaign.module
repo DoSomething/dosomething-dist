@@ -1,0 +1,851 @@
+<?php
+/**
+ * @file
+ * Code for the dosomething_campaign feature.
+ */
+
+include_once 'dosomething_campaign.features.inc';
+include_once 'dosomething_campaign.helpers.inc';
+include_once 'dosomething_campaign.theme.inc';
+define('DOSOMETHING_CAMPAIGN_PIC_STEP_HEADER', 'Snap a Pic');
+
+/**
+ * Implements hook_form_alter().
+ */
+function dosomething_campaign_form_campaign_node_form_alter(&$form, &$form_state, $form_id) {
+  unset($form['field_active_hours'][LANGUAGE_NONE]['#options']['_none']);
+  $form['title']['#description'] = t('Title - i.e. "Protect your Pills", "Birthday Mail", or "Teens for Jeans" <br/><strong> Limit: 20 characters. </strong>');
+  // Add in campaign close info.
+  dosomething_campaign_run_add_campaign_run_info($form, $form_state);
+  // Use #after_build to add JS even on validation errors: https://drupal.org/node/1253520#comment-4881588
+  $form['#after_build'][] = 'dosomething_campaign_form_campaign_node_form_after_build';
+}
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_campaign_menu() {
+  $items = array();
+  // Admin campaign configuration page.
+  $items['admin/config/dosomething/dosomething_campaign'] = array(
+    'title' => 'DoSomething Campaign',
+    'description' => 'Admin form to set campaign variables.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_campaign_admin_config_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'file' => 'dosomething_campaign.admin.inc',
+  );
+  // Admin campaign status page.
+  $items['admin/content/campaign-status'] = array(
+    'title' => t('Campaign status'),
+    'description' => 'Admin page to display campaign node information.',
+    'page callback' => 'dosomething_campaign_admin_status_page',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content overview'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'dosomething_campaign.admin.inc',
+    'weight' => 100,
+  );
+  // Internal pitch page for staff.
+  $items['node/%node/pitch'] = array(
+    'title' => 'Pitch',
+    'page callback' => 'node_page_view',
+    'page arguments' => array(1),
+    'access callback' => '_dosomething_campaign_pitch_page_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 60,
+  );
+  // Internal active page for staff.
+  $items['node/%node/active'] = array(
+    'title' => 'Active',
+    'page callback' => 'node_page_view',
+    'page arguments' => array(1),
+    'access callback' => '_dosomething_campaign_active_page_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 70,
+  );
+  // Internal closed page for staff.
+  $items['node/%node/closed'] = array(
+    'title' => 'Closed',
+    'page callback' => 'node_page_view',
+    'page arguments' => array(1),
+    'access callback' => '_dosomething_campaign_closed_page_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 70,
+  );
+  // Campaign custom settings admin page.
+  $items['node/%node/custom-settings'] = array(
+    'title' => 'Custom Settings',
+    'page callback' => 'dosomething_campaign_admin_custom_settings_page',
+    'page arguments' => array(1),
+    'access callback' => 'dosomething_campaign_admin_custom_settings_page_access',
+    'access arguments' => array(1),
+    'file' => 'dosomething_campaign.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 40,
+  );
+  // User reportback confirmation page.
+  $items['campaigns/%node/confirmation'] = array(
+    'title callback' => 'dosomething_campaign_reportback_confirmation_page_title',
+    'title arguments' => array(1),
+    'page callback' => 'dosomething_campaign_reportback_confirmation_page',
+    'page arguments' => array(1),
+    'access callback' => 'dosomething_campaign_reportback_confirmation_page_access',
+    'access arguments' => array(1),
+    'file' => 'dosomething_campaign.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function dosomething_campaign_permission() {
+  return array(
+    'edit campaign overrides' => array(
+      'title' => t('Edit campaign overrides'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function dosomething_campaign_block_info() {
+  $blocks = array();
+  $blocks['scholarship_list'] = array(
+    'info' => t('DS Scholarships'),
+    //@todo: Remove and set to DRUPAL_CACHE_GLOBAL when done testing.
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  $blocks['submit_campaign_idea'] = array(
+    'info' => t('DS Submit Campaign Idea'),
+    //@todo: Remove and set to DRUPAL_CACHE_GLOBAL when done testing.
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function dosomething_campaign_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'scholarship_list':
+      $block['content']['#markup'] = dosomething_campaign_scholarship_block_content();
+      break;
+    case 'submit_campaign_idea':
+      $block['content']['#markup'] = theme('submit_campaign_idea');
+      break;
+  }
+  return $block;
+}
+
+function dosomething_campaign_scholarship_block_content() {
+  $scholarships = dosomething_campaign_get_scholarships();
+  if (isset($scholarships)) {
+    // Get a link, CTA, image, etc for each campaign.
+    foreach($scholarships as $key => $scholarship) {
+      $rows[$key]['data'] = dosomething_campaign_get_campaign_block_vars($scholarship['nid']);
+      unset($rows[$key]['data']['src']);
+      $rows[$key]['data']['amount'] = '$' . $scholarship['amount'];
+      $rows[$key]['data']['deadline'] = $scholarship['deadline'];
+      $rows[$key]['data']['image'] = "<img src=" . $rows[$key]['data']['image'] . "</img>"; 
+    }
+
+    $vars['header'] = array('nid', 'title', 'cta', 'image', 'path', 'pretty path', 'staff pick', 'amount', 'deadline');
+    $vars['rows'] = $rows;
+
+    // For now, just send back a table view of the campaigns.
+    return theme('table', $vars);
+  }
+  return t('No active scholarships right now, check back!');
+}
+
+/**
+ * Returns a given campaign $nid confirmation path.
+ *
+ * @see dosomething_campaign_menu().
+ */
+function dosomething_campaign_get_confirmation_path($nid) {
+  return 'campaigns/' . $nid . '/confirmation';
+}
+
+/**
+ * Returns all published campaigns with a scholarship.
+ */
+function dosomething_campaign_get_scholarships() {
+  // Find active campaigns with a scholarship.
+   $query = db_select('node', 'n')
+    ->fields('n', array('nid', 'title'))
+    ->fields('s', array('field_scholarship_amount_value'))
+    ->fields('hs', array('field_high_season_value2'))
+    ->condition('type', 'campaign')
+    ->condition('status', 1, '=');
+  $query->innerJoin('field_data_field_scholarship_amount', 's', 's.entity_id = n.nid');
+  $query->leftJoin('field_data_field_high_season', 'hs', 'hs.entity_id = n.nid');
+  $query->where('field_high_season_value2 > now()');
+  $results = $query->execute();
+
+  foreach($results as $key => $result) {
+    // $deadline = date_parse_from_format('Y-m-d H:i:s', $result->field_high_season_value2);
+    // For some reason $result->field_high_season_value2 is a string.
+    $deadline = strtotime($result->field_high_season_value2);
+    $scholarships[$key]['nid'] = $result->nid;
+    $scholarships[$key]['title'] = $result->title;
+    $scholarships[$key]['amount'] = $result->field_scholarship_amount_value;
+    $scholarships[$key]['deadline'] = 'Ends ' . date('F j', $deadline);
+  }
+  if ($scholarships) {
+    return $scholarships;
+  }
+  // If no active scholarships, return null.
+  return NULL;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function dosomething_campaign_admin_paths() {
+  $paths = array(
+    'node/*/custom-settings' => TRUE,
+  );
+  return $paths;
+}
+
+/**
+ * Page access callback for admin custom settings form.
+ */
+function dosomething_campaign_admin_custom_settings_page_access($node) {
+  $settings_nodes = array('campaign', 'campaign_group');
+  if (!in_array($node->type, $settings_nodes)) { return FALSE; }
+
+  return (user_access('edit any campaign content') || user_access('bypass node access'));
+}
+
+/*
+ * Determines whether a user has access to the pitch page.
+ */
+function _dosomething_campaign_pitch_page_access($node) {
+  // Are we on a campaign node?
+  if ($node->type == 'campaign') {
+    // No pitch page for SMS Games.
+    if (dosomething_campaign_get_campaign_type($node) == 'sms_game') {
+      return FALSE;
+    }
+    // Is the user a DS admin or editor?
+    if (dosomething_user_is_staff()) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Determines whether a user has access to the closed page callback.
+ */
+function _dosomething_campaign_closed_page_access($node) {
+  // Staff only.
+  if (!dosomething_user_is_staff()) { return FALSE; }
+
+  // Only display closed page link if a campaign run exists for node.
+  $run_nid = dosomething_campaign_run_get_closed_run_nid($node->nid);
+
+  // Closed page available if this is an active campaign node with a campaign run.
+  $is_active = !dosomething_campaign_is_closed($node);
+  $closed_page_access = $node->type == 'campaign' && $run_nid && $is_active;
+  return $closed_page_access;
+}
+
+/**
+ * Determines whether a user has access to the active page callback.
+ */
+function _dosomething_campaign_active_page_access($node) {
+  // Staff only.
+  if (!dosomething_user_is_staff()) { return FALSE; }
+
+  return dosomething_campaign_is_closed($node);
+}
+
+/**
+ * Determines page title of the reportback confirmation page.
+ *
+ * @param object $node
+ *   The loaded campaign node.
+ *
+ * @return string
+ */
+function dosomething_campaign_reportback_confirmation_page_title($node) {
+  $campaign_type = '';
+  if (dosomething_campaign_get_campaign_type($node) == 'sms_game') {
+    $campaign_type = 'sms_game_';
+  }
+  $variable_name = 'dosomething_campaign_' . $campaign_type . 'confirmation_page_title';
+  return t(variable_get($variable_name));
+}
+
+/**
+ * Determines whether a user has access to the user reportback confirmation page.
+ *
+ * @param object $node
+ *   The loaded campaign node.
+ *
+ * @return boolean
+ */
+function dosomething_campaign_reportback_confirmation_page_access($node) {
+  // Are we on a campaign node?
+  if ($node->type != 'campaign') {
+    return FALSE;
+  }
+  // Allow staff access to confirmation page regardless of reportback status.
+  if (module_exists('dosomething_user') && dosomething_user_is_staff()) {
+    return TRUE;
+  }
+
+  // If this a SMS Game, allow access to anybody, including anonymous users.
+  if (dosomething_campaign_get_campaign_type($node) == 'sms_game') {
+    return TRUE;
+  }
+
+  // Else only grant if the user has reported back on this campaign.
+  if (user_is_logged_in() && module_exists('dosomething_reportback') && dosomething_reportback_exists($node->nid)) {
+    return TRUE;
+  }
+
+  // Return FALSE as default.
+  return FALSE;
+}
+
+/**
+ * Returns an array of Campaign Node nid's the given user is doing.
+ *
+ * @param int $uid
+ *   The User uid to retrieve list for.
+ *
+ * @return array
+ *   Array of Campaign node nid's.
+ */
+function dosomething_campaign_get_campaigns_doing($uid = NULL) {
+  if (!$uid) {
+    global $user;
+    $uid = $user->uid;
+  }
+  // Get all signups.
+  $signup_nids = dosomething_signup_get_signup_nids_by_uid($uid);
+  if (empty($signup_nids)) {
+    return array();
+  }
+  $doing = array();
+  foreach ($signup_nids as $delta => $nid) {
+    // If they reported back, they already did it.
+    if (dosomething_reportback_exists($nid, $uid)) {
+      continue;
+    }
+    $node = node_load($nid);
+    // If the campaign is closed, they're not doing it anymore.
+    $is_closed = dosomething_campaign_is_closed($node);
+    // SMS Games should not appear in the Doing list.
+    $is_sms = (dosomething_campaign_get_campaign_type($node) === 'sms_game');
+    if ($is_closed || $is_sms) {
+      continue;
+    }
+    $doing[] = $nid;
+  }
+  return $doing;
+}
+
+/**
+ * Returns an array of variables for a given campaign $nid.
+ *
+ * @param int $nid
+ *   The node $nid to return variables for.
+ * @param string $image_size
+ *   The image size to return.
+ * @param string $source
+ *   (optional) The signup source to append to the campaign query string.
+ *
+ * @return array
+ *   An array of variables.
+ */
+function dosomething_campaign_get_campaign_block_vars($nid, $image_size = '740x480', $source = NULL) {
+  $node = node_load($nid);
+  $path_alias = drupal_get_path_alias('node/' . $nid);
+  if ($source) {
+    $path_alias .= '?source=' . $source;
+  }
+  $image = NULL;
+  if (!empty($node->field_image_campaign_cover)) {
+    $image_nid = $node->field_image_campaign_cover[LANGUAGE_NONE][0]['target_id'];
+    $image = dosomething_image_get_themed_image_url($image_nid, 'landscape', $image_size);
+  }
+  $cta = NULL;
+  if (!empty($node->field_call_to_action)) {
+    $cta = $node->field_call_to_action[LANGUAGE_NONE][0]['value'];
+  }
+  return array(
+    'nid' => $nid,
+    'title' => $node->title,
+    'call_to_action' => $cta,
+    'image' => $image,
+    'path_alias' => $path_alias,
+    'status' => $node->status,
+    'staff_pick' => $node->field_staff_pick[LANGUAGE_NONE][0]['value'],
+  );
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function dosomething_campaign_preprocess_page(&$vars) {
+  if (isset($vars['node']) && $vars['node']->type == 'campaign') {
+
+    $campaign = dosomething_campaign_load($vars['node']);
+    $cover_image_dark_background = $campaign->image_header['is_dark_image'];
+
+    // The usual default for navigation is white.
+    // If image *doesn't* have a dark background, use black.
+    $vars['use_black_navigation'] = ($cover_image_dark_background == 1) ? 0 : 1;
+
+    // On confirmation page, always use white text
+    $is_confirmation_page = preg_match("/confirmation/", current_path());
+    if( $is_confirmation_page ) {
+      $vars['use_black_navigation'] = 0;
+    }
+  }
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function dosomething_campaign_theme($existing, $type, $theme, $path) {
+  return array(
+    'reportback_confirmation' => array(
+      'template' => 'reportback-confirmation',
+      'path' => drupal_get_path('module', 'dosomething_campaign') . '/theme',
+    ),
+    'campaign_block' => array(
+      'template' => 'campaign-block',
+      'path' => drupal_get_path('module', 'dosomething_campaign') . '/theme',
+      'variables' => NULL,
+    ),
+    'submit_campaign_idea' => array(
+      'template' => 'submit-campaign-idea',
+    ),
+    'campaign_gallery' => array(
+      'template' => 'campaign-gallery',
+      'path' => drupal_get_path('module', 'dosomething_campaign') . '/theme',
+    ),
+  );
+}
+
+/**
+ * Implements hook_node_view().
+ *
+ * By the time this function is called, the $view_mode may have been altered
+ * based on the node's field_campaign_type or signup status.
+ *
+ * @see dosomething_campaign_entity_view_mode_alter().
+ */
+function dosomething_campaign_node_view($node, $view_mode, $langcode) {
+  if ($node->type == 'campaign' && $view_mode == 'full') {
+
+    // Add Zendesk form variable:
+    if (module_exists('dosomething_zendesk')) {
+      $node->content['zendesk_form'] = drupal_get_form('dosomething_zendesk_form', $node);
+    }
+
+    // Check if SMS Game:
+    if (dosomething_campaign_get_campaign_type($node) == 'sms_game') {
+      $node->content['signup_form'] = drupal_get_form('dosomething_signup_sms_game_form', $node);
+      return;
+    }
+
+    // Add signup_data_form variables if needed.
+    dosomething_campaign_add_signup_data_form_vars($node);
+
+    if (module_exists('dosomething_shipment')) {
+      dosomething_campaign_add_shipment_form_vars($node);
+    }
+
+    // Add reportback form variable:
+    if (module_exists('dosomething_reportback')) {
+      if ($rbid = dosomething_reportback_exists($node->nid)) {
+        $reportback = reportback_load($rbid);
+      }
+      else {
+        // Initalize reportback as a new entity for this nid.
+        $reportback = entity_create('reportback', array(
+          'nid' => $node->nid,
+          'quantity' => NULL,
+          'why_participated' => NULL,
+          'num_participants' => NULL,
+        ));
+      }
+      // Set Reportback Form variable in node content for rendering in theme layer.
+      $node->content['reportback_form'] = drupal_get_form('dosomething_reportback_form', $reportback);
+    }
+  }
+}
+
+/**
+ * Adds relevant signup_data_form variables into the $node.
+ */
+function dosomething_campaign_add_signup_data_form_vars(&$node) {
+  // Load signup_data_form configuration data.
+  $config = dosomething_signup_get_signup_data_form_info($node->nid);
+  // If it doesn't exist, or is not active.
+  if (!$config || $config['status'] != 1) {
+    // Nothing to see here.
+    return;
+  }
+
+  // Store the label for the link to the modal.
+  $node->content['signup_data_form_link'] = $config['link_text'];
+  // Load signup sid.
+  $sid = dosomething_signup_exists($node->nid);
+
+  // If no signup exists:
+  if (!$sid) {
+    // Staff is viewing a campaign which they haven't signed up for.
+    $node->content['signup_data_form'] = array(
+      '#markup' => "You haven't signed up for this campaign!",
+    );
+    return;
+  }
+
+  // If form is set to prevent Old People from submitting, and you're Old:
+  if ($config['prevent_old_people_submit'] && dosomething_user_is_old_person()) {
+    // Set the form to the Old People copy config property.
+    $node->content['signup_data_form'] = array(
+      '#markup' => $config['old_people_copy'],
+    );
+    // By exiting out of function now, we don't check to set the
+    // required_signup_data_form variable, meaning Old People will never be
+    // auto prompted.
+    return;
+  }
+
+  // Load the signup entity.
+  $signup = signup_load($sid);
+  // Pass to the user signup data form.
+  $node->content['signup_data_form'] = drupal_get_form('dosomething_signup_user_signup_data_form', $signup);
+  // If the signup_data_form is required and user has not submitted form yet:
+  if ($config['required'] && !$signup->signup_data_form_timestamp) {
+    // Store flag to indicate we need to prompt user (handled in theme).
+    $node->required_signup_data_form = 1;
+    // If form is configured to include a skip button:
+    if ($config['required_allow_skip']) {
+      // Include the skip form:
+      $node->skippable_signup_data_form = 1;
+      $node->content['skip_signup_data_form'] = drupal_get_form('dosomething_signup_user_skip_signup_data_form', $signup);
+    }
+  }
+}
+
+/**
+ * Preprocesses a Shipment Form for the $node, if configured.
+ */
+function dosomething_campaign_add_shipment_form_vars($node) {
+  $config = dosomething_helpers_get_variables($node->nid);
+  if (!empty($config['shipment_item'])) {
+    // Pass the user signup path as the entity to store on the Shipment.
+    $config['entity_type'] = 'signup';
+    $config['entity_id'] = dosomething_signup_exists($node->nid);
+    $shipment_form = drupal_get_form('dosomething_shipment_form', $config);
+    $node->content['shipment_form'] = $shipment_form;
+    // Store the label for the link to the Shipment Form.
+    $node->content['shipment_form_link'] = $config['shipment_form_link_text'];
+  }
+}
+
+/**
+ * For given campaign $node, determines if the pitch page should be displayed.
+ *
+ * @todo: Assumes the campaign is in a live state, for now.
+ * This logic will need to change when a campaign is in a closed state.
+ *
+ * @param obj $node
+ *   A loaded node.
+ *
+ * @return bool
+ */
+function dosomething_campaign_is_pitch_page($node) {
+  // Exclude all non campaign node types.
+  if ($node->type != 'campaign') { return FALSE; }
+
+  // If not a campaign campaign (e.g. SMS Game), no pitch page is needed.
+  if (dosomething_campaign_get_campaign_type($node) != 'campaign') {
+    return FALSE;
+  }
+  // If campaign is closed, no pitch page.
+  elseif (dosomething_campaign_is_closed($node)) {
+    return FALSE;
+  }
+
+  // If we've made it this far, the campaign is active.
+
+  // Anonymous users are always shown pitch page.
+  if (!user_is_logged_in()) {
+    return TRUE;
+  }
+  // Staff can always bypass pitch page to view full action page.
+  elseif (dosomething_user_is_staff()) {
+    return FALSE;
+  }
+  // The $node is a pitch page if you haven't signed up yet.
+  return (!dosomething_signup_exists($node->nid));
+}
+
+/**
+ * For given campaign $node, determines if the closed page should be displayed.
+ *
+ * @param obj $node
+ *   A loaded node.
+ *
+ * @return bool
+ */
+function dosomething_campaign_is_closed($node) {
+  if (isset($node->field_campaign_status[LANGUAGE_NONE][0]['value'])) {
+    return $node->field_campaign_status[LANGUAGE_NONE][0]['value'] == 'closed';
+  }
+  return FALSE;
+}
+
+/**
+ * For given campaign $node, determines if it is active.
+ *
+ * @param obj $node
+ *   A loaded node.
+ *
+ * @return bool
+ */
+function dosomething_campaign_is_active($node) {
+  // Node must be published, and campaign status != closed.
+  return $node->status == 1 && !dosomething_campaign_is_closed($node);
+}
+
+/**
+ * Returns array of nid's of recommended campaigns for $uid.
+ *
+ * First finds published staff pick campaigns that user has not signed up for.
+ * Then finds published campaigns if no $tid is specified.
+ *
+ * If there are less than the limit needed, it finds published campaigns that have the
+ * same primary cause as given $tid which the user has not signed up for.
+ *
+ *
+ * @param int $tid
+ *   Optional - The term $tid to query field_primary_cause for.
+ *   This is used if there are less than $limit recommended staff picks for $uid.
+ * @param int $uid
+ *   Optional - The user $uid to recommend campaigns for.
+ * @param int $limit
+ *   Optional - The amount of campaigns to return.
+ *
+ * @return array
+ *  An array of node nid's.
+ */
+function dosomething_campaign_get_recommended_campaign_nids($tid = NULL, $uid = NULL, $limit = 4) {
+  if ($uid == NULL) {
+    global $user;
+    $uid = $user->uid;
+  }
+  // Get recommended staff picks first.
+  $nids = dosomething_campaign_get_recommended_staff_pick_nids($uid, $limit);
+  // If less than 3 staff picks:
+  if (count($nids) < $limit) {
+    // Do we want to return campaigns under a certain cause?
+    if (!$tid) {
+      // Grab some published campaigns.
+      $nids = dosomething_campaign_get_recommended_published_nids($uid, $limit);
+    }
+    else {
+      // Add recommended campaigns by term $tid.
+      $tid_nids = dosomething_campaign_get_recommended_nids_by_term($tid, $uid, $limit);
+      $nids = array_merge($nids, $tid_nids);
+    }
+  }
+  // Return the limit of nids:
+  return array_slice($nids, 0, $limit);
+}
+
+/**
+ * Returns all staff pick standard Campaigns.
+ *
+ * @return array
+ *  Array of nids and titles of all published/unpublished staff picks.
+ */
+function dosomething_campaign_get_staff_picks() {
+  $staff_picks = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'campaign')
+    ->fieldCondition('field_staff_pick', 'value', 1, '=')
+    ->fieldCondition('field_campaign_type', 'value', 'sms_game', '!=');
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $campaign_nids = array_keys($result['node']);
+    $campaigns = entity_load('node', $campaign_nids);
+  }
+  foreach ($campaigns as $key => $node) {
+    $staff_picks[$key]['nid'] = $node->nid;
+    $staff_picks[$key]['title'] = $node->title;
+  }
+  return $staff_picks;
+}
+
+/**
+ * Returns an EntityFieldQuery of recommended active campaigns for $uid.
+ *
+ * @param int $uid
+ *   The user $uid to recommend campaigns for.
+ * @param int $limit
+ *   The amount of campaigns to return.
+ *
+ * @return object
+ *  An EntityFieldQuery of active campaigns that $uid has not signed up for.
+ */
+function _dosomething_campaign_get_recommended_base_query($uid, $limit) {
+  // Store the nid's that the user has already signed up for.
+  $signup_nids = dosomething_signup_get_signup_nids_by_uid($uid);
+  $query = new EntityFieldQuery();
+  // Find all published Campaign nodes with Campaign Status != 'closed'.
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'campaign')
+    ->propertyCondition('status', 1)
+    ->fieldCondition('field_campaign_status', 'value', 'closed', '<>')
+    ->range(0, $limit);
+    // If the $uid has signed up for campaigns:
+    if ($signup_nids) {
+      // Exclude these nid's from the result.
+      $query->propertyCondition('nid', $signup_nids, 'NOT IN');
+    }
+  return $query;
+}
+
+/**
+ * Helper function to execute a given node EntityFieldQuery and return $nid's.
+ *
+ * @param object $query
+ *   An EntityFieldQuery of campaign nodes.
+ *
+ * @return array
+ *  An array of the result node nid's.
+ */
+function _dosomething_campaign_get_recommended_query_nids($query) {
+  try {
+    $result = $query->execute();
+    if (isset($result['node'])) {
+      return array_keys($result['node']);
+    }
+  }
+  catch (Exception $e) {
+    watchdog('dosomething_campaign', $e, array(), WATCHDOG_ERROR);
+  }
+
+  // Return empty array if no result.
+  return array();
+}
+
+/**
+ * Returns array of nid's published campaigns.
+ *
+ * @param int $uid
+ *   The user $uid to recommend campaigns for.
+ * @param int $limit
+ *   The amount of campaigns to return.
+ *
+ * @return object
+ *  An EntityFieldQuery of published nids that $uid has not signed up for.
+ */
+function dosomething_campaign_get_recommended_published_nids($uid, $limit) {
+  $query = _dosomething_campaign_get_recommended_base_query($uid, $limit);
+  return _dosomething_campaign_get_recommended_query_nids($query);
+}
+
+/**
+ * Returns array of nid's of recommended staff picks for $uid.
+ *
+ * @param int $uid
+ *   The user $uid to recommend campaigns for.
+ * @param int $limit
+ *   The amount of campaigns to return.
+ *
+ * @return object
+ *  An EntityFieldQuery of staff pick nids that $uid has not signed up for.
+ */
+function dosomething_campaign_get_recommended_staff_pick_nids($uid, $limit) {
+  $query = _dosomething_campaign_get_recommended_base_query($uid, $limit);
+  // Add field condition to only return staff picks.
+  $query->fieldCondition('field_staff_pick', 'value', 1);
+  return _dosomething_campaign_get_recommended_query_nids($query);
+}
+
+/**
+ * Returns array of nid's of recommended campaigns for $uid with given $tid.
+ *
+ * @param int $tid
+ *   The term $tid to query field_primary_cause for.
+ * @param int $uid
+ *   The user $uid to recommend campaigns for.
+ * @param int $limit
+ *   The amount of campaigns to return.
+ *
+ * @return object
+ *  An EntityFieldQuery of staff pick nids that $uid has not signed up for.
+ */
+function dosomething_campaign_get_recommended_nids_by_term($tid, $uid, $limit) {
+  $query = _dosomething_campaign_get_recommended_base_query($uid, $limit);
+  // Add field condition to only campaigns with primary cause $tid.
+  $query->fieldCondition('field_primary_cause', 'tid', $tid);
+  return _dosomething_campaign_get_recommended_query_nids($query);
+}
+
+
+/**
+ * Callback for the dosomething_campaign_form_campaign_node_form_alter #after_build setting.
+ */
+function dosomething_campaign_form_campaign_node_form_after_build($form, &$form_state) {
+  $path = drupal_get_path('module', 'dosomething_campaign');
+  drupal_add_js ($path . "/js/campaign_node_form.js");
+  return $form;
+}
+
+/**
+ * For given array of objects, return themed Campaign Gallery.
+ *
+ * @param array $nids
+ *   Array of Campaign node $nid's.
+ * @param string $size
+ *   Size to render Gallery items.
+ * @param string $source
+ *   The signup source param to pass to each campaign link.
+ *
+ * @return string
+ *   HTML of rendered Campaign Gallery.
+ */
+function dosomething_campaign_get_campaign_gallery($nids, $size = '400x400', $source = NULL) {
+  $vars['items'] = array();
+  foreach ($nids as $delta => $nid) {
+    // Default class as published.
+    $vars['items'][$delta]['class'] = 'published';
+    // Load vars for this Campaign block.
+    $campaign_vars = dosomething_campaign_get_campaign_block_vars($nid, $size, $source);
+    // If unpublished campaign:
+    if ($campaign_vars['status'] == 0) {
+      // Set relevant unpublished vars.
+      $vars['items'][$delta]['class'] = 'unpublished';
+      $campaign_vars['title'] = t('Stay Tuned');
+    }
+    // Add the themed campaign block.
+    $vars['items'][$delta]['campaign'] = theme('campaign_block', $campaign_vars);
+  }
+  return theme('campaign_gallery', $vars);
+}
