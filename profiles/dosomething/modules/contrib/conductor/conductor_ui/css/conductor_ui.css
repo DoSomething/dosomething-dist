@@ -1,0 +1,38 @@
+#conductor-ui-toolbar #toolbar-buttons {
+  float:right;
+  position: relative;
+  right: 0;
+}
+
+#conductor-workflow-editor {
+  margin-top: 1em;
+  width: 100%;
+}
+
+.conductor-ui-activity {
+  width: 150px;
+  border: 2px solid #ccc;
+  padding: 1em;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  position: relative;
+  background: white;
+  z-index: 1;
+}
+
+.ctools-dropbutton {
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  /* TODO: it would be nice to get rid of the !important here... */
+  background: white !important;
+}
+
+.conductor-drop-link {
+  position: absolute;
+  right: 0.5em;
+  top: 0.5em;
+}
+
+._jsPlumb_connector {
+  z-index: 0;
+}
