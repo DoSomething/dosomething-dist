@@ -1,0 +1,443 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Zendesk module.
+ */
+define('DOSOMETHING_ZENDESK_FIELD_ID_BROWSER', 22583110);
+define('DOSOMETHING_ZENDESK_FIELD_ID_IP_ADDRESS', 22583120);
+DEFINE('DOSOMETHING_ZENDESK_LOG', variable_get('dosomething_zendesk_log') ? TRUE : FALSE);
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_zendesk_menu() {
+  $items = array();
+  $items['admin/config/dosomething/dosomething_zendesk'] = array(
+    'title' => 'DoSomething Zendesk',
+    'description' => 'Manage Zendesk settings.',
+    'page callback' => 'dosomething_zendesk_admin_page',
+    'access arguments' => array('administer zendesk'),
+    'file' => 'dosomething_zendesk.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function dosomething_zendesk_permission() {
+  return array(
+    'administer zendesk' =>  array(
+      'title' => t('Administer Zendesk'),
+      'description' => t('Administer Zendesk auth and group ids.'),
+    )
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function dosomething_zendesk_libraries_info() {
+  $libraries['zendesk'] = array(
+    'name' => 'Zendesk',
+    'path' => 'vendor',
+    'files' => array(
+      'php' => array(
+        'autoload.php'
+      ),
+    ),
+    'version' => 1
+  );
+  return $libraries;
+}
+
+/**
+ * Returns a Zendesk Client object with auth vars.
+ */
+function dosomething_zendesk_get_client() {
+  $library = libraries_load('zendesk');
+  if (empty($library['loaded'])) {
+    return FALSE;
+  }
+  $subdomain = variable_get('dosomething_zendesk_subdomain');
+  $username = variable_get('dosomething_zendesk_username');
+  $token = variable_get('dosomething_zendesk_token');
+  $client = new Zendesk\API\Client($subdomain, $username);
+  $client->setAuth('token', $token);
+  return $client;
+}
+
+/**
+ * Form constructor for submitting a Zendesk ticket.
+ *
+ * @param object $entity
+ *   Optional. A loaded entity which this zendesk form is being rendered on.
+ */
+function dosomething_zendesk_form($form, &$form_state, $entity = NULL)  {
+  // Initialize zendesk group_id as NULL.
+  $group_id = NULL;
+
+  // Set user IP Address to submit.
+  if (module_exists('dosomething_helpers')) {
+    $ip_address = dosomething_helpers_ip_address();
+  }
+  else {
+    $ip_address = ip_address();
+  }
+
+  $form['browser'] = array(
+    '#type' => 'hidden',
+    '#access' => FALSE,
+    '#value' => $_SERVER['HTTP_USER_AGENT'],
+  );
+  $form['ip_address'] = array(
+    '#type' => 'hidden',
+    '#access' => FALSE,
+    '#value' => $ip_address,
+  );
+  $form['subject'] = array(
+    '#type' => 'hidden',
+    '#access' => FALSE,
+    '#value' => t('Question about') . ' ' . drupal_get_title(),
+  );
+  $form['priority'] = array(
+    '#type' => 'hidden',
+    '#access' => FALSE,
+    '#value' => 'normal',
+  );
+
+  // If anonymous user:
+  if (!user_is_logged_in()) {
+    // Add email as a required field.
+    $form['email'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Your Email',
+      '#required' => TRUE,
+      '#attributes' => array(
+        'data-validate' => 'email',
+        'data-validate-required' => '',
+      ),
+    );
+  }
+
+  if ($entity) {
+    // Check if entity has a Zendesk group id.
+    $group_id = dosomething_zendesk_get_zendesk_group_id($entity);
+    // If staff_pick field exists:
+    if (isset($entity->field_staff_pick) && isset($entity->field_staff_pick[LANGUAGE_NONE][0])) {
+      // If entity is a staff pick:
+      if ($entity->field_staff_pick[LANGUAGE_NONE][0]['value'] == 1) {
+        $form['priority']['#value'] = 'high';
+      }
+    }
+  }
+
+  // If a Zendesk group_id variable exists:
+  if ($group_id) {
+    // Render as a hidden element:
+    $form['group_id'] = array(
+      '#type' => 'hidden',
+      '#access' => FALSE,
+      '#value' => $group_id,
+    );
+  }
+
+  $form['body'] = array(
+    '#type' => 'textarea',
+    '#required' => TRUE,
+    '#title' => t(variable_get('dosomething_zendesk_form_body_label')),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#prefix' => '<div class="form-actions">',
+    '#suffix' => '</div>',
+    '#attributes' => array('class' => array('btn')),
+  );
+
+  return $form;
+}
+
+/**
+ * Returns the Zendesk Group ID that a given $entity should submit tickets to.
+ *
+ * @param object $entity
+ *   A loaded entity, such as a node or a taxonomy term.
+ * @return
+ *   An integer, or NULL.
+ */
+function dosomething_zendesk_get_zendesk_group_id($entity = NULL) {
+  $group_id = NULL;
+  // If a sitewide Group ID has been set, tickets are always sent to it.
+  if ($sitewide = variable_get('dosomething_zendesk_group_id')) {
+    if (!empty($sitewide)) {
+      return $sitewide;
+    }
+  }
+  // If this is a taxonomy term:
+  if (isset($entity->tid)) {
+    // Check if this term has its own group.
+    $var_name = dosomething_zendesk_get_group_varname('tid', $entity->tid);
+    $group_id = variable_get($var_name);
+  }
+  // Else if a node:
+  elseif (isset($entity->nid)) {
+     // Check if node has its own Zendesk group_id:
+    $var_name = dosomething_zendesk_get_group_varname('nid', $entity->nid);
+    $group_id = variable_get($var_name);
+    // If not, check if node has a primary cause:
+    if (!$group_id && isset($entity->field_primary_cause[LANGUAGE_NONE][0])) {
+      $tid = $entity->field_primary_cause[LANGUAGE_NONE][0]['tid'];
+      // Store zendesk group_id of the primary cause.
+      $var_name = dosomething_zendesk_get_group_varname('tid', $tid);
+      $group_id = variable_get($var_name);
+    }
+  }
+
+  if (DOSOMETHING_ZENDESK_LOG) {
+    watchdog('dosomething_zendesk', "dosomething_zendesk_get_zendesk_group_id: @id", array(
+      '@id' => $group_id,
+    ));
+  }
+  return $group_id;
+}
+
+/**
+ * Validation callback for dosomething_zendesk_form().
+ */
+function dosomething_zendesk_form_validate($form, &$form_state) {
+  // If an email field is present:
+  if (isset($form_state['values']['email'])) {
+    // Check if valid email.
+    if (!valid_email_address($form_state['values']['email'])) {
+      form_set_error('email', t("Please provide a valid email address."));
+    }
+  }
+}
+
+/**
+ * Submit callback for dosomething_zendesk_form().
+ */
+function dosomething_zendesk_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if (user_is_logged_in()) {
+    global $user;
+    $values['email'] = $user->mail;
+  }
+ 
+  // Attempt to submit a ticket via Zendesk API.
+  if (dosomething_zendesk_create_ticket($values)) {
+    $msg = t("Thanks for submitting your question.") . ' ';
+    $msg .= t("We'll send a response to") . ' ';
+    $msg .= $values['email'] . ' ' . t("shortly.");
+    $msg_type = 'status';
+  }
+  else {
+    $msg = t("Sorry, there was an error with your request. Please try again.");
+    $msg_type = 'warning';
+  }
+  drupal_set_message($msg, $msg_type);
+}
+
+/**
+ * Submits a ticket to Zendesk via Zendesk API request.
+ *
+ * @param array $values
+ *   Values to pass to the Zendesk Tickets API. For expected format,
+ *   @see dosomething_zendesk_get_ticket_array()
+ *
+ * @return bool
+ *   Whether or not API request was successful.
+ */
+function dosomething_zendesk_create_ticket($values) {
+  // Get expected format for a create Ticket request.
+  $ticket = dosomething_zendesk_get_ticket_array($values);
+  if ($ticket && $client = dosomething_zendesk_get_client()) {
+    try {
+      // Make sure user exists as a Zendesk user (required to create Ticket).
+      if (dosomething_zendesk_verify_zendesk_user($values['email'], $client)) {
+        // Submit API request to create Zendesk ticket.
+        $client->tickets()->create($ticket);
+        return TRUE;
+      }
+    }
+    catch (Exception $e) {
+      watchdog('dosomething_zendesk', $e, array(), WATCHDOG_ERROR);
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Prepares a Zendesk ticket array with expected keys.
+ *
+ * @param array $values
+ *   Values to pass to the Zendesk Tickets API.
+ *   http://developer.zendesk.com/documentation/rest_api/tickets.html
+ *   Expected keys:
+ *     - email: The email of user submitting ticket
+ *     - subject: Subject of the ticket.
+ *     - body: Body of the ticket.
+ *
+ * @return mixed
+ *   FALSE if an expected key is not persent, otherwise an array with
+ *   expected keys and values for submitting to Zendesk Tickets API.
+ *
+ */
+function dosomething_zendesk_get_ticket_array($values) {
+  // List expected array keys.
+  $keys = array('email', 'subject', 'body', 'priority');
+  // Loop through $values to make sure all keys are present.
+  foreach ($keys as $key) {
+    if (!isset($values[$key])) {
+      // Return FALSE if key is not present.
+      return FALSE;
+    }
+  }
+  // Include subject within the body to allow for Zendesk auto-tagging.
+  // (Zendesk currently doesn't let you filter by subject).
+  $body = $values['subject'] . ': ' . $values['body'];
+  // Build array with expected format for Ticket creation.
+  $ticket = array(
+    'requester' => array(
+      'email' => $values['email'],
+    ),
+    'subject' => $values['subject'],
+    'comment' => array(
+      'body' => $body,
+    ),
+    'priority' => $values['priority'],
+    'custom_fields' => array(
+      array(
+        'id' => DOSOMETHING_ZENDESK_FIELD_ID_BROWSER, 
+        'value' => $values['browser'],
+      ),
+      array(
+        'id' => DOSOMETHING_ZENDESK_FIELD_ID_IP_ADDRESS, 
+        'value' => $values['ip_address'],
+      ),
+    ),
+  );
+  if (isset($values['group_id'])) {
+    $ticket['group_id'] = $values['group_id'];
+  }
+  if (DOSOMETHING_ZENDESK_LOG) {
+    watchdog('dosomething_zendesk', json_encode($ticket));
+  }
+  return $ticket;
+}
+
+/**
+ * Verifies that given $email exists for a zendesk user.
+ * 
+ * If a zendesk user doesn't exist for $email, creates one.
+ *
+ * @param string $email
+ *   The email address to verify.
+ *
+ * @return mixed
+ *   An API response, or FALSE if exception was thrown.
+ */
+function dosomething_zendesk_verify_zendesk_user($email, $client = NULL) {
+  if ($client == NULL) {
+    $client = dosomething_zendesk_get_client();
+  }
+  try {
+    $search = $client->search(array(
+      'query' => "type:user email:{$email}",
+    ));
+    // If a zendesk user was not found:
+    if (empty($search->results)) {
+      // Create a zendesk user.
+      return dosomething_zendesk_create_zendesk_user($email, $client);
+    }
+    return $search->results;
+  }
+  catch (Exception $e) {
+    watchdog('dosomething_zendesk', $e, array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+/**
+ * Creates a zendesk user for a given email.
+ *
+ * @param string $email
+ *   The email addressto create a zendesk user for.
+ *
+ * @return mixed
+ *   An API response, or FALSE if exception was thrown.
+ */
+function dosomething_zendesk_create_zendesk_user($email, $client = NULL) {
+  if ($client == NULL) {
+    $client = dosomething_zendesk_get_client();
+  }
+
+  $first_name = FALSE;
+  // Check to see if user exists with this email.
+  if ($account = user_load_by_mail($email)) {
+    // Check for first name.
+    $first_name = dosomething_user_get_field('field_first_name', $account);
+  }
+  
+  // Use the email address as the name if there's no first name available.
+  if (!$first_name) {
+    $first_name = $email;
+  }
+  $new_user = array(
+    'email' => $email,
+    'name' => $first_name,
+  );
+  if (DOSOMETHING_ZENDESK_LOG) {
+    watchdog('dosomething_zendesk', json_encode($new_user));
+  }
+  try {
+    // Send API request to create new user.
+    return $client->users()->create($new_user);
+  }
+  catch (Exception $e) {
+    watchdog('dosomething_zendesk', $e, array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+/**
+ * Retrieves all non-deleted Zendesk groups from the API.
+ *
+ * @return mixed
+ *   A multi-dimensional array, or FALSE if exception was thrown.
+ */
+function dosomething_zendesk_get_zendesk_groups() {
+  $groups = array();
+  try {
+    $client = dosomething_zendesk_get_client();
+    $result = $client->groups()->findAll();
+    if (!empty($result->groups)) {
+      foreach ($result->groups as $group) {
+        if (!$group->deleted) {
+          $groups[$group->id] = $group->name;
+        }
+      }
+    }
+    return $groups;
+  }
+  catch (Exception $e) {
+    watchdog('dosomething_zendesk', $e, array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+/**
+ * Returns the variable name that stores an entity's Zendesk Group ID.
+ *
+ * @param string $identifier
+ *   The identifier of the id to lookup. e.g. nid, tid.
+ * @param int $tid
+ *   The id of the entity to lookup.
+ *
+ * @return string
+ *  The variable name which stores the ids's Zendesk Group ID.
+ */
+function dosomething_zendesk_get_group_varname($identifier, $id) {
+  return 'dosomething_zendesk_' . $identifier . '_' . $id . '_group_id';
+}
