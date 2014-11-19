@@ -1,0 +1,281 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Taxonomy feature.
+ */
+
+include_once 'dosomething_taxonomy.features.inc';
+include_once 'dosomething_taxonomy.helpers.inc';
+
+/**
+* Implements hook_menu_alter().
+*/
+function dosomething_taxonomy_menu_alter(&$menu) {
+  // Override Taxonomy module's term view page.
+  $path = 'taxonomy/term/%taxonomy_term';
+  if (isset($menu[$path])) {
+    $menu[$path]['page callback'] = 'dosomething_taxonomy_term_page';
+    $menu[$path]['access callback'] = 'dosomething_taxonomy_term_page_access';
+    $menu[$path]['access arguments'] = array(2);
+    $menu[$path]['file'] = 'dosomething_taxonomy.pages.inc';
+    $menu[$path]['file path'] = drupal_get_path('module', 'dosomething_taxonomy');
+  }
+}
+
+/**
+ * Access callback for dosomething_taxonomy_term_page().
+ *
+ * @see dosomething_taxonomy_menu().
+ */
+function dosomething_taxonomy_term_page_access($term) {
+  // Staff can always view term pages.
+  if (dosomething_user_is_staff()) {
+    return TRUE;
+  }
+  if (isset($term->field_is_published)) {
+    return $term->field_is_published[LANGUAGE_NONE][0]['value'];
+  }
+  return FALSE;
+}
+
+/**
+* Implements hook_preprocess_taxonomy_term().
+*/
+function dosomething_taxonomy_preprocess_taxonomy_term(&$vars) {
+
+  // Use term description as $intro variable.
+  $vars['intro'] = check_markup($vars['description'], $vars['format']);
+  // Check for video.
+  if (!empty($vars['term']->field_video)) {
+    $wrapper = entity_metadata_wrapper('taxonomy_term', $vars['term']);
+    $vars['intro_video'] = theme('dosomething_video_embed', array(
+      'field' => $wrapper->field_video->value(),
+    ));
+  }
+  // Else check for intro image.
+  elseif (!empty($vars['field_intro_image'])) {
+    $image_nid = $vars['field_intro_image'][0]['target_id'];
+    $size = '550x300';
+    $vars['intro_image'] = dosomething_image_get_themed_image($image_nid, 'landscape', $size);
+  }
+
+  // Display Campaign Gallery for this term.
+  $campaigns = dosomething_taxonomy_get_campaigns($vars['tid']);
+  $size = '400x400';
+  $source = 'taxonomy/term/' . $vars['tid'];
+  $gallery = dosomething_campaign_get_campaign_gallery($campaigns, $size, $source);
+  $vars['campaign_gallery'] = $gallery;
+
+  // Set the title field.
+  $vars['title'] = $vars['name'];
+  if (!empty($vars['field_title'])) {
+    $vars['title'] = $vars['field_title'][0]['value'];
+  }
+  drupal_set_title($vars['title']);
+
+  // Term fields:
+  $text_fields = array(
+    'intro_title',
+    'subtitle',
+  );
+
+  foreach ($text_fields as $label) {
+    $field = "field_{$label}";
+    if (isset($vars['content'][$field])) {
+      $vars[$label] = $vars['content'][$field][0]['#markup'];
+    }
+  }
+
+  // Facts.
+  $vars['facts'] = array();
+  $wrapper = entity_metadata_wrapper('taxonomy_term', $vars['tid']);
+  if (isset($wrapper->field_facts) && $wrapper->field_facts->count() > 0) {
+    $vars['facts'] = dosomething_fact_get_fact_field_vars($wrapper->field_facts);
+    $vars['facts_header'] = t("Facts About @name", array('@name' => $vars['term']->name));
+    if (!empty($vars['field_facts_header'])) {
+      $vars['facts_header'] = $vars['field_facts_header'][0]['value'];
+    }
+  }
+
+  // Cover image.
+  dosomething_helpers_preprocess_hero_images($vars);
+  dosomething_helpers_add_inline_css($vars);
+
+  // Global copy variables.
+  $vars['global_copy'] = dosomething_settings_get_sitewide_copy();
+
+  // Zendesk form.
+  if (module_exists('dosomething_zendesk')) {
+    $vars['zendesk_form'] = drupal_get_form('dosomething_zendesk_form', $vars['term']);
+  }
+
+}
+
+/**
+ * Returns array of node nid's with the given Term $tid.
+ *
+ * @param int $tid
+ *   A taxonomy term tid.
+ *
+ * @return array
+ */
+function dosomething_taxonomy_get_campaigns($tid) {
+  $nids = array();
+  $view = views_get_view('campaigns_by_term');
+  $view->set_arguments(array($tid));
+  $view->execute();
+  foreach ($view->result as $record) {
+    $nids[] = $record->nid;
+  }
+  return $nids;
+}
+
+/**
+ * Returns data from field_partners field collection for a given $node.
+ *
+ * @param object $node
+ *   A loaded Node object.
+ *
+ * @return mixed
+ *   Multi-dimensional array of partners/sponsors, or NULL if empty.
+ *
+ */
+function dosomething_taxonomy_get_partners_data($field_partners, $logo_style = 'wmax-423px') {
+
+  if (empty($field_partners)) {
+    return NULL;
+  }
+  // Intialize return array.
+  $partners = array();
+
+  // Loop through field collection items.
+  foreach ($field_partners as $delta => $item) {
+    if (!isset($item['value'])) {
+      continue;
+    }
+    $fc_item = entity_metadata_wrapper('field_collection_item', $item['value']);
+
+    // Gather partner term data.
+    $term = taxonomy_term_load($fc_item->field_partner->value()->tid);
+    $term_wrapper = entity_metadata_wrapper('taxonomy_term', $term);
+    $partners[$delta]['tid'] = $term_wrapper->getIdentifier();
+    $partners[$delta]['name'] = $term_wrapper->label();
+
+    $partners[$delta]['is_sponsor'] = $fc_item->field_is_sponsor->value();
+
+    if ($url = $fc_item->field_partner_url->value()) {
+      $partners[$delta]['url'] = $url['url'];
+    }
+
+    // If a logo has been uploaded:
+    if ($logo = $term_wrapper->field_partner_logo->value()) {
+      $partners[$delta]['logo']['fid'] = $logo['fid'];
+      // Get url of themed file in the default $logo_style.
+      $logo_url = image_style_url($logo_style, $logo['uri']);
+      $partners[$delta]['logo']['url']['default'] = $logo_url;
+    }
+
+    $partners[$delta]['info'] = NULL;
+    // If copy exists, add it and relevant image/video into info.
+    if ($copy = $fc_item->field_partner_copy->value()) {
+      $partners[$delta]['info'] = array(
+        'copy' => $copy['safe_value'],
+        'image' => $fc_item->field_image_partner->value(),
+        'video' => $fc_item->field_video->value(),
+      );
+    }
+  }
+
+  if (!empty($partners)) {
+    return $partners;
+  }
+  return NULL;
+}
+
+/**
+ * Returns array of values of partners / sponsor data.
+ * This function will be replaced by dosomething_taxonomy_get_partners_data().
+ *
+ * @param array $field_partners
+ *   An loaded field_partners field array.
+ *
+ * @return mixed
+ *   Multi-dimensional array of partners/sponsors, or NULL if empty.
+ *
+ */
+function dosomething_taxonomy_get_partners_vars($field_partners = array()) {
+
+  if (empty($field_partners)) {
+    return;
+  }
+
+  // Intialize return arrays.
+  $partners = array();
+  $sponsors = array();
+  $partner_info = array();
+  $info_count = 0;
+
+  // Loop through field collection items.
+  foreach ($field_partners as $delta => $item) {
+    if (!isset($item['value'])) {
+      continue;
+    }
+    $fc_item = entity_metadata_wrapper('field_collection_item', $item['value']);
+
+    // Store partner term data.
+    $term = taxonomy_term_load($fc_item->field_partner->value()->tid);
+    $term_wrapper = entity_metadata_wrapper('taxonomy_term', $term);
+    $partners[$delta]['tid'] = $term_wrapper->getIdentifier();
+    $partners[$delta]['name'] = $term_wrapper->label();
+    if (isset($fc_item->field_partner_url)) {
+      // If a partner_url value exists:
+      if ($url = $fc_item->field_partner_url->value()) {
+        $partners[$delta]['url'] = $url['url'];
+      }
+    }
+    if ($logo = $term_wrapper->field_partner_logo->value()) {
+      $partners[$delta]['fid'] = $logo['fid'];
+    }
+
+    // If partner is a sponsor, add into sponsors array.
+    if ($fc_item->field_is_sponsor->value()) {
+      $sponsors[] = $partners[$delta];
+    }
+
+    // If copy exists, add it and relevant image/video into the partner_info array.
+    if ($copy = $fc_item->field_partner_copy->value()) {
+      $partner_info[$info_count] = $partners[$delta];
+      $partner_info[$info_count]['copy'] = $copy['safe_value'];
+      $partner_info[$info_count]['image'] = $fc_item->field_image_partner->value();
+      $partner_info[$info_count]['video'] = $fc_item->field_video->value();
+      $info_count++;
+    }
+
+
+  }
+  if (!empty($partners)) {
+    return array(
+      'partners' => $partners,
+      'sponsors' => $sponsors,
+      'partner_info' => $partner_info,
+    );
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_field_collection_is_empty_alter().
+ */
+function dosomething_taxonomy_field_collection_is_empty_alter(&$is_empty, $item) {
+  // If this is the field_partners field collection:
+  if ($item->field_name == 'field_partners') {
+    // If a Partner Term exists.
+    if (isset($item->field_partner[LANGUAGE_NONE][0]['target_id'])) {
+      // If no value exists, consider this field collection empty.
+      $is_empty = empty($item->field_partner[LANGUAGE_NONE][0]['target_id']);
+      return;
+    }
+    // Else assume this is an empty field collection.
+    $is_empty = TRUE;
+  }
+}
