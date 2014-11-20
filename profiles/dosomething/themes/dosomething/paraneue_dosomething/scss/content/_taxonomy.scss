@@ -1,0 +1,36 @@
+.taxonomy-term {
+  .container__title,
+  .container__body,
+  .sources {
+    @include compacted();
+  }
+
+  .additional-text {
+    p,
+    ul,
+    ol {
+      @include compacted();
+    }
+  }
+
+  .sources {
+    ul {
+      width: auto;
+    }
+
+    p {
+      display: inline;
+    }
+  }
+
+  //@TODO: move into Neue by way of button update.
+  .gallery.-mosaic + .btn {
+    color: $med-gray;
+    display: table;
+    margin: 0 auto 18px;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
