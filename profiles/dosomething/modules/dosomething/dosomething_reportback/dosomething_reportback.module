@@ -1,0 +1,970 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Reportback feature.
+ */
+
+include_once 'dosomething_reportback.features.inc';
+include_once 'dosomething_reportback.forms.inc';
+
+/**
+ * Implements hook_entity_info().
+ */
+function dosomething_reportback_entity_info() {
+  $info = array();
+  $info['reportback'] = array(
+    'label' => t('Reportback'),
+    'base table' => 'dosomething_reportback',
+    'entity keys' => array(
+      'id' => 'rbid',
+      'label' => 'rbid',
+    ),
+    'entity class' => 'ReportbackEntity',
+    'uri callback' => 'entity_class_uri',
+    'controller class' => 'ReportbackEntityController',
+    'module' => 'dosomething_reportback',
+    'views controller class' => 'EntityDefaultViewsController',
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function dosomething_reportback_entity_property_info() {
+  $info = array();
+  $properties = &$info['reportback']['properties'];
+  $properties['rbid'] = array(
+    'label' => t('Reportback rbid'),
+    'description' => t('The unique ID of the reportback.'),
+    'type' => 'integer',
+    'schema field' => 'rbid',
+    'entity views field' => TRUE,
+  );
+  $properties['nid'] = array(
+    'label' => t('Node nid'),
+    'description' => t('The node nid of the reportback.'),
+    'type' => 'node',
+    'schema field' => 'nid',
+    'required' => TRUE,
+    'entity views field' => TRUE,
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['uid'] = array(
+    'label' => t('User uid'),
+    'description' => t('The user uid of the reportback.'),
+    'type' => 'user',
+    'schema field' => 'uid',
+    'required' => TRUE,
+    'entity views field' => TRUE,
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['created'] = array(
+    'label' => t('Created Date'),
+    'description' => t('Date the reportback was created.'),
+    'type' => 'date',
+    'required' => TRUE,
+    'schema field' => 'created',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['updated'] = array(
+    'label' => t('Last Updated'),
+    'description' => t('Date the reportback was last updated.'),
+    'type' => 'date',
+    'required' => TRUE,
+    'schema field' => 'updated',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['quantity'] = array(
+    'label' => t('Quantity'),
+    'description' => t('The number of reportback_nouns reportback_verbed.'),
+    'type' => 'integer',
+    'required' => TRUE,
+    'schema field' => 'quantity',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  $properties['why_participated'] = array(
+    'label' => t('Why Participated'),
+    'description' => t('Why the user participated.'),
+    'type' => 'text',
+    'required' => TRUE,
+    'schema field' => 'why_participated',
+    'setter callback' => 'entity_property_verbatim_set',
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_reportback_menu() {
+  $items = array();
+  // Admin campaign configuration page.
+  $items['admin/config/dosomething/dosomething_reportback'] = array(
+    'title' => 'DoSomething Reportback',
+    'description' => 'Admin form to set Reportback variables.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reportback_admin_config_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'file' => 'dosomething_reportback.admin.inc',
+  );
+  $items['reportback/%reportback'] = array(
+    'title' => 'Reportback',
+    'page callback' => 'dosomething_reportback_view_entity',
+    'page arguments' => array(1),
+    'access callback' => 'dosomething_reportback_access',
+    'access arguments' => array('view', 1),
+  );
+  $items['admin/users/rb'] = array(
+    'title' => 'Reportbacks',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reportback_files_form', 'pending'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'file' => 'dosomething_reportback.admin.inc',
+  );
+  $items['admin/users/rb/inbox'] = array(
+    'title' => 'Inbox',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reportback_files_form', 'pending'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'file' => 'dosomething_reportback.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 10,
+  );
+  // Loop through status options.
+  $status_options = dosomething_reportback_get_file_status_options();
+  $weight = 20;
+  foreach ($status_options as $status => $title) {
+    $items['admin/users/rb/' . $status] = array(
+      'title' => $title,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('dosomething_reportback_files_form', $status),
+      'access callback' => 'user_access',
+      'access arguments' => array('administer modules'),
+      'file' => 'dosomething_reportback.admin.inc',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => $weight,
+    );
+    $weight++;
+  }
+  $items['admin/users/reportbacks/add'] = array(
+    'title' => 'Add reportback',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reportback_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 100,
+  );
+  $items['reportback/%reportback/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'dosomething_reportback_edit_entity',
+    'page arguments' => array(1),
+    'access callback' => 'dosomething_reportback_access',
+    'access arguments' => array('edit', 1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+  );
+  $items['reportback/%reportback/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reportback_delete_form', 1),
+    'access callback' => 'dosomething_reportback_access',
+    'access arguments' => array('delete', 1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 30,
+  );
+  $items['node/%node/gallery'] = array(
+    'title' => 'Gallery',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_reportback_gallery_form', 1),
+    'access callback' => 'dosomething_reportback_gallery_form_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 200,
+    'file' => 'dosomething_reportback.forms.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function dosomething_reportback_form_alter(&$form, &$form_state) {
+  // Only alter the flag_confirm form, provided by Flag module.
+  if ($form['#form_id'] != 'flag_confirm') { return; }
+
+  // The flag we're confirming:
+  $flag_name = $form['#flag']->name;
+  // The entity_id of whatever we're flagging.
+  $entity_id = $form['entity_id']['#value'];
+
+  switch ($flag_name) {
+
+    case 'promoted':
+      // Displays the image to be promoted/unpromoted.
+      $form['image'] = array(
+        '#markup' => dosomething_image_get_themed_image_by_fid($entity_id, '300x300'),
+      );
+      break;
+
+    case 'flagged_reportback':
+      // If action is to create the flag:
+      if ($form['action']['#value'] == 'flag') {
+        // Add a checkbox to delete the reportback files.
+        $form['delete_files'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Delete reportback files'),
+          '#description' => t('If checked, the submitted reportback files will permanently be deleted.') . ' <strong>' . t('This cannot be undone.') . '</strong>',
+          '#weight' => 30,
+        );
+      }
+      $reportback = reportback_load($entity_id);
+      // Displays the reportback to confirm flag/unflag.
+      $form['reportback'] = array(
+        '#prefix' => '<hr />',
+        '#markup' => render(dosomething_reportback_view_entity($reportback)),
+        '#weight' => 500,
+      );
+      // Add additional submit handler.
+      $form['#submit'][] = 'dosomething_reportback_flag_confirm_submit';
+      break;
+
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function dosomething_reportback_theme($existing, $type, $theme, $path) {
+  return array(
+    'reportback_form_images' => array(
+      'template' => 'reportback-form-images',
+      'path' => drupal_get_path('module', 'dosomething_reportback') . '/theme',
+      'variables' => array(
+        'updated' => NULL,
+        'images' => NULL,
+      ),
+    ),
+    'dosomething_reportback_gallery_form' => array(
+      'render element' => 'form',
+      'file' => 'dosomething_reportback.forms.inc',
+    ),
+    'dosomething_reportback_files_form' => array(
+      'render element' => 'form',
+      'file' => 'dosomething_reportback.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function dosomething_reportback_admin_paths() {
+  $paths = array(
+    'node/*/reportbacks' => TRUE,
+    'node/*/gallery' => TRUE,
+    'flag/confirm/*/*/*' => TRUE,
+    'reportback/*' => TRUE,
+  );
+  return $paths;
+}
+
+/**
+ * Access callback for reportback entity operations.
+ */
+function dosomething_reportback_access($op, $entity, $account = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  $perm_any = $op . ' any reportback';
+  $perm_own = $op . ' own reportback';
+  if (user_access($perm_any, $account)){
+    return TRUE;
+  }
+  // Check that user has access to $op own, and is the author.
+  return user_access($perm_own, $account) && $account->uid == $entity->uid;
+}
+
+/**
+ * Access callback for a campaign reportback gallery form.
+ */
+function dosomething_reportback_gallery_form_access($node) {
+  // If viewing a campaign-campaign:
+  if (dosomething_campaign_get_campaign_type($node) == 'campaign') {
+    // Able to edit the gallery if able to promote images to it.
+    return (user_access('flag promoted'));
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function dosomething_reportback_permission() {
+  return array(
+    'delete any reportback' => array(
+      'title' => t('Delete any reportback'),
+    ),
+    'delete own reportback' => array(
+      'title' => t('Delete own reportback'),
+    ),
+    'edit any reportback' => array(
+      'title' => t('Edit any reportback'),
+    ),
+    'edit own reportback' => array(
+      'title' => t('Edit own reportback'),
+    ),
+    'view any reportback' => array(
+      'title' => t('View any reportback'),
+    ),
+    'view own reportback' => array(
+      'title' => t('View own reportback'),
+    ),
+  );
+}
+
+/**
+ * Menu autoloader for /reportback.
+ */
+function reportback_load($id) {
+  $reportback = entity_load('reportback', array($id));
+  return array_pop($reportback);
+}
+
+/**
+ * Callback for /reportback/ID page.
+ */
+function dosomething_reportback_view_entity($entity) {
+  return entity_view('reportback', array($entity->rbid => $entity), 'full');
+}
+
+/**
+ * Process variables for entity.tpl.php.
+ *
+ * @see template_preprocess_entity in Entity API module.
+ */
+function dosomething_reportback_preprocess_entity(&$variables) {
+  if ($variables['elements']['#entity_type'] == 'reportback' && $variables['view_mode'] == 'full') {
+    // Enables reportback.tpl.php naming suggestion.
+    $variables['theme_hook_suggestions'][] = 'reportback';
+    $entity = $variables['elements']['#entity'];
+  }
+}
+
+/**
+ * Callback for /reportback/ID/edit page.
+ */
+function dosomething_reportback_edit_entity($entity) {
+  return drupal_get_form('dosomething_reportback_form', $entity);
+}
+
+/**
+ * Deletes a reportback entity.
+ *
+ * @param int $rbid
+ *   Reportback rbid to delete.
+ *
+ * @return
+ *   FALSE, if error.
+ */
+function dosomething_reportback_delete_reportback($rbid) {
+  return entity_delete('reportback', $rbid);
+}
+
+/**
+ * Checks if a reportback exists for given $nid and $uid.
+ *
+ * @param int $nid
+ *   The node nid of the reportback to check.
+ * @param int $uid
+ *   Optional - the user uid of reportback to check.
+ *   If not given, uses global $user->uid.
+ *
+ * @return mixed
+ *   The rbid of reportback or FALSE if it doesn't exist.
+ */
+function dosomething_reportback_exists($nid, $uid = NULL) {
+  if ($uid == NULL) {
+    global $user;
+    $uid = $user->uid;
+  }
+  $result = db_select('dosomething_reportback', 'r')
+    ->condition('uid', $uid)
+    ->condition('nid', $nid)
+    ->fields('r', array('rbid'))
+    ->execute();
+  $rbid = $result->fetchField(0);
+  // If a rbid was found, return it.
+  if (is_numeric($rbid)) {
+    return $rbid;
+  }
+  // Otherwise return FALSE.
+  return FALSE;
+}
+
+/**
+ * Saves a reportback entity with given values.
+ *
+ * @param array $values
+ *   The reportback entity values to save.
+ *   If the rbid is set to 0, a new entity will be saved.
+ *   Otherwise if a numeric rbid is passed, the entity will be updated.
+ *
+ * @return mixed
+ *   The reportback entity rbid if success, or FALSE if error.
+ */
+function dosomething_reportback_save($values) {
+  $rbid = $values['rbid'];
+  if ($rbid == 0) {
+    $entity = entity_create('reportback', array('nid' => $values['nid']));
+  }
+  else {
+    $entity = entity_load_single('reportback', $rbid);
+  }
+  try {
+    // Set entity properties.
+    dosomething_reportback_set_properties($entity, $values);
+    // Set entity files.
+    dosomething_reportback_set_files($entity, $values);
+    // Set reportback field values.
+    dosomething_reportback_set_field_values($entity, $values);
+    // Save the entity.
+    $entity->save();
+    // Return reportback rbid.
+    return $entity->rbid;
+  }
+  catch (Exception $e) {
+    watchdog('dosomething_reportback', $e, array(), WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+/**
+ * Sets a reportback entity's properties.
+ *
+ * @param object $entity
+ *   The reportback entity to set properties for.
+ * @param array $values
+ *   Associative of property values to set, with property name as keys.
+ */
+function dosomething_reportback_set_properties(&$entity, $values) {
+  // List all possible entity properties to write.
+  $properties = array(
+    'uid',
+    'nid',
+    'quantity',
+    'why_participated',
+    'num_participants',
+  );
+  // For each of them:
+  foreach ($properties as $property) {
+    // If we have a value set for this property.
+    if (isset($values[$property])) {
+      // Set property value in wrapper.
+      $entity->{$property} = $values[$property];
+    }
+  }
+}
+
+/**
+ * Sets a reportback entity's files.
+ *
+ * @param object $entity
+ *   The reportback entity to set properties for.
+ * @param array $values
+ *   An array of file fid's to set.
+ */
+function dosomething_reportback_set_files(&$entity, $values) {
+  if (isset($values['fid']) && !empty($values['fid'])) {
+    $entity->fid = $values['fid'];
+    $entity->caption = $values['caption'];
+  }
+}
+
+/**
+ * Sets a reportback entity's reportback field values.
+ */
+function dosomething_reportback_set_field_values(&$entity, $values) {
+  $entity->field_values = NULL;
+  // If this entity has an active custom field:
+  if (isset($entity->field) && $entity->field['status'] == 1) {
+    $field_name = $entity->field['name'];
+    $entity->field_values = array(
+      $field_name => $values[$field_name],
+    );
+  }
+}
+
+/**
+ * Saves a reportback file for a given $uid and $nid from file $url.
+ *
+ * @param int $nid
+ *   The node nid that this reportback file is associated with.
+ * @param int $uid
+ *   The users uid that this reportback file is associated with.
+ * @param string $url
+ *   The url of the file to save.
+ *
+ * @return mixed
+ *   A file object if save is successful, FALSE if not.
+ */
+function dosomething_reportback_save_file_from_url($nid, $uid, $url) {
+  // Get the location for where file should be saved to.
+  $dest = dosomething_reportback_get_file_dest(basename($url), $nid, $uid);
+  // Download and save file to that location.
+  $file_contents = file_get_contents($url);
+  $file = file_save_data($file_contents, $dest);
+  // Save UID and permanent status.
+  $file->uid = $uid;
+  $file->status = FILE_STATUS_PERMANENT;
+  file_save($file);
+  return $file;
+}
+
+/**
+ * Returns the file destination for a new reportback file for given node $nid.
+ *
+ * @param string $filename
+ *   Original upload filename, used to retain the file extension.
+ * @param int $nid
+ *   The node nid that this reportback is associated with.
+ * @param int $uid
+ *   The users uid that this reportback is associated with.
+ *
+ * @return string
+ *   The file destination path to write the next reportback image to.
+ */
+function dosomething_reportback_get_file_dest($name, $nid, $uid = NULL) {
+  if ($uid == NULL) {
+    global $user;
+    $uid = $user->uid;
+  }
+  // Parse original filename.
+  $pathinfo = pathinfo($name);
+  // Save its extension.
+  $ext = $pathinfo['extension'];
+  // Define reportback nid file directory.
+  $dir = 'public://reportbacks/' . $nid;
+  // If directory doesn't exist / can't be created:
+  if (!file_prepare_directory($dir, FILE_CREATE_DIRECTORY)) {
+    // Use default public directory instead.
+    $dir = 'public://';
+  }
+  $index = 0;
+  if ($rb = dosomething_reportback_exists($nid, $uid)) {
+    $reportback = reportback_load($rb);
+    $index = count($reportback->fids);
+  }
+  $filename = 'uid_' . $uid . '-nid_' . $nid . '-' . $index . '.' . $ext;
+  return $dir . '/' . $filename;
+}
+
+/**
+ * Sends mbp request for a reportback.
+ */
+function dosomething_reportback_mbp_request($entity) {
+  // This fid is the last file uploaded to the reportback.
+  // @see ReportbackEntity->save().
+  $inserted_fid = $entity->fid;
+  $image_markup = dosomething_image_get_themed_image_by_fid($inserted_fid, '300x300');
+
+  if (module_exists('dosomething_user')) {
+    $account = user_load($entity->uid);
+    $params = array(
+      'email' => $account->mail,
+      'uid' => $account->uid,
+      'first_name' => dosomething_user_get_field('field_first_name', $account),
+      'campaign_title' => $entity->node_title,
+      'event_id' => $entity->nid,
+      'impact_verb' => $entity->verb,
+      'impact_number' => $entity->quantity,
+      'impact_noun' => $entity->noun,
+      'image_markup' => $image_markup,
+    );
+    if (module_exists('dosomething_mbp')) {
+      dosomething_mbp_request('campaign_reportback', $params);
+    }
+  }
+}
+
+/**
+ * Implements hook_views_data().
+ */
+function dosomething_reportback_views_data() {
+  $data['dosomething_reportback_file']['table']['group'] = t('Reportbacks');
+  $data['dosomething_reportback_file']['table']['base'] = array(
+    'field' => 'rbid', // This is the identifier field for the view.
+    'title' => t('Reportback images'),
+    'help' => t('Image uploads for reportbacks.'),
+    'weight' => -10,
+  );
+  $data['dosomething_reportback_file']['table']['join'] = array(
+    'dosomething_reportback' => array(
+      'left_field' => 'rbid',
+      'field' => 'rbid',
+    ),
+    'file_managed' => array(
+      'left_field' => 'fid',
+      'field' => 'fid',
+    ),
+  );
+  $data['dosomething_reportback_file']['rbid'] = array(
+    'title' => t('Reportback file rbid'),
+    'help' => t('Reportback file rid that references a reportback.'),
+    'relationship' => array(
+      'base' => 'dosomething_reportback',
+      'base field' => 'rbid',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Reportback rbid'),
+      'title' => t('Reportback rbid'),
+      'help' => t('The Reportback rbid the File belongs to.'),
+    ),
+  );
+  $data['dosomething_reportback_file']['fid'] = array(
+    'title' => t('Reportback image fid'),
+    'help' => t('The fid of the Reportback image file.'),
+    'field' => array(
+      'handler' => 'views_handler_field_file',
+      'click sortable' => TRUE,
+    ),
+    'relationship' => array(
+      'base' => 'file_managed',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Reportback image'),
+    ),
+  );
+  $data['dosomething_reportback_file']['remote_addr'] = array(
+    'title' => t('Remote address'),
+    'help' => t('IP address which submitted the reportback file.'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+  return $data;
+}
+
+/**
+ * Returns array of Reportback rbid's for a given User $uid.
+ *
+ * @param int $uid
+ *   The User uid to query for.
+ *
+ * @return array
+ */
+function dosomething_reportback_get_reportbacks($uid = NULL) {
+  if (!$uid) {
+    global $user;
+    $uid = $user->uid;
+  }
+  return db_select('dosomething_reportback', 'rb')
+    ->fields('rb', array('rbid'))
+    ->condition('uid', $uid)
+    ->orderBy('created', 'DESC')
+    ->execute()
+    ->fetchCol(0);
+}
+
+/**
+ * Returns flagging_id, fids, rbid's for given $nid ordered by field_weight.
+ *
+ * @param int $nid
+ *   The node $nid to gather gallery id's for.
+ * @param int $num_items
+ *   Optional. The number of promoted files to return.
+ *   If not set, will return all promoted files.
+ *
+ * @return array
+ */
+function dosomething_reportback_get_gallery_item_ids($nid, $num_items = NULL) {
+  // Load promoted flag.
+  $flag = flag_get_flag('promoted');
+  // If it doesn't exist, return empty array.
+  if (!$flag) { return array(); }
+  // Set the flag fid to query for.
+  $flag_id = $flag->fid;
+
+  $sql = "SELECT flagging_id, flagging.fid as 'flag_id', rbf.fid, rbf.rbid, rb.uid, field_weight_value
+    FROM flagging
+    JOIN dosomething_reportback_file rbf ON flagging.entity_id = rbf.fid
+    JOIN dosomething_reportback rb ON rb.rbid = rbf.rbid
+    JOIN file_managed file ON file.fid = rbf.fid
+    LEFT OUTER JOIN field_data_field_weight weight
+      ON weight.entity_id = flagging_id AND weight.entity_type = 'flagging'
+    WHERE nid = :nid AND flagging.fid = :fid
+    ORDER BY field_weight_value";
+  if ($num_items) {
+    $sql .= " LIMIT 0, " . $num_items;
+  }
+  return db_query($sql, array(':nid' => $nid, ':fid' => $flag_id))->fetchAll();
+}
+
+/**
+ * For a given $nid, gets the relevant variables for its promoted reportback files.
+ *
+ * @param int $nid
+ *   The node $nid to gather gallery vars for.
+ * @param string $style
+ *   The image style to render the images in.
+ * @param int $num_items
+ *   Optional. The number of reportback files to return.
+ *   If not set, will return variables for all promoted files.
+ *
+ * @return array
+ */
+function dosomething_reportback_get_gallery_vars($nid, $style = '300x300', $num_items = NULL) {
+  $cache = cache_get('ds_reportback_gallery_' . $nid . '_' . $style, 'cache_dosomething_reportback');
+  if (is_object($cache)) {
+    return $cache->data;
+  }
+  else {
+    $vars = array();
+    $result = dosomething_reportback_get_gallery_item_ids($nid, $num_items);
+    foreach ($result as $delta => $record) {
+      // Set reportback rbid that file belongs to.
+      $vars[$delta]['rbid'] = $record->rbid;
+      // Set variables for the file:
+      $fid = $record->fid;
+      $vars[$delta]['fid'] = $fid;
+      $vars[$delta]['image'] = dosomething_image_get_themed_image_by_fid($fid, $style);
+      // Set the file author name.
+      $account = user_load($record->uid);
+      $vars[$delta]['first_name'] = dosomething_user_get_field('field_first_name', $account);
+      // Set variables stored on the flagging object:
+      $flagging_id = $record->flagging_id;
+      $flagging = flagging_load($flagging_id);
+      $vars[$delta]['flagging_id'] = $flagging_id;
+      $vars[$delta]['weight'] = $flagging->field_weight[LANGUAGE_NONE][0]['value'];
+      $caption = $flagging->field_image_description;
+      if ($caption_value = $caption[LANGUAGE_NONE][0]) {
+        $vars[$delta]['caption'] = $caption_value;
+      }
+    }
+    cache_set('ds_reportback_gallery_' . $nid . '_' . $style, $vars, 'cache_dosomething_reportback');
+    return $vars;
+  }
+}
+
+/**
+ * Returns reportback total for a given node $nid.
+ *
+ * @param int $nid
+ *   A node nid.
+ * @param string $type
+ *   Type of total to return.  Accepted values: 'quantity' or 'count'.
+ * @param bool $filter_flagged
+ *   Whether or not to exclude flagged reportbacks.
+ *
+ * @return int $result
+ *  Either the total reportback count, or the sum of all reportback quantity values.
+ */
+function dosomething_reportback_get_reportback_total_by_nid($nid, $type = 'quantity', $filter_flagged = TRUE) {
+
+  // Select all reportbacks for given $nid.
+  $query = db_select('dosomething_reportback', 'rb')->condition('nid', $nid);
+
+  if ($filter_flagged) {
+    // Find reportback rbid's that have been flagged for given $nid.
+    $flagged = dosomething_reportback_get_flagged_rbids($nid);
+    if ($flagged) {
+      // Filter them out.
+      $query->condition('rbid', $flagged, 'NOT IN');
+    }
+  }
+
+  if ($type == 'quantity') {
+    $query->fields('rb', array('quantity'));
+    $query->addExpression('SUM(quantity)', 'quantity');
+    $result = $query->execute()->fetchAll();
+    return $result[0]->quantity;
+  }
+  elseif ($type == 'count') {
+    $query->fields('rb', array('rbid'));
+    return $query->execute()->rowCount();
+  }
+}
+
+/**
+ * Returns count of Reportbacks for a given node $uid.
+ *
+ * @param int $uid
+ *   (optional) The User uid to get count of Reportbacks for.
+ *   If not given, uses global $user->uid.
+ *
+ * @return int
+ *   The number of Reportbacks for the User.
+ */
+function dosomething_reportback_get_count_by_uid($uid = NULL) {
+  if ($uid == NULL) {
+    global $user;
+    $uid = $user->uid;
+  }
+  // Select all reportbacks for given $uid.
+  $query = db_select('dosomething_reportback', 'rb')
+    ->fields('rb', array('rbid'))
+    ->condition('uid', $uid);
+  return $query->execute()->rowCount();
+}
+
+/**
+ * Returns array of Reportback rbid's which have been flagged.
+ *
+ * @param int $nid
+ *   Node $nid.
+ *
+ * @return array
+ */
+function dosomething_reportback_get_flagged_rbids($nid) {
+  $query = db_select('flagging', 'f');
+  $query->join('dosomething_reportback', 'rb', 'rb.rbid = f.entity_id');
+  $query->fields('f', array('entity_id'));
+  // Filter flagging records for reportbacks only.
+  $query->condition('entity_type', 'reportback');
+  // Filter for the given $nid.
+  $query->condition('rb.nid', $nid);
+  return $query->execute()->fetchCol();
+}
+
+/**
+ * Return the reportback noun & verb for a campaign.
+ *
+ * @param int $nid
+ *   A campaign node id.
+ * @return obj $results
+ *   An object containing reportback noun & verb
+ */
+function dosomething_reportback_get_noun_and_verb($nid) {
+  $query = db_select('field_data_field_reportback_noun', 'noun')
+    ->condition('noun.entity_id', $nid);
+  $query->addField('noun', 'field_reportback_noun_value', 'noun');
+  $query->addField('verb', 'field_reportback_verb_value', 'verb');
+  $query->join('field_data_field_reportback_verb', 'verb', 'noun.entity_id = verb.entity_id');
+  $results = $query->execute()->fetch();
+
+  return $results;
+}
+
+/**
+ * Implementation of hook_services_resources().
+ */
+function dosomething_reportback_services_resources() {
+  $resources = array();
+  $resources['reportbacks'] = array(
+    'operations' => array(
+      'retrieve' => array(
+        'help' => 'Retrieve a reportback.',
+        'file' => array(
+          'type' => 'inc',
+          'module' => 'dosomething_reportback',
+          'name' => 'resources/dosomething_reportback.resource',
+        ),
+        'callback' => '_dosomething_reportback_resource_retrieve',
+        'args' => array(
+          array(
+            'name' => 'rbid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'int',
+            'description' => 'The rbid of the reportback to retrieve.',
+          ),
+        ),
+        'access callback' => '_dosomething_reportback_resource_access',
+      ),
+    ),
+  );
+  return $resources;
+}
+
+/**
+ * Implements hook_flag_flag().
+ */
+function dosomething_reportback_flag_flag($flag, $entity_id, $account, $flagging) {
+  if ($flag->name == 'promoted') {
+    dosomething_reportback_cache_clear_all();
+  }
+
+}
+
+/**
+ * Clear cache on dosomething_reportback table.
+ */
+function dosomething_reportback_cache_clear_all() {
+  cache_clear_all('*', 'cache_dosomething_reportback', TRUE);
+}
+
+
+/**
+ * Implements hook_flush_caches().
+ */
+function dosomething_reportback_flush_caches() {
+  return array('cache_dosomething_reportback');
+}
+
+/**
+ * Returns Reportback Gallery data.
+ */
+function dosomething_reportback_get_gallery_results($status = NULL) {
+  $limit = 25;
+  if (isset($_GET['pagesize'])) {
+    $limit = $_GET['pagesize'];
+    if (!is_numeric($limit) || $limit > 100) {
+      $limit = 25;
+    }
+  }
+  $query = db_select('dosomething_reportback_file', 'rbf');
+  $query->join('dosomething_reportback', 'rb', 'rb.rbid = rbf.rbid');
+  $query->join('users', 'u', 'rb.uid = u.uid');
+  $query->join('node', 'n', 'rb.nid = n.nid');
+  if ($status) {
+    $query->condition('rbf.status', $status);
+  }
+  $query->fields('rbf');
+  $query->fields('rb');
+  $query->fields('u', array('uid', 'mail'));
+  $query->fields('n', array('nid', 'title'));
+  $query->orderBy('rb.updated', 'DESC');
+  $query->range(0, $limit);
+  $result = $query->execute()->fetchAll();
+  return $result;
+}
+
+/**
+ * Returns list of valid options a Reportback File can be set to.
+ */
+function dosomething_reportback_get_file_status_options() {
+  $keys = array(
+    'approved',
+    'promoted',
+    'excluded',
+    'flagged',
+  );
+  $options = array();
+  foreach ($keys as $name) {
+    $options[$name] = t(ucfirst($name));
+  }
+  return $options;
+}
+
+/**
+ * Updates a given Reportback File $fid's Reportback File status.
+ */
+function dosomething_reportback_update_reportback_file_status($fid, $status) {
+  return db_update('dosomething_reportback_file')
+    ->fields(array('status' => $status))
+    ->condition('fid', $fid)
+    ->execute();
+}
