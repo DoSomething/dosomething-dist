@@ -1,0 +1,17 @@
+name = DoSomething Signup
+description = Provides Signup table and functionality.
+core = 7.x
+package = DoSomething
+version = 7.x-1.0
+dependencies[] = entity
+dependencies[] = features
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[user_permission][] = administer third party communication
+features[user_permission][] = edit any signup
+features[user_permission][] = view any signup
+features[views_view][] = node_signups
+files[] = dosomething_signup.test
+files[] = includes/dosomething_signup.inc
+mtime = 1416603772
