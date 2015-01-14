@@ -1,0 +1,89 @@
+// Module class for all galleries. Galleries can contain items of any type (e.g. tile, media, etc.)
+// Add additional modifier classes to designate styling for a specific type of gallery.
+//
+// Styleguide Gallery
+
+.gallery {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+
+  @include clearfix();
+
+  > li {
+    margin: gutter() 0;
+  }
+
+  // Quartet Gallery. Four items per row.
+  //
+  // Styleguide Gallery - Quartet
+  &.-quartet {
+    li {
+      @include media($tablet) {
+        @include span(3 of 12);
+      }
+    }
+  }
+
+  // Featured Gallery. Emphasizes the first item in the gallery.
+  // Works best when paired with `.-quartet.`
+  //
+  // Styleguide Gallery - Featured
+  &.-featured {
+    > li:first-child {
+      @include media($tablet) {
+        @include span(6 of 12);
+      }
+    }
+
+    > li:nth-child(6) {
+      @include media($tablet) {
+        clear: both;
+      }
+    }
+  }
+
+  // Triad Gallery. Three items per row.
+  //
+  // .-aligned - Tiles with image flushed to top and minimum
+  // height to force content below to line up with adjacent tiles
+  // since image dimensions can vary.  Defaults to 75px tall.
+  // This should be overridden when necessary.
+  //
+  // Styleguide Gallery - Triad
+  &.-triad {
+    > li {
+      @include media($tablet) {
+        @include span(4 of 12);
+      }
+    }
+
+    &.-aligned {
+      .figure {
+        .figure__media {
+          margin-bottom: 18px;
+          height: 75px;
+          overflow: hidden;
+          position: relative;
+
+          img {
+            margin-bottom: 0;
+            width: auto;
+          }
+        }
+      }
+    }
+  }
+
+  // Duo Gallery. Two items per row.
+  //
+  // Styleguide Gallery - Duo
+  &.-duo {
+    > li {
+      @include media($tablet) {
+        @include span(6 of 12);
+      }
+    }
+  }
+}
+
