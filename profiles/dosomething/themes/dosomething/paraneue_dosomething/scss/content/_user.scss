@@ -1,0 +1,41 @@
+// ----------------
+//  USER PROFILE
+// ----------------
+
+.profile {
+  .tile {
+    .__tagline { display: none; }
+  }
+}
+
+// Profile Settings
+.profile--settings {
+  dl {
+    padding-right: 18px;
+
+    @include clearfix;
+
+    @include media("(min-width: 930px)") {
+      @include span(6 of 12);
+    }
+
+    margin-bottom: 18px;
+  }
+
+  dt, dd {
+    float: left;
+    margin-bottom: 9px;
+  }
+
+  dt {
+    clear: both;
+    font-weight: $weight-bold;
+    padding-right: 9px;
+  }
+
+  .button {
+    clear: both;
+    float: left;
+  }
+
+}
