@@ -1,0 +1,61 @@
+// Used to navigate between sections/panels/pages within an interface. Apply `.is-active` class to
+// list element for "active" state.
+//
+// .vertical - Vertical tab layout (for use in a sidebar).
+//
+// Styleguide Tabbed Navigation
+.tabs {
+  font-size: $font-regular;
+  text-align: center;
+  overflow: hidden;
+
+  ul {
+    margin: 0;
+    padding: 18px;
+
+    ul {
+      display: block;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.5s; // used to transition between 0 & auto height via max-width
+    }
+  }
+
+  li {
+    display: inline;
+    margin: 0 0 $base-spacing / 4;
+
+    // Highlight the active link, but not nested links
+    &.is-active > a {
+      color: $black;
+    }
+
+    // If there's nested links inside active item, show it.
+    &.is-active ul {
+      max-height: 600px;
+    }
+  }
+
+  a {
+    text-decoration: none;
+    padding: 0 9px;
+  }
+
+  &.vertical {
+    font-size: 1.1em; // decreasing font size, starting at 1em
+    text-align: left;
+
+    ul {
+      font-size: 0.9em;
+      padding: 0 $base-spacing;
+    }
+
+    li {
+      display: block;
+    }
+
+    a {
+      display: block;
+    }
+  }
+}

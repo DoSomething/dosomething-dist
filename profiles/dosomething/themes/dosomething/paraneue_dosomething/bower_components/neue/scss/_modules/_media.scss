@@ -1,0 +1,29 @@
+// Module class for media blocks that can be placed in multiple contexts on a page. A media block
+// contains an image and description. See [Nicole Sullivan's introductory article](http://goo.gl/Gnfw7d).
+//
+// Styleguide Media
+
+.media {
+  @include clearfix;
+  text-align: left;
+
+  > .media__image {
+    float: left;
+    padding-right: gutter();
+  }
+
+  .media__body {
+    overflow: hidden;
+    padding-left: gutter();
+  }
+
+  .media__title {
+    color: $dark-gray;
+  }
+
+  .media__description {
+    p {
+      margin: 0;
+    }
+  }
+}
