@@ -1,0 +1,134 @@
+.mcc--googleform {
+  background: #fff;
+
+  label {
+    height: auto;
+    margin-bottom: 0.5em;
+  }
+
+  .required {
+    color: $error;
+    margin-bottom: 0.5em;
+  }
+
+  .info-list {
+    p:first-child {
+      margin-bottom: 0.5em;
+    }
+
+    ul {
+      margin-bottom: 27px;
+    }
+  }
+
+  .ss-form-question {
+    clear: both;
+    margin-bottom: 18px;
+    @include clearfix;
+
+    &.-compact {
+      @include media($desktop) {
+        clear: none;
+        float: left;
+        width: 50%;
+
+        &.-alpha {
+          padding-right: 9px;
+        }
+
+        &.-beta {
+          padding-left: 9px;
+        }
+      }
+    }
+  }
+
+  .ss-form {
+    @include media($tablet) {
+      @include span(8 of 12);
+      @include push(2);
+    }
+  }
+
+  .ss-form-desc {
+    margin-bottom: 36px;
+  }
+
+  .required-message {
+    @include visually-hidden;
+  }
+
+  .ss-required-asterisk {
+    display: none;
+  }
+
+  .field-label-optional {
+    color: $light-gray;
+  }
+
+  .ss-choices {
+    list-style-type: none;
+  }
+
+  .ss-choice-item label {
+    margin: 4px 0;
+  }
+
+  .ss-q-other-container {
+
+    @include media($tablet) {
+      padding-left: 22px;
+    }
+
+    input {
+      max-width: 400px;
+    }
+  }
+
+
+  // Birthday Dropdown
+  .ss-datetime-box {
+    overflow: hidden;
+
+    select {
+      float: left;
+      width: 30%;
+
+      @include media($tablet) {
+        @include span(2 of 8);
+      }
+    }
+
+    select + select {
+      margin-left: 3%;
+
+      @include media($tablet) {
+        margin-left: 0;
+      }
+    }
+  }
+
+  // Hide Google Datepicker control
+  .ss-picker-button-container {
+    display: none;
+  }
+
+  .ss-secondary-text {
+    color: $med-gray;
+    font-size: 16px;
+    padding-bottom: 18px;
+  }
+
+  // These should be hidden since we're not running Google's JS
+  .error-message {
+    display: none;
+  }
+
+  .ss-navigate {
+    margin-bottom: 36px;
+
+    table {
+      margin: 0 auto;
+    }
+  }
+}
