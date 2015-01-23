@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * @file
+ *   Manages the schema for conductor.
+ *
+ * TODO: We may want to create a permanent record of each workflow activity having
+ * been processed for administrative listings.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function conductor_schema() {
+  $schema['conductor_workflow'] = array(
+    'description' => 'Stores the general data for a view.',
+    'export' => array(
+      'identifier' => 'workflow',
+      'bulk export' => TRUE,
+      'primary key' => 'wid',
+      'key' => 'name',
+      'default hook' => 'default_conductor_workflows',
+      'admin_title' => 'human_name',
+      'admin_description' => 'description',
+      'api' => array(
+        'owner' => 'conductor',
+        'api' => 'conductor',
+        'minimum_version' => '0',
+        'current_version' => '1.0',
+      ),
+      'object' => 'ConductorWorkflow',
+      // the variable that holds enabled/disabled status
+      'status' => 'conductor_workflows_defaults',
+      'create callback' => 'conductor_new_workflow',
+      'save callback' => 'conductor_save_workflow',
+      'load callback' => 'conductor_load_workflow',
+      'delete callback' => 'conductor_delete_workflow',
+      'export callback' => 'conductor_export_workflow',
+      //'cache defaults' => TRUE,
+      //'default cache bin' => 'cache_conductor_data',
+    ),
+    'fields' => array(
+      'wid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The workflow ID of the field, defined by the database.',
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'The unique name of the workflow. This is the primary field workflows are loaded from, and is used so that workflows may be internal and not necessarily in the database. May only be alphanumeric characters plus underscores.',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'The human readable name of the workflow.',
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'description' => 'A description of the workflow for the admin interface.',
+      ),
+      'activities' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'A serialized representation of this workflow.',
+        'serialize' => TRUE,
+        'serialized default' => 'a:0:{}',
+        'no export' => TRUE,
+      ),
+    ),
+    'primary key' => array('wid'),
+    'unique keys' => array('name' => array('name')),
+  );
+  $schema['cache_conductor_data'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_conductor_data']['description'] = 'Cache table for conductor to store pre-rendered queries, results, and display output.';
+  $schema['cache_conductor_data']['fields']['serialized']['default'] = 1;
+  $schema['conductor_instance'] = array(
+    'description' => t('Stores conductor for workflows currently being processed.'),
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The workflow instance state ID of the field, defined by the database.',
+        'no export' => TRUE,
+      ),
+      'workflow_name' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'default' => '',
+        'not null' => TRUE,
+        'description' => 'The unique name of the workflow. This is the primary field workflows are loaded from, and is used so that workflows may be internal and not necessarily in the database. May only be alphanumeric characters plus underscores.',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'A serialized representation of this workflow preventing the workflow of this item from changing.',
+        'serialize' => TRUE,
+        'serialized default' => 'a:0:{}',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  $schema['conductor_instance_pointer'] = array(
+    'description' => 'A conductor instance pointer is a record of the machine name of an individual activity in a workflow state to allow for easy resuming.',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'A unique id for this table.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'pointer_key' => array(
+        'description' => 'The unique name of the state. This is the primary field workflow states are loaded from, and is used so that workflows may be found easily when they need to be resumed.',
+        'type' => 'varchar',
+        'length' => '255',
+      ),
+      'workflow_name' => array(
+        'description' => 'The workflow machine name of the workflow this state is an instance of.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'sid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'The {conductor_instance}.sid of the workflow this state item belongs to.',
+        'no export' => TRUE,
+      ),
+      'activity_name' => array(
+        'description' => 'The unique name of the activity this reference points to allowing processes needing to resume a running workflow to pass new data to the appropriate activity upon resume.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'description' => 'A serialized representation of this workflow\'s entities at the time this workflow was started.',
+        'type' => 'text',
+        'size' => 'big',
+        'serialize' => TRUE,
+        'serialized default' => 'a:0:{}',
+        'no export' => TRUE,
+      ),
+    ),
+    'primary key' => array('pid'),
+    'indexes' => array(
+      'pointer_key' => array('pointer_key'),
+    ),
+  );
+  return $schema;
+}

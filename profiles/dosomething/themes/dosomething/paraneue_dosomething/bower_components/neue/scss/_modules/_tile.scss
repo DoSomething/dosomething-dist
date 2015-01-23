@@ -1,0 +1,104 @@
+// A tile block usually contains an image with a title and a tagline.
+// Module class for tile blocks that can be placed in multiple contexts on a page. Specifically used for campaign tiles, but can be used for other content as well.
+//
+// Styleguide Tile
+.tile {
+  height: 0;
+  padding-bottom: 100%;
+  position: relative;
+
+  &.-unpublished {
+    opacity: 0.45;
+  }
+
+  > .wrapper {
+    display: block;
+    overflow: hidden;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    &:before {
+      bottom: 0;
+      content: "";
+      display: block;
+      height: 100%;
+      position: absolute;
+      width: 100%;
+      z-index: 5;
+      background: linear-gradient(rgba(#000, 0) 40%, rgba(#000, 0.2) 70%, rgba(#000, 0.5) 87%, rgba(#000, 0.85) 100%);
+    }
+  }
+
+  .no-cssgradients & {
+    > .wrapper {
+      &:before {
+        background: transparent neue-asset-url("images/fallbacks/black-gradient.png") 0 bottom repeat-x;
+      }
+    }
+  }
+
+  video {
+    width: 100%;
+    height: auto;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    z-index: 1;
+  }
+
+  .tile__meta {
+    bottom: 0;
+    color: #fff;
+    padding: 18px;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+
+    .no-cssgradients & {
+      background: transparent neue-asset-url("images/fallbacks/black-gradient.png") 0 bottom repeat-x;
+    }
+  }
+
+  .tile__flag {
+    color: #000;
+    font-size: $font-smaller;
+    font-weight: $weight-sbold;
+    left: 0;
+    line-height: 1;
+    padding: $base-spacing / 2;
+    position: absolute;
+    text-transform: uppercase;
+    top: 0;
+    z-index: 15;
+
+    @include media($desktop) {
+      font-size: $font-regular;
+    }
+
+    &.-staff-pick {
+      background-color: $yellow;
+    }
+  }
+
+  .tile__title {
+    color: inherit;
+    font-size: $font-medium;
+    text-shadow: $text-shadow;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .tile__tagline {
+    color: inherit;
+    font-size: $font-small;
+    text-shadow: $text-shadow;
+    line-height: 1;
+    margin: 0;
+  }
+}
+
