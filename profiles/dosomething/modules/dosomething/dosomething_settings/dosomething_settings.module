@@ -1,0 +1,110 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Settings feature.
+ */
+
+include_once 'dosomething_settings.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_settings_menu() {
+  $items = array();
+  $items['admin/config/dosomething/dosomething_settings'] = array(
+    'title' => 'DoSomething Settings',
+    'description' => 'Admin configuration form for DoSomething Settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_settings_admin_config_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'file' => 'dosomething_settings.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Determines whether current site is an international affiliate.
+ *
+ * @return bool
+ *   TRUE for international affiliates.
+ */
+function dosomething_settings_is_affiliate() {
+  return (bool) variable_get('dosomething_is_affiliate', FALSE);
+}
+
+/**
+ * Returns a code of DS affiliate currently executing.
+ *
+ * Determines the code from settings.php path, e.g. sites/uk/settings.php.
+ *
+ * @return string
+ *   One of the list:
+ *   - botswana
+ *   - canada
+ *   - congo
+ *   - default
+ *   - ghana
+ *   - indonesia
+ *   - kenya
+ *   - nigeria
+ *   - training
+ *   - uk
+ */
+function dosomething_settings_get_affiliate_code() {
+  $code = &drupal_static(__FUNCTION__);
+  if (!isset($code)) {
+    // Split sites/[code] string.
+    $conf_path = explode('/', conf_path());
+    $code = !empty($conf_path[1]) ? $conf_path[1] : 'default';
+  }
+  return $code;
+}
+
+/**
+ * Returns current affiliate's ISO 3166-1 Alpha-2 country code.
+ *
+ * @see http://en.wikipedia.org/wiki/ISO_3166-1
+ * @see  https://www.drupal.org/project/addressfield
+ *
+ * @return string
+ *   Two-letter country code when country code detected,
+ *   otherwise default: US.
+ */
+function dosomething_settings_get_affiliate_country_code() {
+  $country_code = &drupal_static(__FUNCTION__);
+  if (!isset($country_code)) {
+    $mapping = array(
+      'botswana'  => 'BW',
+      'canada'    => 'CA',
+      'congo'     => 'CD',
+      'ghana'     => 'GH',
+      'indonesia' => 'ID',
+      'kenya'     => 'KE',
+      'nigeria'   => 'NG',
+      'uk'        => 'UK',
+    );
+    $code = strtolower(dosomething_settings_get_affiliate_code());
+    $country_code = isset($mapping[$code]) ? $mapping[$code] : 'US';
+  }
+  return $country_code;
+}
+
+/**
+ * Returns array of copy variables.
+ *
+ * @return array
+ */
+function dosomething_settings_get_sitewide_copy() {
+  $copy = array();
+  $copy_vars = array(
+    'about_ds',
+    'campaign_value_proposition',
+    'scholarships',
+  );
+  foreach ($copy_vars as $var) {
+    $var_name = 'dosomething_settings_copy_' . $var;
+    $copy[$var] = check_markup(variable_get($var_name), 'markdown');
+  }
+  return $copy;
+}
