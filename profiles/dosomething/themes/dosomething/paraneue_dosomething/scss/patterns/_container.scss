@@ -1,0 +1,5 @@
+// Add clearfix to container body.
+// @TODO: Move to Neue.
+.container__body {
+  @include clearfix;
+}
