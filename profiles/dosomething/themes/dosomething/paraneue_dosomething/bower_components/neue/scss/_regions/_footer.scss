@@ -1,0 +1,156 @@
+// Chrome footer with social links & footer menus.
+//
+// Styleguide Site Footer
+.footer {
+  clear: both;
+  width: 100%;
+  background: $black;
+  @include clearfix;
+
+  @include media($mobile) {
+    display: table;
+  }
+
+  @include media($tablet) {
+    padding: gutter();
+    padding-top: $base-spacing;
+  }
+
+  .footer__columns {
+    display: table;
+    width: 100%;
+  }
+
+  .footer__column {
+    padding: gutter();
+
+    @include media($mobile) {
+      width: 100%;
+      display: block;
+      border-bottom: 1px solid $dark-gray;
+    }
+
+    @include media($tablet) {
+      margin-bottom: $base-spacing;
+      @include span(3);
+    }
+
+    &.-social {
+      text-align: center;
+
+      @include media($mobile) {
+        display: table-footer-group;
+      }
+
+      @include media($tablet) {
+        text-align: left;
+
+        @include span(7);
+      }
+
+      li, a {
+        display: inline-block;
+      }
+
+      .social-icon {
+        margin: ($base-spacing / 2);
+
+        @include media($tablet) {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  h4 {
+    position: relative;
+    color: $white;
+
+    @include media($mobile) {
+      // Only display toggle arrow if script works
+      &.is-toggleable {
+        cursor: pointer;
+
+        &:after {
+          @include icomoon-icon;
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          content: "\e607"; // right arrow
+          color: $med-gray;
+          font-size: 32px;
+          transform: rotate(90deg); // rotate to down arrow
+          transition: transform 0.25s;
+        }
+      }
+
+      // Hide column's links when collapsed
+      &.is-collapsed {
+        margin-bottom: 0;
+
+        &:after {
+          transform: rotate(0deg); // rotate to right arrow
+        }
+
+        + ul {
+          max-height: 0;
+        }
+      }
+    }
+  }
+
+  ul {
+    list-style-type: none;
+    overflow: hidden;
+    padding: 0;
+    max-height: 500px;
+    transition: max-height 0.25s;
+  }
+
+  li {
+    margin: 0;
+  }
+
+  a {
+    display: block;
+    font-size: $font-smaller;
+    color: $med-gray;
+    padding: ($base-spacing / 4) 0;
+
+    &:hover {
+      color: #fff;
+    }
+
+    @include media($tablet) {
+      padding: 0;
+    }
+  }
+}
+
+.footer__subfooter {
+  clear: both;
+  font-size: $font-smaller;
+  border-top: 1px solid $dark-gray;
+  padding: ($base-spacing / 2);
+
+  ul {
+    text-align: center;
+    list-style-type: none;
+
+    @include media($tablet) {
+      text-align: right;
+    }
+
+    li {
+      display: inline;
+
+      + li {
+        padding-left: $base-spacing;
+      }
+    }
+
+    a {
+      display: inline;
+    }
+  }
+}
