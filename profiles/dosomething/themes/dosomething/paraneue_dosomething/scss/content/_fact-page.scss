@@ -1,0 +1,10 @@
+
+// -----------
+//  FACT PAGE
+// -----------
+
+.fact-aside {
+  float: right;
+  max-width: span(7);
+  @include gutters();
+}
