@@ -1,0 +1,29 @@
+{
+  "name": "dosomething-modal",
+  "version": "0.1.0",
+  "main": [
+    "dist/modal.css",
+    "dist/modal.js"
+  ],
+  "dependencies": {
+    "jquery": "^1.7"
+  },
+  "devDependencies": {
+    "jquery": "1.8.3",
+    "almond": "~0.2.9",
+    "neue": "DoSomething/neue#^6.0.0"
+  },
+  "resolutions": {
+    "jquery": "1.8.3"
+  },
+  "homepage": "https://github.com/DoSomething/modal",
+  "_release": "0.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.0",
+    "commit": "d9c77c586843000ce8b077c478173f2a0d2c60ec"
+  },
+  "_source": "git://github.com/DoSomething/modal.git",
+  "_target": "~0.1.0",
+  "_originalSource": "DoSomething/modal"
+}
