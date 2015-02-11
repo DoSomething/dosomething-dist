@@ -1,0 +1,290 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Search feature.
+ */
+
+include_once 'dosomething_search.features.inc';
+
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_search_menu() {
+  $items = array();
+
+  // Search settings.
+  $items['admin/config/dosomething/dosomething_search'] = array(
+    'title' => 'DoSomething Search',
+    'description' => 'Admin form to set search page variables.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dosomething_search_admin_config_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer modules'),
+    'file' => 'dosomething_search.admin.inc',
+    );
+
+  return $items;
+}
+
+function dosomething_search_preprocess_page(&$vars) {
+  $solrURL = variable_get('dosomething_search_finder_url', 'https://search.dosomething.org');
+  $collection = variable_get('dosomething_search_finder_collection', 'collection1');
+  drupal_add_js(
+    array('dosomethingSearch' =>
+      array(
+        'solrURL' => $solrURL,
+        'collection' => $collection
+      )
+    ),
+    'setting'
+  );
+  $form = drupal_get_form('search_block_form');
+  $vars['search_box'] = drupal_render($form);
+}
+
+function dosomething_search_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'search_block_form') {
+    unset($form['search_block_form']['#attributes'], $form['search_block_form']['#title']);
+    $form['search_block_form']['#theme'] = 'dosomething_search_field';
+    $form['#action'] = url('search/apachesolr_search');
+    $form['#submit'] = array('dosomething_search_form_submit');
+  }
+  elseif ($form_id == 'search_form' || $form_id == 'apachesolr_search_custom_page_search_form') {
+    unset($form['basic']['keys']['#title']);
+    $form['basic']['keys']['#theme'] = 'dosomething_search_field';
+    $form['basic']['submit']['#attributes'] = array('class' => array('button','-secondary'));
+    $form['#action'] = url('search/apachesolr_search');
+    $form['#submit'] = array('dosomething_search_form_submit');
+  }
+}
+
+/**
+ * Implements hook_apachesolr_query_alter().
+ *
+ * Alter the query after it's prepared and cached.
+ *
+ * Any module performing a search should call
+ * drupal_alter('apachesolr_query', $query). That function then invokes this
+ * hook. It allows modules to modify the query object and its parameters.
+ *
+ * A module implementing HOOK_apachesolr_query_alter() may set
+ * $query->abort_search to TRUE to flag the query to be aborted.
+ *
+ * @param DrupalSolrQueryInterface $query
+ *   An object implementing DrupalSolrQueryInterface. No need for &.
+ *
+ * @see /admin/reports/apachesolr
+ * - This report displays the active solr index fields and can help you
+ *   create Solr filters based on the data currently in your system
+ */
+function dosomething_search_apachesolr_query_alter(DrupalSolrQueryInterface $query) {
+  $params = array(
+    'fl' => array(
+        'dm_field_high_season',
+        'dm_field_high_season_end',
+        'dm_field_low_season',
+        'dm_field_low_season_end',
+        'bm_field_staff_pick',
+        'bs_field_staff_pick',
+        'sm_field_call_to_action',
+        'bm_field_display_end_date',
+        'sm_field_subtitle',
+        'sm_field_intro_title',
+    ),
+  );
+
+  // Add a 'q' param to apachesolr_views queries to enable the
+  // elevate.xml to work properly. This also needs to be here
+  // so that these boots are applied to the /campaigns or any
+  // other apachesolr views.
+  $query_params = $query->getParams();
+  if (!isset($query_params['q'])) {
+    // Set both vars so that disallowed types never
+    // show up in apachesolr views.
+    $query_params['q'] = $params['q'] = '*:*';
+    $boosts = array(
+      'bs_high_season' => '1.0',
+      'bs_field_staff_pick' => '5.0',
+      'bs_sponsored' => '4.0',
+    );
+    foreach ($boosts as $field => $boost) {
+      $params['bq'][] = "{$field}:true^$boost";
+    }
+
+    $params['bq'][] = "bundle:campaign^100.0";
+  }
+
+  // There is a bug in the apachesolr allowed types export that
+  // always overrides the types that should be indexed in search. This
+  // code is necessary to make sure that only the allowed types are included
+  // in search results.
+  $disallowed_types = implode(' ', array_filter(array_keys(node_type_get_types()), 'dosomething_search_filter_types'));
+  $params['q'] = "{$query_params['q']} -bundle:({$disallowed_types})";
+
+  // Add a term proximity boost so that multiple search terms
+  // are treated as one phrase.
+  $params['pf'] = 'content~2^1000';
+
+  if ($query) {
+    $query->addParams($params);
+  }
+}
+
+function dosomething_search_filter_types($type) {
+  $defaults = array(
+    'campaign',
+    'campaign_group',
+    'fact_page',
+    'static_content'
+  );
+  $allowed_types = variable_get('dosomething_search_allowed_search_types', $defaults);
+  if (!in_array($type, $allowed_types)) {
+    return TRUE;
+  }
+}
+
+/**
+ * Implements hook_apachesolr_index_document_build_ENTITY_TYPE().
+ *
+ * Build the documents before sending them to Solr.
+ *
+ * Supports all types of
+ * hook_apachesolr_index_document_build_' . $entity_type($documents[$id], $entity, $env_id);
+ *
+ * The function is the follow-up for apachesolr_update_index but then for
+ * specific entity types
+ *
+ * @param ApacheSolrDocument $document
+ * @param object $entity
+ * @param string $env_id
+ *   The machine name of the environment.
+ */
+function dosomething_search_apachesolr_index_document_build_node(ApacheSolrDocument $document, $entity, $env_id) {
+  if ($entity->type == 'campaign' || $entity->type == 'campaign_group') {
+    $wrapper = entity_metadata_wrapper('node', $entity);
+    $image_nid = $wrapper->field_image_campaign_cover->getIdentifier();
+    if ($image_nid) {
+      $images = array();
+      $dimensions = array(
+        '300x300',
+        '400x400',
+        '720x720',
+      );
+      foreach ($dimensions as $dimension) {
+        $image = dosomething_image_get_themed_image_url($image_nid, 'square', $dimension);
+        if (!empty($image)) {
+          $document->setField("ss_field_search_image_{$dimension}", $image);
+        }
+      }
+    }
+
+    $bubble_factor = 0;
+    $node = entity_metadata_wrapper('node', $entity);
+    foreach (array('high_season', 'low_season') as $season) {
+      if (isset($node->{"field_" . $season})) {
+        $value = $node->{"field_" . $season}->value();
+        if (isset($value)) {
+          $now = time();
+          if ($now >= $node->{"field_" . $season}->value->value() && $now <= $node->{"field_" . $season}->value2->value()) {
+            $document->setField("bs_{$season}", 'true');
+            if ($node->field_high_season->value() && $season == 'high_season') {
+              $bubble_factor += 5;
+            }
+          }
+        }
+      }
+    }
+    $sponsored = $node->field_partners->value();
+    if (isset($sponsored)) {
+      $document->setField("bs_sponsored", 'true');
+      $bubble_factor += 10;
+    }
+
+    if (isset($node->field_staff_pick) && $node->field_staff_pick->value()) {
+      $bubble_factor += 20;
+    }
+
+    $document->setField('is_bubble_factor', $bubble_factor);
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function dosomething_search_theme() {
+  return array(
+    'dosomething_search_field' => array(
+      'arguments' => array('element' => NULL),
+      'render element' => 'element'
+    ),
+  );
+}
+
+/**
+ *
+ * Theme function for search field.  Makes the field type 'search' instead
+ * of the generic 'text'.
+ *
+ *
+ * @param array $variables
+ *  Contains a renderable $element array
+ */
+function theme_dosomething_search_field($variables) {
+  $element = $variables['element'];
+  $element['#attributes']['type'] = 'search';
+  element_set_attributes($element, array('id', 'name', 'value', 'size', 'maxlength'));
+  _form_set_class($element, array('text-field', '-search'));
+
+  $extra = '';
+  if ($element['#autocomplete_path'] && drupal_valid_path($element['#autocomplete_path'])) {
+    drupal_add_library('system', 'drupal.autocomplete');
+    $element['#attributes']['class'][] = 'form-autocomplete';
+
+    $attributes = array();
+    $attributes['type'] = 'hidden';
+    $attributes['id'] = $element['#attributes']['id'] . '-autocomplete';
+    $attributes['value'] = url($element['#autocomplete_path'], array('absolute' => TRUE));
+    $attributes['disabled'] = 'disabled';
+    $attributes['class'][] = 'autocomplete';
+    $extra = '<input' . drupal_attributes($attributes) . ' />';
+  }
+
+  $output = '<input' . drupal_attributes($element['#attributes']) . ' />';
+
+  return $output . $extra;
+}
+
+function dosomething_search_form_submit($form, &$form_state) {
+  $keys = $form['#form_id'] == 'search_block_form' ? $form_state['values'][$form['#form_id']] : $form_state['values']['keys'];
+  if ($keys == '') {
+    form_set_error('keys', t('Please enter some keywords.'));
+  }
+  else {
+    // Fall through to the form redirect.
+    $form_state['action'] = url('search/apachesolr_search');
+    $form_state['redirect'] =  'search/apachesolr_search/' . $keys;
+  }
+}
+
+function dosomething_search_views_pre_render(&$view) {
+  // Only run this on the view that provides '/campaigns'
+  if ($view->name == 'explore_campaigns') {
+  foreach ($view->result as $key => $result) {
+      // Decode campaign title and campaign call to action, make sure to include single quotes!
+      $view->result[$key]->label = htmlspecialchars_decode($result->label, ENT_QUOTES);
+      $view->result[$key]->sm_field_call_to_action[0] = htmlspecialchars_decode($result->sm_field_call_to_action[0], ENT_QUOTES);
+    }
+  }
+}
+
+/**
+ * Implements hook_apachesolr_search_page_alter().
+ * Allows us to manipulate the default behavior of the search page when there are no results.
+ */
+function dosomething_search_apachesolr_search_page_alter(&$variables) {
+  if (!empty($variables['search_results']['#markup'])) {
+    $variables['search_results']['#markup'] = '';
+  }
+}
+
