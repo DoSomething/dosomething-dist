@@ -1,0 +1,116 @@
+.modal--crop {
+
+  .heading.-banner {
+    margin: 0;
+  }
+
+  .image-editor {
+    padding-top: 10px;
+
+    .__buttons {
+      padding: 0 $base-spacing;
+      text-align: right;
+
+      .button {
+        padding: 0;
+      }
+
+      .-rotate {
+        display: inline-block;
+
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      .-change {
+        display: inline-block;
+        position: relative;
+        margin-left: 10px;
+
+        input[type="file"] {
+          position: absolute;
+          top: 0;
+          right: 0;
+          opacity: 0;
+          cursor: pointer;
+          width: 100%;
+        }
+      }
+    }
+
+    .-done {
+      display: table;
+      margin: 0 auto;
+    }
+  }
+
+  .image-preview {
+    text-align: center;
+    background: #000;
+    line-height: 0;
+    overflow: hidden;
+
+    img {
+      width: auto;
+      max-width: 600px;
+      position: absolute;
+      left: 0;
+    }
+  }
+
+  // Styles for cropping.
+  .crop-bounding-box {
+    position: relative;
+    display: inline-block;
+    max-width: 600px;
+
+    .cropbox {
+      position: absolute;
+      z-index: 1;
+      top: 10px;
+      left: 10px;
+      border: 1px dashed $blue;
+      background-color: rgba(255, 255, 255, 0.3);
+
+      &:hover {
+        cursor: move;
+      }
+    }
+
+    .resize-handle {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 35px;
+      height: 35px;
+      background-color: $blue;
+
+      &:hover {
+        cursor: se-resize;
+      }
+
+      &:after {
+        display: block;
+        content: "\2198";
+        font-size: 30px;
+        position: absolute;
+        top: 19px;
+        left: 2px;
+        color: white;
+      }
+    }
+  }
+}
+
+// Crop preview.
+.reportback__submission-cropped {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+
+  img {
+    max-width: none;
+    position: absolute;
+  }
+}
