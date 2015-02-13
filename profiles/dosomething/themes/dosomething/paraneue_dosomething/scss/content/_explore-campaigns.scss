@@ -1,0 +1,31 @@
+
+// -------------------
+//  EXPLORE CAMPAIGNS
+// -------------------
+
+.view-explore-campaigns {
+  margin-top: $base-spacing;
+
+  // A sad re-implementation of the figure pattern.
+  .search-result {
+    text-align: center;
+    margin-bottom: $base-spacing;
+
+    @include media($tablet) {
+      @include span(4 of 12);
+
+      &:nth-of-type(3n + 1) {
+        clear: both;
+      }
+    }
+
+    img {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .views-field-label {
+      margin-top: $base-spacing;
+    }
+  }
+}

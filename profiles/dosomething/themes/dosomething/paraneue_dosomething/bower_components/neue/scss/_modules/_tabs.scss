@@ -1,0 +1,109 @@
+// Tabbed container. Gracefully degrades into plain text if JavaScript is disabled.
+// Extends the __Waypoints__ patterns for tab navigation.
+//
+// Styleguide Tabs
+
+
+// If JS is disabled, hide interactive tab menu.
+.tabs__menu {
+  @include visually-hidden();
+}
+
+// Containing element for tabs
+.tabs__body {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    margin-top: 27px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+// Tab headings for when JS is disabled
+.tabs__title {
+  font-weight: $weight-bold;
+  margin-bottom: 9px;
+}
+
+
+// We add interactive elements once we know JS is working.
+.modernizr-js {
+  .tabs {
+    > .wrapper {
+      @include visually-hidden();
+
+      @include media($tablet) {
+        @include visually-restored();
+      }
+    }
+
+    // Extends nested `.waypoints` with active "arrow"
+    .waypoints {
+      z-index: 10;
+
+      li {
+        margin: 0;
+      }
+
+      a {
+        display: inline-block;
+        padding: ($base-spacing / 4) ($base-spacing / 2);
+      }
+
+      .is-active {
+        position: relative;
+
+        &:after {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          display: block;
+          content: "";
+          width: 0;
+          height: 0;
+          border-top: 12px solid #fff;
+          border-left: 12px solid transparent;
+          border-right: 12px solid transparent;
+          margin-left: -12px;
+        }
+      }
+    }
+  }
+
+  // For mobile users, show an associated modal link instead.
+  .tabs__modal-toggle {
+    display: block;
+
+    @include media($tablet) {
+      display: none;
+    }
+  }
+
+  // Once we know JS is enabled, show tab menu
+  .tabs__menu {
+    @include visually-restored();
+  }
+
+  // Inline title is only used for screen readers & no-JS.
+  .tabs__title {
+    @include visually-hidden();
+  }
+
+  // Only display tabs with active class toggled.
+  .tabs__tab {
+    @include visually-hidden();
+    background-color: $light-gray;
+    margin-top: 0;
+    padding: 18px;
+
+    &.is-active {
+      @include visually-restored();
+    }
+  }
+
+}
