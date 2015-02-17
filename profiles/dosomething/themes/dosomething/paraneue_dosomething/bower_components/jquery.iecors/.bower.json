@@ -1,0 +1,13 @@
+{
+  "name": "jquery.iecors",
+  "homepage": "https://github.com/dkastner/jquery.iecors",
+  "_release": "1ac003ccf0",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "1ac003ccf07cb2fdb96aa6a3bd05a8a333cf3e76"
+  },
+  "_source": "git://github.com/dkastner/jquery.iecors.git",
+  "_target": "*",
+  "_originalSource": "jquery.iecors"
+}
