@@ -1,0 +1,85 @@
+.home-banner {
+  background: $purple;
+  padding: 100px 0 $base-spacing;
+  overflow: hidden;
+
+  @include media($tablet) {
+    padding-top: 126px;
+  }
+
+  .home-banner__header {
+    @include clearfix;
+    margin-bottom: 18px;
+
+    @include media($tablet) {
+      width: span(14);
+      @include push(1);
+    }
+
+    .title {
+      color: #fff;
+      font-size: $font-larger;
+      font-weight: $weight-bold;
+      line-height: 1.1;
+      margin: 27px 0 9px;
+      text-align: center;
+
+      @include visually-hidden();
+
+      @include media($tablet) {
+        @include visually-restored();
+        margin: 27px 0;
+      }
+
+      @include media($desktop) {
+        font-size: 54px;
+      }
+    }
+
+    .subtitle {
+      color: #fff;
+      font-size: 27px;
+      font-weight: normal;
+      line-height: 1.2;
+      margin: 0 0 10px;
+      text-align: center;
+
+      @include media($tablet) {
+        @include visually-hidden();
+      }
+    }
+  }
+}
+
+
+.container--sponsors {
+  text-align: center;
+
+  h4 {
+    color: $light-gray;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  li {
+    display: inline-block;
+    margin: gutter() $base-spacing;
+  }
+
+  img {
+    max-width: 90px;
+    max-height: 30px;
+    vertical-align: middle;
+    opacity: 0.2;
+
+    @include media($tablet) {
+      // retina sizing, see Image Style preset
+      max-width: 125px;
+      max-height: 40px;
+    }
+  }
+
+}
