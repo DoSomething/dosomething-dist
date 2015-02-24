@@ -1,0 +1,306 @@
+// @TODO: Patternize and move/merge into Neue!
+// Potentially rework into being part of the
+// .media pattern.
+.photo {
+
+  &.-framed {
+    background-color: #fff;
+    padding: ($base-spacing / 4);
+
+    @include media($larger) {
+      min-height: 335px;
+      padding: ($base-spacing / 2);
+    }
+
+    img {
+      width: 100%;
+    }
+
+    .__copy {
+      font-size: $font-smaller;
+      height: 75px;
+      line-height: 1.1;
+      overflow: hidden;
+      margin-top: ($base-spacing / 2);
+      word-wrap: break-word;
+
+      @include media($large) {
+        font-size: $font-small;
+      }
+    }
+  }
+
+}
+
+
+.reportback {
+  padding-bottom: $base-spacing;
+
+  > .wrapper {
+    @include media($medium) {
+      direction: rtl;
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+    }
+  }
+
+  .reportback__spacer {
+    background-color: transparent;
+    display: none;
+    width: ($base-spacing / 2);
+
+    @include media($medium) {
+      display: table-cell;
+    }
+  }
+
+  form {
+    background-color: #fff;
+    height: 100%;
+    margin: $base-spacing ($base-spacing / 2) 0;
+
+    @include media($medium) {
+      direction: ltr;
+      display: table-cell;
+      margin: 0;
+      vertical-align: top;
+    }
+  }
+
+  .reportback__view-more {
+    margin-bottom: $base-spacing;
+    overflow: hidden;
+    position: relative;
+
+    @include media($medium) {
+      margin-bottom: 0;
+    }
+  }
+
+  .spinner {
+    bottom: 0;
+    left: 50%;
+    margin-left: -16px;
+    opacity: 0.8;
+    position: absolute;
+  }
+
+  .button--view-more {
+    color: #000;
+    float: right;
+    text-transform: lowercase;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  .divider {
+    background-color: $yellow;
+    border: 0 none;
+    height: ($base_spacing / 4);
+    margin: 0;
+    width: 100%;
+  }
+
+}
+
+
+.gallery--reportback {
+
+  @include media($medium) {
+    direction: ltr;
+    display: table-cell;
+    width: span(4 of 12);
+  }
+
+  @include media($larger) {
+    width: span(3 of 12);
+  }
+
+  @include media($larger) {
+    width: span(6 of 12);
+  }
+
+  > li {
+    @include span(50%);
+    margin: $base-spacing 0 0;
+    &:first-child { margin-top: 0; }
+    &:nth-child(2) { margin-top: 0; }
+    &.-second { margin-top: 0; }  // IE8fix
+
+    @include media($medium) {
+      @include span(100%);
+      float: none;
+
+      &:nth-child(2) { margin-top: $base-spacing; }
+      &.-second { margin-top: $base-spacing; }  // IE8fix
+    }
+
+    @include media($larger) {
+      @include span(50%);
+
+      &:nth-child(2) { margin-top: 0; }
+      &.-second { margin-top: 0; }  // IE8fix
+    }
+
+    &:nth-child(n+5) {
+      display: none;
+
+      @include media($larger) {
+        display: block;
+      }
+    }
+  }
+
+}
+
+
+.gallery--extended {
+
+  > li {
+    margin: $base-spacing 0 0;
+    @include span(6 of 12);
+
+    @include media($medium) {
+      @include span(4 of 12);
+    }
+
+    @include media($larger) {
+      @include span(3 of 12);
+    }
+  }
+
+}
+
+
+// @TODO: move to proper locations
+// Temporary additions to work through fix for upload button issues.
+.reportback__submissions {
+  padding: gutters();
+
+  figure {
+    img { width: 100%; }
+  }
+
+  input[type="file"] {
+    @include visually-hidden();
+  }
+
+  .button--file,
+  .button--edit {
+    font-weight: $weight-bold;
+    height: auto;
+    margin: ($base-spacing / 2) 0 0;
+    padding: 0;
+    text-transform: lowercase;
+    width: auto;
+  }
+
+  .file-selection {
+    padding-bottom: $base-spacing;
+  }
+
+  .file-selection__indicator {
+    background-color: $light-gray;
+    font-size: $font-smaller;
+    padding: ($base-spacing / 2);
+  }
+
+  .file-selection__name {
+    font-style: italic;
+  }
+}
+
+.reportback__submissions-latest {
+  background-color: #fff;  // remove
+}
+
+.reportback__submission__copy {
+  font-size: $font-smaller;
+  line-height: 1.1;
+  padding-top: ($base-spacing / 2);
+
+  @include media($large) {
+    font-size: $font-small;
+  }
+}
+
+.reportback__submissions-list {
+  @include list_reset();
+  margin: 0 (-($base-spacing / 2));
+
+  > li {
+    float: left;
+    margin-bottom: 0;
+    width: span(25%);
+  }
+}
+
+.reportback__inputs {
+  padding: gutters();
+}
+
+
+.gigantor {
+  background-color: #f2f2f2;
+  cursor: pointer;
+  display: block;
+  height: 270px;
+  margin: 0;
+  position: relative;
+
+  @include media($medium) {
+    height: 0;
+    padding-bottom: 100%;
+  }
+
+
+  &:before {
+    background-color: $blue;
+    border-radius: 100%;
+    color: $white;
+    content: "+";
+    display: block;
+    font-size: 80px;
+    font-weight: $weight-normal;
+    height: 70px;
+    left: 50%;
+    line-height: 0.95;
+    margin: -35px 0 0 -35px;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    width: 70px;
+  }
+
+  &:hover:before {
+    background-color: lighten($blue, $color-tint);
+  }
+
+  > .message-callout {
+    bottom: 0;
+    left: 50%;
+    margin-left: -130px;
+    position: absolute;
+    width: 240px;
+
+    @include media($medium) {
+      bottom: 30px;
+    }
+
+    @include media($larger) {
+      bottom: 40px;
+    }
+  }
+
+  .message-callout__copy {
+    @include media($larger) {
+      left: 0;
+      top: 0;
+    }
+  }
+}
+
+
