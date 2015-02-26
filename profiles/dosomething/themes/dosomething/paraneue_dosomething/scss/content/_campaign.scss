@@ -1,0 +1,166 @@
+.campaign {
+  position: relative;
+}
+
+
+// Page Specific Components
+.campaign--action .container--prove,
+.campaign--sms .container--do {
+  background: $yellow;
+}
+
+.campaign--pitch,
+.campaign--grouped,
+.campaign--action .container--prove {
+  .message-callout__copy {
+    left: 12px;
+  }
+}
+
+.campaign--pitch,
+.campaign--grouped {
+  [role="banner"] {
+    .message-callout {
+      .message-callout__copy {
+        &:before {
+          right: 35px;
+          top: -25px;
+        }
+      }
+
+      @include media($tablet) {
+        position: absolute;
+        left: 144px;
+        bottom: 0;
+        width: 180px;
+
+        .message-callout__copy {
+          text-align: center;
+
+          &:before {
+            right: auto;
+            top: 50%;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+// Campaign Action Page
+.banner--action {
+  &.has-promotions {
+    > .wrapper {
+      @include media($tablet) {
+        padding-bottom: 12px;
+      }
+
+      @include media($desktop) {
+        padding-bottom: 0;
+      }
+    }
+  }
+
+  @include media($tablet) {
+    .message-callout {
+      @include visually-hidden();
+    }
+  }
+}
+
+.campaign-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  // Fallback for position:sticky, through Filament Group's fixed-sticky
+  &.fixedsticky-on {
+    position: fixed;
+    width: 100%;
+    max-width: 1440px;
+    padding: 0;
+  }
+}
+
+.waypoints.waypoints--action {
+  text-align: center;
+  padding: gutter() 0;
+
+  li {
+    margin: 0 gutter();
+  }
+
+  @include media($medium) {
+    position: absolute;
+    top: 62px;
+    max-width: span(2);
+    margin: $base-spacing 0;
+    padding: gutter();
+    text-align: left;
+
+    li {
+      display: block;
+      margin-left: gutter();
+      margin-bottom: ($base-spacing / 4);
+    }
+  }
+}
+
+.campaign--action {
+  // @TODO: Need to create separate classes for SMS vs Regular Campaign
+  // .container--do elements, instead of wrapping within the .campaign--action
+  // parent class.
+  .container--do {
+    .polaroid {
+      @include media($mobile) {
+        margin-bottom: $base-spacing;
+      }
+
+      @include media($tablet) {
+        position: absolute;
+        top: 120px;
+        left: 80%;
+      }
+    }
+  }
+
+  .tabs--campaign {
+    margin-top: $base-spacing;
+  }
+
+}
+
+.container--prove {
+
+  // @TODO: v2 Reportbacks temporary addition for classic version.
+  &.reportback-classic {
+    h3, p {
+      color: #fff;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .button {
+      text-decoration: none;
+    }
+  }
+
+  .message-callout__copy {
+    @include media($larger) {
+      left: 75px;
+      top: -10px;
+    }
+  }
+
+  .carousel {
+    @include media($medium) {
+      float: right;
+    }
+  }
+}
+
+
