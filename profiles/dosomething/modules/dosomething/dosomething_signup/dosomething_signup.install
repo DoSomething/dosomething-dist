@@ -1,0 +1,523 @@
+<?php
+/**
+ * @file
+ * Installation and schema hooks for dosomething_signup.module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function dosomething_signup_schema() {
+  $schema = array();
+  $schema['dosomething_signup'] = array(
+    'description' => 'Table of user signups.',
+    'fields' => array(
+      'sid' => array(
+        'description' => 'Primary key.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid that signed up.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => 'The {node}.nid that the user has signed up for.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp when the signup was submitted.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'signup_data_form_timestamp' => array(
+        'description' => 'The Unix timestamp when the signup data form submitted.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'signup_data_form_response' => array(
+        'description' => 'The response to signup data form.  If 0, user has skipped.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'why_signedup' => array(
+        'description' => 'Why the user signed up.',
+        'type' => 'text',
+        'length' => '2048',
+        'not null' => FALSE,
+      ),
+      'source' => array(
+        'description' => 'The source of Signup creation.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('sid'),
+    'unique keys' => array(
+      'uid-nid' => array('uid', 'nid'),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'nid' => array('nid'),
+    ),
+  );
+  $schema['dosomething_signup_data_form'] = array(
+    'description' => 'Table of signup data forms.',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The {node}.nid that uses the signup form.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'status' => array(
+        'description' => 'Boolean indicating the form is enabled.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'required' => array(
+        'description' => 'Boolean indicating the form is required for signup.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'required_allow_skip' => array(
+        'description' => 'Boolean indicating display skip link avaiable if required.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'link_text' => array(
+        'description' => 'The text to display in the link to the form.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'form_header' => array(
+        'description' => 'Form header text',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'form_copy' => array(
+        'description' => 'Form copy.',
+        'type' => 'text',
+        'length' => 2048,
+        'not null' => FALSE,
+      ),
+      'confirm_msg' => array(
+        'description' => 'Confirmation message displayed upon submit.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'form_submitted_copy' => array(
+        'description' => 'Copy to display on form if user has submitted.',
+        'type' => 'text',
+        'length' => 2048,
+        'not null' => FALSE,
+      ),
+      'collect_why_signedup' => array(
+        'description' => 'Boolean whether to collect why_signedup.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'why_signedup_label' => array(
+        'description' => 'Label for why_signedup field.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'collect_user_address' => array(
+        'description' => 'Boolean whether to collect user address.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'collect_user_school' => array(
+        'description' => 'Boolean whether to collect user school.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'collect_user_mobile' => array(
+        'description' => 'Boolean whether to collect user mobile.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'collect_user_birthdate' => array(
+        'description' => 'Boolean whether to collect user birthdate.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'prevent_old_people_submit' => array(
+        'description' => 'Whether or not to prevent old people from submitting.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'old_people_copy' => array(
+        'description' => 'Copy to display when old person cannot submit.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'shipment_item' => array(
+        'description' => 'Item to ship if address is collected.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'school_not_affiliated_label' => array(
+        'description' => 'Label for the not affiliated with school option.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'school_not_affiliated_confirm_msg' => array(
+        'description' => 'Displayed if user selects not affiliated.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+  $schema['dosomething_signup_presignup'] = array(
+    'description' => 'Table of user pre-signups.',
+    'fields' => array(
+      'sid' => array(
+        'description' => 'Primary key.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid that signed up.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => 'The {node}.nid that the user has signed up for.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp when the signup was submitted.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('sid'),
+    'unique keys' => array(
+      'uid-nid' => array('uid', 'nid'),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Adds a data column to the signup table.
+ */
+function dosomething_signup_update_7001() {
+  $spec = array(
+    'type' => 'text',
+    'description' => 'Signup data',
+    'length' => 255,
+    'not null' => FALSE,
+    'default' => NULL,
+  );
+  db_add_field('dosomething_signup', 'data', $spec);
+}
+
+/**
+ * Adds dosomething_signup_data_form table.
+ */
+function dosomething_signup_update_7002() {
+  $tbl_name = 'dosomething_signup_data_form';
+  // Load schema to get table definition.
+  $schema = dosomething_signup_schema();
+  // If table not present:
+  if (!db_table_exists($tbl_name)) {
+    // Create it.
+    db_create_table($tbl_name, $schema[$tbl_name]);
+  }
+}
+
+/**
+ * Adds fields to dosomething_signup and dosomething_signup_data_form table.
+ */
+function dosomething_signup_update_7003() {
+  // Add fields on signup to track signup_data_form submissions.
+  $tbl_name = 'dosomething_signup';
+  // New fields to add.
+  $fields = array('signup_data_form_timestamp', 'why_signedup');
+  // Load schema for field definitions.
+  $schema = dosomething_signup_schema();
+  foreach ($fields as $field_name) {
+    // If the field doesn't exist already:
+    if (!db_field_exists($tbl_name, $field_name)) {
+      // Add it per the schema field definition.
+      db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+    }
+  }
+  // Add field on data_signup_form to customize the confirmation message.
+  $tbl_name = 'dosomething_signup_data_form';
+  // New field to add.
+  $field_name = 'confirm_msg';
+  // If the field doesn't exist already:
+  if (!db_field_exists($tbl_name, $field_name)) {
+    // Add it per the schema field definition.
+    db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+  }
+}
+
+/**
+ * Adds form_submitted_copy column to the dosomething_signup_data_form table.
+ */
+function dosomething_signup_update_7004() {
+  // Load schema for field definitions.
+  $schema = dosomething_signup_schema();
+  $tbl_name = 'dosomething_signup_data_form';
+  // New field to add.
+  $field_name = 'form_submitted_copy';
+  // If the field doesn't exist already:
+  if (!db_field_exists($tbl_name, $field_name)) {
+    // Add it per the schema field definition.
+    db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+  }
+}
+
+/**
+ * Adds signup_data_form_response column to the dosomething_signup table.
+ * Updates existing signup records for this column where form was submitted.
+ */
+function dosomething_signup_update_7005() {
+  // Load schema for field definitions.
+  $schema = dosomething_signup_schema();
+  $tbl_name = 'dosomething_signup';
+  // New field to add.
+  $field_name = 'signup_data_form_response';
+  // If the field doesn't exist already:
+  if (!db_field_exists($tbl_name, $field_name)) {
+    // Add it per the schema field definition.
+    db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+  }
+  // Next, update existing signups.
+  $num_updated = db_update('dosomething_signup')
+    ->fields(array(
+      'signup_data_form_response' => 1,
+    ))
+    ->isNotNull('signup_data_form_timestamp')
+    ->execute();
+}
+
+/**
+ * Adds old people columns to the dosomething_signup_data_form table.
+ */
+function dosomething_signup_update_7006() {
+  // Load schema for field definitions.
+  $schema = dosomething_signup_schema();
+  $tbl_name = 'dosomething_signup_data_form';
+  // New fields to add.
+  $fields = array('prevent_old_people_submit', 'old_people_copy');
+  // If the field doesn't exist already:
+  foreach ($fields as $field_name) {
+    // If the field doesn't exist already:
+    if (!db_field_exists($tbl_name, $field_name)) {
+      // Add it per the schema field definition.
+      db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+    }
+  }
+}
+
+/**
+ * Deletes empty records in the dosomething_signup_data_form table.
+ */
+function dosomething_signup_update_7007() {
+  $num_deleted = db_delete('dosomething_signup_data_form')
+    ->condition('status', 0)
+    ->execute();
+}
+
+/**
+ * Adds the dosomething_signup_variable table.
+ */
+function dosomething_signup_update_7008() {
+  // Table removed.
+  // @see dosomething_signup_update_7010().
+}
+
+/**
+ * Adds dosomething_signup_presignup table.
+ */
+function dosomething_signup_update_7009() {
+  $tbl_name = 'dosomething_signup_presignup';
+  // Load schema to get table definition.
+  $schema = dosomething_signup_schema();
+  // If table not present:
+  if (!db_table_exists($tbl_name)) {
+    // Create it.
+    db_create_table($tbl_name, $schema[$tbl_name]);
+  }
+}
+
+/**
+ * Migrates and destroys dosomething_signup_variable table.
+ */
+function dosomething_signup_update_7010() {
+  // List of variables to migrate.
+  $opt_in = 'mobilecommons_opt_in_path';
+  $opt_in_friends = 'mobilecommons_friends_opt_in_path';
+  if (db_table_exists('dosomething_signup_variable')) {
+    // Grab all variable records:
+    $result = db_select('dosomething_signup_variable', 'v')
+      ->fields('v')
+      ->execute()
+      ->fetchAll();
+    // For each variable found:
+    foreach ($result as $record) {
+      $name = $record->name;
+      if ($name == $opt_in || $name == $opt_in_friends) {
+        db_insert('dosomething_helpers_variable')
+          ->fields(array(
+            'entity_type' => 'node',
+            'bundle' => 'campaign',
+            'entity_id' => $record->entity_id,
+            'name' => $record->name,
+            'value' => $record->value,
+          ))
+          ->execute();
+      }
+    }
+    db_drop_table('dosomething_signup_variable');
+  }
+}
+
+/**
+ * Renames mobilecommons variables to use 'opt_in_path' naming.
+ */
+function dosomething_signup_update_7011() {
+
+  $user_register_name = 'dosomething_mobilecommons_general';
+  // Store value of current user register opt_in_path.
+  $user_register_value = variable_get($user_register_name);
+
+  $campaign_signup_name = 'dosomething_mobilecommons_campaign_general';
+  // Store value of current general campaign signup opt_in_path.
+  $campaign_signup_value = variable_get($campaign_signup_name);
+
+  // Set new variable for user register opt_in_path.
+  $name = 'dosomething_mobilecommons_opt_in_path_user_register';
+  variable_set($name, $user_register_value);
+  // Set new variable for general campaign signup opt_in_path.
+  $name = 'dosomething_mobilecommons_opt_in_path_general_campaign_signup';
+  variable_set($name, $campaign_signup_value);
+
+  // Delete old variables.
+  variable_del($user_register_name);
+  variable_del($campaign_signup_name);
+
+}
+
+/**
+ * Add index to nid on dosomething_signup table.
+ */
+function dosomething_signup_update_7012() {
+  $table = 'dosomething_signup';
+  $column = 'nid';
+  if (!db_index_exists($table, $column)) {
+    db_add_index($table, $column, array($column));
+  }
+}
+
+/**
+ * Adds shipment_item column to the dosomething_signup_data_form table.
+ */
+function dosomething_signup_update_7013() {
+  $tbl_name = 'dosomething_signup_data_form';
+  // Load schema to get table definition.
+  $schema = dosomething_signup_schema();
+  // New field to add.
+  $field_name = 'shipment_item';
+  // If the field doesn't exist already:
+  if (!db_field_exists($tbl_name, $field_name)) {
+    // Add it per the schema field definition.
+    db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+  }
+}
+
+/**
+ * Adds source column to the dosomething_signup table.
+ */
+function dosomething_signup_update_7014() {
+  $tbl_name = 'dosomething_signup';
+  // Load schema to get table definition.
+  $schema = dosomething_signup_schema();
+  // New field to add.
+  $field_name = 'source';
+  // If the field doesn't exist already:
+  if (!db_field_exists($tbl_name, $field_name)) {
+    // Add it per the schema field definition.
+    db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+  }
+}
+
+/**
+ * Drops deprecated data column from the dosomething_signup table.
+ *
+ * See dosomething_signup_update_7001().
+ */
+function dosomething_signup_update_7015() {
+  $tbl_name = 'dosomething_signup';
+  $field_name = 'data';
+  // If the field exists:
+  if (db_field_exists($tbl_name, $field_name)) {
+    db_drop_field($tbl_name, $field_name);
+  }
+}
+
+/**
+ * Adds school_not_affiliated_label column to the dosomething_signup_data_form table.
+ */
+function dosomething_signup_update_7016() {
+  $tbl_name = 'dosomething_signup_data_form';
+  // Load schema to get table definition.
+  $schema = dosomething_signup_schema();
+  // New fields to add.
+  $fields = array(
+    'school_not_affiliated_label',
+    'school_not_affiliated_confirm_msg',
+  );
+    // If the field doesn't exist already:
+  foreach ($fields as $field_name) {
+    // If the field doesn't exist already:
+    if (!db_field_exists($tbl_name, $field_name)) {
+      // Add it per the schema field definition.
+      db_add_field($tbl_name, $field_name, $schema[$tbl_name]['fields'][$field_name]);
+    }
+  }
+}
+
+/**
+ * Introduces new variable for MailChimp generail list id.
+ */
+function dosomething_signup_update_7017() {
+  $name = 'dosomething_signup_mailchimp_general_list_id';
+  variable_get($name, getenv('DS_MB_MAILCHIMP_LIST_ID'));
+}
