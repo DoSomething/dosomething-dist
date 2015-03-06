@@ -1,0 +1,44 @@
+// ----------------
+//  USER PROFILE
+// ----------------
+
+.profile {
+
+  // Ensure that figure bodies are always the same minimum height,
+  // so that "Prove It" buttons are aligned visually.
+  .figure__body {
+    min-height: 86px;
+  }
+
+}
+
+// Profile Settings
+.profile-settings {
+  @include clearfix;
+  padding: gutters();
+  margin-bottom: $base-spacing;
+
+  @include media($large) {
+    @include span(6 of 12);
+  }
+
+  dt, dd {
+    float: left;
+    margin-bottom: ($base-spacing / 2);
+  }
+
+  dt {
+    clear: both;
+    font-weight: $weight-bold;
+    padding-right: ($base-spacing / 2);
+  }
+}
+
+.profile-actions {
+  padding: gutters();
+  text-align: center;
+
+  @include media($large) {
+    text-align: left;
+  }
+}
