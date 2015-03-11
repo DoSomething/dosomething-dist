@@ -1,0 +1,189 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething Metatag feature.
+ */
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function dosomething_metatag_preprocess_page(&$vars) {
+  // Prevent search engines from using DMOZ site descriptions.
+  $dmoz_meta_tag = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'name' => 'robots',
+      'content' => 'NOODP'
+    )
+  );
+  drupal_add_html_head($dmoz_meta_tag, 'dmoz_meta_tag');
+  // Verifies DS Pinterest account.
+  $pinterest_verify_tag = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'name' => 'p:domain_verify',
+      'content' => '14e81c42e6c4ff0ca4ec7be173a4799f'
+    )
+  );
+  drupal_add_html_head($pinterest_verify_tag, 'pinterest_verify_tag');
+  $node = NULL;
+  // Is this a node page?
+  if (!empty($vars['node'])) {
+    $node = $vars['node'];
+  }
+  // Add relevant image metatags.
+  dosomething_metatag_add_metatag_image($node);
+
+  // Add special share info to the permalink page.
+  if (in_array('page__reportback', $vars['theme_hook_suggestions'])) {
+    dosomething_metatag_get_permalink_vars();
+
+  }
+}
+
+/**
+ * Determines and sets metatag img_src metatag for a given $node and $view_mode.
+ */
+function dosomething_metatag_get_metatag_image($node = NULL) {
+  // Initialize as site logo as default.
+  $image =  theme_get_setting('logo');
+  // If no node is present, return default.
+  if ($node == NULL) {
+    return $image;
+  }
+  // List of node types which use an Image EntityReference for image metatag.
+  $metatag_image_node_types = array(
+    'campaign' => 'field_image_campaign_cover',
+    'fact_page' => 'field_intro_image',
+  );
+  // Foreach type that needs Image EntityReference for image metatag:
+  foreach ($metatag_image_node_types as $type => $field) {
+    // If this node matches the type and a field value exists:
+    if ($type == $node->type && !empty($node->{$field})) {
+      // Get the image node nid.
+      $image_nid = $node->{$field}[LANGUAGE_NONE][0]['target_id'];
+      // Get the image URL.
+      if (module_exists('dosomething_image')) {
+        return dosomething_image_get_themed_image_url($image_nid, 'landscape', '740x480');
+      }
+    }
+  }
+  return $image;
+}
+
+/**
+ * Sets the img_src metatag with a given $node's Image EntityReference $field.
+ */
+function dosomething_metatag_add_metatag_image($node = NULL) {
+  $image = dosomething_metatag_get_metatag_image($node);
+  if ($image) {
+    // Add social sharing thumbnail meta tag,
+    // <link rel="image_src" href="[image]"> into the HEAD.
+    $attributes = array(
+      'href' => $image,
+      'rel' => 'image_src',
+    );
+    drupal_add_html_head_link($attributes, TRUE);
+    // Add the kik icon meta tag,
+    // <link  rel="kik-icon" href="[image]"> into the HEAD
+    $attributes_kik = array(
+      'href' => $image,
+      'rel' => 'kik-icon',
+    );
+    drupal_add_html_head_link($attributes_kik, TRUE);
+    // Add the Facebook Open Graph tag into the HEAD.
+    $element = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+        "property" => "og:image",
+        "content" => $image,
+      ),
+    );
+    drupal_add_html_head($element, 'facebook_share_image');
+    // Add the Twitter Image tag into the HEAD.
+    $element = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+        "property" => "twitter:image",
+        "content" => $image,
+      ),
+    );
+    drupal_add_html_head($element, 'twitter_image');
+  }
+}
+
+/**
+ * Adds twitter, facebook, tumblr share meta tags to permalink page.
+ */
+function dosomething_metatag_get_permalink_vars() {
+  $rbid = arg(1);
+  $fid = ($_GET['fid']);
+  $rb_entity = reportback_load($rbid);
+  if (!$fid) {
+    $fid = $rb_entity->fids[0];
+  }
+  $file = reportback_file_load($fid);
+  $image = $file->getImageURL('large');
+  $node = dosomething_campaign_load(node_load($rb_entity->nid));
+  $share_copy = token_replace(variable_get('dosomething_campaign_permalink_confirmation_owners_social_copy'), array('node' => $node));
+  $share_copy = str_replace('[node:issue]', $node->issue['name'], $share_copy);
+  $share_url = url(current_path(), array('absolute' => TRUE, 'query' => array('fid' => $fid)));
+
+  $element = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      "property" => "twitter:card",
+      "content" => 'summary_large_image',
+    ),
+  );
+  drupal_add_html_head($element, 'twitter:card');
+
+  $element = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      "property" => "twitter:site",
+      "content" => '@dosomething',
+    ),
+  );
+  drupal_add_html_head($element, 'twitter:site');
+
+  $element = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      "property" => "twitter:image:src",
+      "content" => $file->getImageURL('large'),
+    ),
+  );
+  drupal_add_html_head($element, 'twitter:image:src');
+
+  $element = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      "property" => "twitter:title",
+      "content" => $node->title,
+    ),
+  );
+  drupal_add_html_head($element, 'twitter:title');
+
+  $element = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      "property" => "twitter:description",
+      "content" => $share_copy,
+    ),
+  );
+
+  drupal_add_html_head($element, 'twitter:description');
+
+  $element = array(
+    '#tag' => 'meta',
+    '#attributes' => array(
+      "property" => "twitter:url",
+      "content" => $share_url,
+    ),
+  );
+  drupal_add_html_head($element, 'twitter:url');
+
+}
