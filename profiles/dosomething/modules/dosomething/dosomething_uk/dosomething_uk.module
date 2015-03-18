@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * Code for the DoSomething UK.
+ * TODO: set oauth_common_enable_provider = false;
+ */
+define('DOSOMETHING_UK_WATCHDOG', 'dosomething_uk');
+
+// @todo: define debugging mode.
+
+// -----------------------------------------------------------------------
+// Hook implementations
+
+/**
+ * Implements hook_menu().
+ */
+function  dosomething_uk_menu() {
+  $items = array();
+  $items['admin/config/dosomething/dosomething_uk'] = array(
+    'title'            => 'DoSomething UK',
+    'description'      => 'Setup DoSomething UK integration settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('dosomething_uk_admin_settings'),
+    'file'             => 'dosomething_uk.admin.inc',
+    'access arguments' => array('administer modules'),
+   );
+  return $items;
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function dosomething_uk_preprocess_page(&$vars) {
+  drupal_add_js(array('dsValidation' => array('dateFormat' => 'DD/MM/YYYY',)), 'setting');
+}
+
+/**
+ * Implements hook_external_auth_method().
+ */
+function dosomething_uk_external_auth_method() {
+  $items = array();
+  $items[] = array(
+    'title'                   => 'DoSomething UK',
+    'description'             => 'Authenticates using vInspired API.',
+    'login controller'        => 'DosomethingUkLoginController',
+    'register controller'     => 'DosomethingUkRegisterController',
+    'profile sync controller' => 'DosomethingUkProfileSyncController',
+    'user pass controller'    => 'DosomethingUkUserPassController',
+   );
+  return $items;
+}
+
+// -----------------------------------------------------------------------
+// Miscellaneous
+
+/**
+ * Maps remote error messages to local fields.
+ *
+ * @todo Map and assign fields.
+ * @todo Fix message 'Sorry, but vinspired is only for 14 to 25 year olds'
+ */
+function dosomething_uk_remote_errors_to_local_fields($error_messages, &$form) {
+  foreach ($error_messages as $field_name => $field_errors) {
+    foreach ($field_errors as $error) {
+      $human_name = ucwords(preg_replace('/[^\da-z]/i', ' ', $field_name));
+      $error_text = $human_name . ': ' . $error;
+      form_set_error($field_name, $error_text);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------
