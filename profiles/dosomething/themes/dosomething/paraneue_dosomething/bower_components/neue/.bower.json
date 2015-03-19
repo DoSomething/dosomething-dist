@@ -1,0 +1,35 @@
+{
+  "name": "neue",
+  "version": "6.2.1",
+  "main": [
+    "dist/neue.css",
+    "dist/neue.min.js"
+  ],
+  "dependencies": {
+    "jquery": "^1.7",
+    "susy": "2.2.2"
+  },
+  "devDependencies": {
+    "jquery": "1.8.3",
+    "almond": "~0.2.9",
+    "html5shiv": "~3.7.2",
+    "respond": "~1.4.2",
+    "highlightjs": "~8.0.0",
+    "filament-sticky": "~0.1.4",
+    "dosomething-modal": "DoSomething/modal#~0.1.0",
+    "dosomething-validation": "DoSomething/validation#~0.1.0"
+  },
+  "resolutions": {
+    "jquery": "1.8.3"
+  },
+  "homepage": "https://github.com/DoSomething/neue",
+  "_release": "6.2.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v6.2.1",
+    "commit": "b36b4e68dd61dbbb6ed6073439bdeaf2d80751d0"
+  },
+  "_source": "git://github.com/DoSomething/neue.git",
+  "_target": "~6.2.1",
+  "_originalSource": "DoSomething/neue"
+}
