@@ -1,0 +1,29 @@
+<?php
+/**
+ * @file
+ * Installation and schema hooks for dosomething_image.module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function dosomething_image_schema() {
+  $schema['cache_dosomething_image'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
+ * Deletes field_video_poster.
+ */
+function dosomething_image_update_7001(&$sandbox) {
+  field_delete_field('field_video_poster');
+}
+
+/**
+ * Deletes field_video_id.
+ */
+function dosomething_image_update_7002(&$sandbox) {
+  if ($instance = field_info_instance('node', 'field_video_id', 'image')) {
+    field_delete_instance($instance);
+  }
+} 
