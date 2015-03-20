@@ -1,0 +1,9 @@
+name = "Message Broker Producer"
+description = "Provides producer access to for a Drupal site to a Message Broker (RabbitMQ) system."
+version = 0.2.05
+core = 7.x
+
+dependencies[] = libraries
+
+files[] = message_broker_producer.module
+configure = admin/config/services/message-broker-producer
