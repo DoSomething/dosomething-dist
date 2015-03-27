@@ -1,0 +1,24 @@
+{
+  "name": "ds-paraneue",
+  "version": "0.0.1",
+  "description": "DoSomething.org app-specific styles and presentation logic.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DoSomething/dosomething.git"
+  },
+  "devDependencies": {
+    "autoprefixer-core": "^4.0.2",
+    "css-mqpacker": "^2.0.0",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-copy": "^0.7.0",
+    "grunt-contrib-jshint": "^0.7.1",
+    "grunt-contrib-requirejs": "^0.4.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-modernizr": "^0.6.0",
+    "grunt-postcss": "^0.2.0",
+    "grunt-sass": "^0.18.0",
+    "jshint-stylish": "^1.0.0",
+    "load-grunt-tasks": "^3.1.0",
+    "time-grunt": "^1.0.0"
+  }
+}
