@@ -1,0 +1,435 @@
+<?php
+/**
+ * @file
+ * This module exposes the Message Broker object library to Drupal.
+ */
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * Note: The messagebroker-config entry is to allow access to the
+ * mb_config.json JSON file. While not a Javascript file the use of
+ * the library functionality provides path details.
+ */
+function message_broker_producer_libraries_info() {
+
+  $libraries['messagebroker-phplib'] = array(
+    'name' => 'Message Broker PHP Library',
+    'vendor url' => 'https://github.com/DoSomething/messagebroker-phplib',
+    'download url' => 'https://github.com/DoSomething/messagebroker-phplib',
+    'version' => '1.0',
+    'files' => array(
+      'php' => array('MessageBroker-Drupal.php'),
+    ),
+  );
+  $libraries['messagebroker-config'] = array(
+    'name' => 'Message Broker Config',
+    'vendor url' => 'https://github.com/DoSomething/messagebroker-config',
+    'download url' => 'https://github.com/DoSomething/messagebroker-config',
+    'version' => '1.0',
+    'files' => array(
+      'js' => array('mb_config.json'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function message_broker_producer_theme($existing, $type, $theme, $path) {
+  return array(
+    'message_broker_producer_status' => array(
+      'variables' => array(
+                      'status' => array(),
+                      'vhosts' => array(),
+                      'overview' => array(),
+                      'test_links' => array()),
+      'template' => 'templates/message-broker-producer-status',
+    ),
+    'message_broker_producer_production_list' => array(
+      'variables' => array(
+                      'productions' => array()),
+      'template' => 'templates/message-broker-producer-production-list',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function message_broker_producer_menu() {
+
+  $items['admin/config/services/message-broker-producer'] = array(
+    'title' => 'Message Broker',
+    'description' => 'Message Broker resources - RabbitMQ status and settings.',
+    'page callback' => 'message_broker_producer_status',
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'message_broker_producer.admin.inc',
+  );
+  $items['admin/config/services/message-broker-producer/status'] = array(
+    'title' => 'RabbitMQ Status',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/config/services/message-broker-producer/list-productions'] = array(
+    'title' => 'List Productions',
+    'description' => 'List production entries.',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'message_broker_producer_production_list',
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'message_broker_producer.admin.inc',
+    'file path' => drupal_get_path('module', 'message_broker_producer'),
+    'weight' => 9,
+  );
+  $items['admin/config/services/message-broker-producer/add-edit-production'] = array(
+    'title' => 'Add/Edit Production',
+    'description' => 'List of production items and their related settings.',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('message_broker_producer_production_options_form'),
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'message_broker_producer.admin.inc',
+    'file path' => drupal_get_path('module', 'message_broker_producer'),
+    'weight' => 10,
+  );
+  $items['admin/config/services/message-broker-producer/add-edit-production/%'] = array(
+    'title' => 'Production Options',
+    'description' => 'Administer production item.',
+    'page callback' => 'message_broker_producer_production_options_update',
+    'page arguments' => array(5),
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'message_broker_producer.admin.inc',
+    'file path' => drupal_get_path('module', 'message_broker_producer'),
+    'weight' => 11,
+  );
+  $items['admin/config/services/message-broker-producer/add-edit-production/%/%'] = array(
+    'title' => 'Production Options',
+    'description' => 'Administer production item, queue reset.',
+    'page callback' => 'message_broker_producer_production_options_update',
+    'page arguments' => array(5, 6),
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'message_broker_producer.admin.inc',
+    'file path' => drupal_get_path('module', 'message_broker_producer'),
+    'weight' => 12,
+  );
+  $items['admin/config/services/message-broker-producer/delete-production/%'] = array(
+    'title' => ' Delete Production',
+    'description' => 'Delete a production.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('message_broker_producer_delete_confirm', 5),
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'message_broker_producer.admin.inc',
+    'file path' => drupal_get_path('module', 'message_broker_producer'),
+  );
+  $items['admin/config/services/message-broker-producer/mq-settings'] = array(
+    'title' => 'RabbitMQ Settings',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('message_broker_producer_config_form'),
+    'access arguments' => array('administer message_broker_producer'),
+    'file' => 'message_broker_producer.admin.inc',
+    'file path' => drupal_get_path('module', 'message_broker_producer'),
+    'weight' => 20,
+  );
+  // Testing - remove for release.
+  $items['admin/config/services/message-broker-producer/test'] = array(
+    'title' => 'Message Broker Test Transaction',
+    'description' => 'Send all test transaction types',
+    'page callback' => 'message_broker_producer_test_page',
+    'access arguments' => array('administer message_broker_producer'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/services/message-broker-producer/test/%'] = array(
+    'title' => 'Message Broker Test Transactions',
+    'description' => 'Send specific test transactions.',
+    'page callback' => 'message_broker_producer_test_page',
+    'page arguments' => array(5),
+    'access arguments' => array('administer message_broker_producer'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function message_broker_producer_permission() {
+  return array(
+    'administer message_broker_producer' => array(
+      'title' => t('Administer Message Broker Producer'),
+      'description' => t('Manage Message Broker Producer settings.'),
+    ),
+  );
+}
+
+/**
+ * Makes request to Message Broker PHP Library and RabbitMQ.
+ *
+ * @param string $productionType
+ *   A value to define the type of production. Currently supports
+ *   produceTransactional and produceCampaignCache producer activities.
+ *
+ * @param array $param
+ *   An option associative array of parameters.
+ */
+function message_broker_producer_request($production = '', $param = array()) {
+
+  $library = libraries_load('messagebroker-phplib');
+  if (!empty($library['loaded'])) {
+
+    if (!empty($production)) {
+
+      // Add 'activity_timestamp' and 'application_id' to all $param.
+      $param['activity_timestamp'] = time();
+      $application_id = variable_get('message_broker_producer_application_id', NULL);
+      if (!empty($application_id) && $application_id != -1) {
+        $param['application_id'] = $application_id;
+      }
+      else {
+        drupal_set_message('The application ID has not been set.', 'error');
+        return;
+      }
+
+      $query = db_select('message_broker_producer_productions', 'mbpp', array('target' => 'slave'))
+        ->fields('mbpp')
+        ->condition('mbpp.machine_name', $production, '=')
+        ->condition('mbpp.status', 1, '=');
+      $num_of_results = $query->execute()->rowCount();
+      $record = $query->execute()
+        ->fetchObject();
+
+      if ( $num_of_results > 0) {
+
+        $production_settings = unserialize($record->config);
+
+        $credentials = array(
+          'host' => variable_get('message_broker_producer_rabbitmq_host', 'localhost'),
+          'port' => variable_get('message_broker_producer_rabbitmq_port', '5672'),
+          'username' => variable_get('message_broker_producer_rabbitmq_username', 'guest'),
+          'password' => variable_get('message_broker_producer_rabbitmq_password', 'guest'),
+          'vhost' => variable_get('message_broker_producer_rabbitmq_vhost', ''),
+        );
+        $config = array(
+          'exchange' => array(
+            'name' => $production_settings->name,
+            'type' => $production_settings->type,
+            'passive' => $production_settings->passive,
+            'durable' => $production_settings->durable,
+            'auto_delete' => $production_settings->auto_delete,
+          ),
+          'routingKey' => $record->routing_key,
+        );
+
+        foreach ($production_settings->queues as $production_queue => $queue) {
+          foreach ($queue->binding_patterns as $binding_count => $binding_pattern) {
+
+            $production_queue_id = $production_queue . '-' . $binding_count;
+            $config['queue'][$production_queue_id] = array(
+              'name' => $production_queue,
+              'passive' => $queue->passive,
+              'durable' => $queue->durable,
+              'exclusive' => $queue->exclusive,
+              'auto_delete' => $queue->auto_delete,
+              'bindingKey' => $binding_pattern,
+            );
+
+          }
+        }
+
+        try {
+          $messageBroker = new MessageBroker($credentials, $config);
+          $message = serialize($param);
+          $messageBroker->publishMessage($message);
+          return;
+        }
+        catch (Exception $e) {
+          watchdog('message_broker_producer', $e, NULL, WATCHDOG_ERROR);
+          drupal_set_message('Failed to create MessageBroker library (messagebroker-phplib) instance. Check configuration settings in ' . l(t('administration interface'), 'admin/config/services/message-broker-producer/mq-settings') . '.', 'error');
+        }
+
+      }
+
+    }
+    else {
+      drupal_set_message('The "production" for message_broker_producer_request() must be defined.', 'error');
+      return;
+    }
+
+  }
+  else {
+    drupal_set_message('Failed to load messagebroker-phplib library.', 'error');
+    return;
+  }
+}
+
+/**
+ * Send test produceTransactional entry.
+ *
+ * This is an example of how a Drupal app can produce a transactional message
+ * entry in MessageBroker system. The $payload defines the values passed to the
+ * consumers related to the activity. See the consumer docs for details.
+ *
+ * The $payload example below is for users signing up for a campaign. The
+ * merge_var values are specific to the Mandrill service used by the related
+ * consumer to send email messages.
+ *
+ * @param string $action
+ *   The type of test action / transaction to submit.
+ */
+function message_broker_producer_test($production = NULL) {
+
+  if (empty($action) || $production == 'campaign_signup' || $action == 1) {
+    $payload = array(
+      'activity' => 'campaign_signup',
+      'email' => 'dlee+messagebroker-test-campaign-signup' . rand(1, 99) . '@dosomething.org',
+      'uid' => '11119',
+      'event_id' => '99991',
+      'merge_vars' => array(
+        'FNAME' => 'First-Name',
+        'CAMPAIGN_TITLE' => 'Campaign Title',
+        'CAMPAIGN_LINK' => 'http://campaign-link.org',
+        'CALL_TO_ACTION' => 'Call To Action',
+        'STEP_ONE' => 'Step One',
+        'STEP_TWO' => 'Step Two',
+        'STEP_THREE' => 'Step Three',
+      ),
+    );
+    // @todo: Add automated generation of production entry for test request to call.
+    message_broker_producer_request('transactional-campaign_signup', $payload);
+  }
+
+}
+
+/**
+ * Wrapper function for message_broker_producer_test().
+ *
+ * message_broker_producer_test() can be
+ * called from both the admin UI as a link and a Drush command.
+ *
+ * @param string $production
+ *   The type of test production to submit.
+ */
+function message_broker_producer_test_page($production = NULL) {
+
+  message_broker_producer_test($production);
+
+  drupal_set_message('Production "' . $production . '" test sent.', 'status');
+  drupal_goto('admin/config/services/message-broker-producer/status');
+}
+
+/*
+ * Programatically create a production entry.
+ *
+ * @param array $settings['machine_name']
+ *   The machine readable (no spaces) production name.
+ * @param array $settings['exchange']
+ *   The Message Broker exchange to send the messages to. All possible values
+ *   are defined as exchanges in mb-config.json.
+ * @param array $settings['queues']
+ *   The queue(s) to related to the selected exchange to possibly distribute
+ *   messages to. All possible values are defined as queues assigned to the
+ *   selected exchange in mb-config.json.
+ * @param array $settings['routing_key']
+ *   The routing key pattern to define how the message is distributed by the
+ *   exchange to the the connected queues as defined by the the binding key of
+ *   each exchange <-> queue.
+ * @param array $settings['status']
+ *   Enable (1) / disable (0) production entry.
+ */
+function message_broker_producer_production_create($settings) {
+
+  // Ensure all of the settings are included in the creation request
+  if (isset($settings['machine_name']) &&
+      isset($settings['exchange']) &&
+      isset($settings['queues']) &&
+      count($settings['queues']) > 0 &&
+      isset($settings['routing_key']) &&
+      isset($settings['status'])) {
+    message_broker_producer_production_insert($settings);
+  }
+
+}
+
+/**
+ * Insert new production entry into message_broker_producer_productions
+ * database table.
+ *
+ * Used from both hook_submit as well as message_broker_producer_create(). If the
+ * queue selection is undefined all queues assigned to the selected exchange will
+ * be included in the inserted record.
+ *
+ * @param string $settings['production_name']
+ *   The unique production machine name. Used to reference production entry.
+ * @param string $settings['exchange']
+ *   The name of exchange assigned to the production entry. The value must be
+ *   present in the mb-config.json file.
+ * @param array $settings['selected_queues']
+ *   An optional array of the queues to be assigned to the production entry.
+ * @param array $settings['status']
+ *   Enable (1) / disable (0) production entry.
+ */
+function message_broker_producer_production_insert($settings) {
+
+  // Load all Message Broker configuration settings from mb-config.json
+  $mb_config_settings = message_broker_producer_load_config_options();
+
+  // Gather the selected exchange and related queue config base values. The
+  // remainder of values loaded from mb-config.json are discarded to ensure only
+  // the reliant settings are added to the production entry.
+  $selected_exchange_config = array();
+  foreach($mb_config_settings->rabbit->exchanges as $exchange_index => $exchange) {
+    if ($exchange_index == $settings['exchange']) {
+      $selected_exchange_config = $exchange;
+      break;
+    }
+  }
+
+  // Remove any queue entries loaded from mb-config.json for the selected
+  // exchange that are not reliant to the production entry. The goal is to
+  // load as few configuration settings as possible for a production.
+
+  // $settings['queues'] will only have a value when this function is called from
+  // message_broker_producer_create().
+  if (isset($settings['queues']) && count($settings['queues']) > 0) {
+    foreach($selected_exchange_config->queues as $queue_name => $queue) {
+      if (!in_array($queue_name, $settings['queues'])) {
+        unset($selected_exchange_config->queues->$queue_name);
+      }
+    }
+  }
+  $selected_exchange_config =  serialize($selected_exchange_config);
+
+  $db_status = db_insert('message_broker_producer_productions')
+    ->fields(array(
+      'machine_name' => $settings['machine_name'],
+      'config' => $selected_exchange_config,
+      'routing_key' => isset($settings['routing_key']) ? $settings['routing_key'] : '',
+      'status' => isset($settings['status']) ? $settings['status'] : 0,
+      'updated' => time(),
+    ))
+    ->execute();
+
+  return $db_status;
+}
+
+/**
+ * Load mb_config.json from library and format as PHP object.
+ */
+function message_broker_producer_load_config_options() {
+
+  $mb_config_library = libraries_load('messagebroker-config');
+
+  if ($mb_config_library['loaded']) {
+    $mb_config_path = $mb_config_library['library path'] . '/mb_config.json';
+    $mb_config_json = implode(file($mb_config_path));
+    $mb_config_settings = json_decode($mb_config_json);
+    return $mb_config_settings;
+  }
+  else {
+    drupal_set_error('Message Broker Configuration library failed to load.', 'error');
+  }
+
+}
