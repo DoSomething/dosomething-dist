@@ -1,0 +1,105 @@
+.cta {
+  &.-persistent {
+    background-color: $black;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    // Fallback for position:sticky, through Filament Group's fixed-sticky
+    &.fixedsticky-on {
+      position: fixed;
+      width: 100%;
+      max-width: 1440px;
+    }
+
+    > .wrapper {
+      @include clearfix;
+      display: table;
+      padding: $base-spacing / 2 0;
+
+      @include media($medium) {
+        @include span(12);
+        padding: $base-spacing / 2 0;
+      }
+
+      @include media($larger) {
+        @include span(6);
+        padding: $base-spacing / 2 0;
+      }
+    }
+
+    .cta__button {
+      @include span(6 of 12);
+      display: table-cell;
+      float: none;
+      padding: 0;
+
+      @include media($medium) {
+        @include span(4 of 12);
+        text-align: left;
+        float: none;
+        padding: 0px;
+      }
+    }
+
+    .cta__message {
+      @include span(6 of 12);
+      display: table-cell;
+      float: none;
+      padding: 0px 0px 0px ($base-spacing / 2);
+      vertical-align: middle;
+      color: $white;
+      text-align: left;
+      font-size: $font-regular;
+
+      @include media($medium) {
+        @include span(8 of 12);
+        text-align: left;
+        float: none;
+        font-size: $font-medium;
+        padding: 0px;
+      }
+    }
+
+    &.optimizely-hide-count {
+      .cta__message {
+        &.without-count {
+          display: table-cell;
+        }
+      }
+    }
+
+    &.optimizely-show-count {
+      .cta__message {
+        &.without-count {
+          display: table-cell;
+        }
+      }
+    }
+  }
+
+  &.optimizely-hide-count {
+    .cta__message {
+      &.with-count {
+        display: none;
+      }
+
+      &.without-count {
+        display: block;
+      }
+    }
+  }
+
+  &.optimizely-show-count {
+    .cta__message {
+      &.with-count {
+        display: block;
+      }
+
+      &.without-count {
+        display: none;
+      }
+    }
+  }
+}
