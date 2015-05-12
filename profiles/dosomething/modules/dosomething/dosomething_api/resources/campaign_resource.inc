@@ -1,0 +1,290 @@
+<?php
+
+function _campaign_resource_definition() {
+  $campaign_resource = array();
+  $campaign_resource['campaigns'] = array(
+    'operations' => array(
+      'index' => array(
+        'help' => 'List all active campaigns.',
+        'file' => array('type' => 'inc', 'module' => 'dosomething_api', 'name' => 'resources/campaign_resource'),
+        'callback' => '_campaign_resource_index',
+        'access callback' => '_campaign_resource_access',
+        'access arguments' => array('index'),
+        'args' => array(
+          array(
+            'name' => 'is_staff_pick',
+            'optional' => TRUE,
+            'type' => 'boolean',
+            'source' => array('param' => 'is_staff_pick'),
+            'default value' => NULL,
+          ),
+          array(
+            'name' => 'on_mobile_app',
+            'optional' => TRUE,
+            'type' => 'boolean',
+            'source' => array('param' => 'on_mobile_app'),
+            'default value' => NULL,
+          ),
+          array(
+            'name' => 'term_ids',
+            'description' => 'Taxonomy term ids to filter by.',
+            'optional' => TRUE,
+            'type' => 'string',
+            'source' => array('param' => 'term_ids'),
+            'default value' => NULL,
+          ),
+        ),
+      ),
+    ),
+    'relationships' => array(
+      'gallery' => array(
+        'file' => array('type' => 'inc', 'module' => 'dosomething_api', 'name' => 'resources/campaign_resource'),
+        'help'   => 'Returns Reportback Gallery. GET from campaigns/123/gallery',
+        'access callback' => '_node_resource_access',
+        'access arguments' => array('view'),
+        'access arguments append' => TRUE,
+        'callback' => '_campaign_resource_load_gallery',
+        'args'     => array(
+          array(
+            'name' => 'nid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'int',
+            'description' => 'The nid of the node whose gallery we are getting',
+          ),
+          array(
+            'name' => 'count',
+            'type' => 'int',
+            'description' => t('Number of Reportback Files to load.'),
+            'source' => array('param' => 'count'),
+            'optional' => TRUE,
+          ),
+          array(
+            'name' => 'offset',
+            'type' => 'int',
+            'description' => t('If count is set to non-zero value, you can pass also non-zero value for start. For example to get Reportback Files from 5 to 15, pass count=10 and start=5.'),
+            'source' => array('param' => 'offset'),
+            'optional' => TRUE,
+          ),
+        ),
+      ),
+    ),
+    'targeted_actions' => array(
+      'signup' => array(
+        'help' => 'Signup a user for a campaign. POST to campaigns/123/signup',
+        'file' => array('type' => 'inc', 'module' => 'dosomething_api', 'name' => 'resources/campaign_resource'),
+        'callback' => '_campaign_resource_signup',
+        'access callback' => '_campaign_resource_access',
+        'access arguments' => array('signup'),
+        'access arguments append' => TRUE,
+        'args' => array(
+          array(
+            'name' => 'nid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'int',
+            'description' => 'The nid of the Campaign node to signup for.',
+          ),
+          array(
+            'name' => 'values',
+            'optional' => FALSE,
+            'source' => 'data',
+            'description' => 'The Signup data',
+            'type' => 'array',
+          ),
+        ),
+      ),
+      'reportback' => array(
+        'help' => 'Post a user reportback for a campaign: campaigns/123/reportback',
+        'file' => array('type' => 'inc', 'module' => 'dosomething_api', 'name' => 'resources/campaign_resource'),
+        'callback' => '_campaign_resource_reportback',
+        'access callback' => '_campaign_resource_access',
+        'access arguments' => array('reportback'),
+        'access arguments append' => TRUE,
+        'args' => array(
+          array(
+            'name' => 'nid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'int',
+            'description' => 'The nid of the Campaign node to post a reportback.',
+          ),
+          array(
+            'name' => 'values',
+            'optional' => FALSE,
+            'source' => 'data',
+            'description' => 'The Reportback data',
+            'type' => 'array',
+          ),
+        ),
+      ),
+    ),
+  );
+  return $campaign_resource;
+}
+
+/**
+ * Determine whether the current user can access a node resource.
+ *
+ * @param string $op
+ *   Possible values of view, signup, reportback.
+ * @param array $args
+ *   Resource arguments passed through from the original request.
+ * @return bool
+ *
+ * @see node_access()
+ */
+function _campaign_resource_access($op = 'view', $args = array()) {
+  if (DOSOMETHING_REPORTBACK_LOG) {
+    watchdog('dosomething_api', '_campaign_resource_access args:' . json_encode($args));
+  }
+
+  if ($op == 'index') {
+    return TRUE;
+  }
+
+  $node = node_load($args[0]);
+  if (!$node) {
+    return services_error(t('No node found for @nid', array('@nid' => $args[0])), 403);
+  }
+
+  if ($op == 'view') {
+    return node_access($op, $node);
+  }
+
+  if (!user_is_logged_in()) {
+    return services_error(t('Must be logged in!'), 403);
+  }
+
+  if (dosomething_campaign_is_active($node)) {
+    return TRUE;
+    //@todo: If op==reportback and SMS Game, return 403 error.
+  }
+
+  return services_error(t('Campaign node @nid is not active.', array('@nid' => $node->nid)), 403);
+}
+
+/**
+ * Callback for Campaigns index.
+ */
+function _campaign_resource_index($is_staff_pick = NULL, $on_mobile_app = NULL, $term_ids = NULL) {
+  $params = array();
+  if (isset($is_staff_pick)) {
+    $params['is_staff_pick'] = (bool) $is_staff_pick;
+  }
+  if (isset($on_mobile_app)) {
+    $params['on_mobile_app'] = (bool) $on_mobile_app;
+  }
+  if (isset($term_ids)) {
+    $term_ids = explode(',', $term_ids);
+    $params['term_ids'] = $term_ids;
+  }
+  return dosomething_campaign_get_campaigns_query_result($params);
+}
+
+/**
+ * Callback for Campaigns Signup targeted action.
+ *
+ * @param int $nid
+ *   The Node nid to post the signup to.
+ * @param array $values
+ *   The signup data to post. Expected keys:
+ *   - uid: The user uid (int).  Optional, uses global $user if not set.
+ *   - source (string).
+ */
+function _campaign_resource_signup($nid, $values) {
+  global $user;
+  if (!isset($values['uid'])) {
+    $values['uid'] = $user->uid;
+  }
+  if (!isset($values['source'])) {
+    $values['source'] = NULL;
+  }
+  if (DOSOMETHING_SIGNUP_LOG_SIGNUPS) {
+    watchdog('dosomething_api', '_campaign_resource_signup values:' . json_encode($values));
+  }
+  // @todo: Pass parameter into signup_create whether or not to send SMS.
+  // Since SMS campaign signups would hit this endpoint, would not want
+  // to send an additional "You've signed up text".
+  return dosomething_signup_create($nid, $values['uid'], $values['source']);
+}
+
+/**
+ * Callback for Campaigns Reportback targeted action.
+ *
+ * @param int $nid
+ *   The Node nid to post the reportback to.
+ * @param array $values
+ *   The reportback data to post. Expected keys:
+ *   - uid: The user uid (int).  Optional, uses global $user if not set.
+ *   - file: Base64 encoded file string to save.
+ *   - filename: The filename of the file provided as file.
+ *   - file_url: The URL of the reportback file to save (used if no file/filename exist).
+ *   - caption: The caption for the Reportback File if provided.
+ *   - quantity (int).
+ *   - why_participated (string).
+ *   - num_participants (int).
+ */
+function _campaign_resource_reportback($nid, $values) {
+  // @todo: Return error if signup doesn't exist.
+  $values['nid'] = $nid;
+  if (!isset($values['uid'])) {
+    global $user;
+    $values['uid'] = $user->uid;
+  }
+  $uid = $values['uid'];
+
+  $file = NULL;
+
+  if (!empty($values['file']) && !empty($values['filename'])) {
+    $values['filepath'] = dosomething_reportback_get_file_dest($values['filename'], $nid, $uid);
+    // Use Services module's File Create resource to save the file.
+    module_load_include('inc', 'services', 'resources/file_resource');
+    $result = _file_resource_create($values);
+    $file = file_load($result['fid']);
+  }
+  if (!$file) {
+    if (empty($values['file_url'])) {
+      return services_error(t("Reportback file_url not found."), 500);
+    }
+    // Create a file from the $file_url.
+    $file = dosomething_reportback_save_file_from_url($nid, $uid, $values['file_url']);
+    if (!$file) {
+      return services_error(t("Could not write file to destination"), 500);
+    }
+  }
+  $values['fid'] = $file->fid;
+
+  // @todo: Move this logic into dosomething_reportback_save().
+  $rbid = dosomething_reportback_exists($nid, $uid);
+  if (!$rbid) {
+    $rbid = 0;
+  }
+  $values['rbid'] = $rbid;
+  if (DOSOMETHING_REPORTBACK_LOG) {
+    watchdog('dosomething_api', '_campaign_resource_reportback:' . json_encode($values));
+  }
+  return dosomething_reportback_save($values);
+}
+
+/**
+ * Returns the Reportback Gallery of a specified node.
+ *
+ * @param int $nid
+ *   Unique identifier for the node.
+ * @param int $count
+ *   Number of Reporback Files to return.
+ * @param int $start
+ *   Which RB File to start with. If present, $start and $count are used together
+ *   to create a LIMIT clause to select RB Files. This could be used to do paging.
+ *
+ * @return array
+ *   An array of Reportback File objects.
+ */
+function _campaign_resource_load_gallery($nid, $count = 25, $start = 0) {
+  $params = array(
+    'nid' => $nid,
+    'status' => 'approved',
+  );
+  return dosomething_api_get_reportback_files($params, $count, $start);
+}
