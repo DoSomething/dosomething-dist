@@ -1,0 +1,424 @@
+<?php
+include_once 'dosomething_helpers.features.inc';
+/**
+ * @file
+ * Code for the Dosomething helpers feature.
+ */
+
+include_once('dosomething_helpers.drush.inc');
+include_once('dosomething_helpers.theme.inc');
+include_once('dosomething_helpers.strongarm.inc');
+include_once('dosomething_helpers.variable.inc');
+include_once('dosomething_helpers.share.inc');
+
+
+/**
+ * Utility function to check if a variable is set, and return it
+ * if it is, otherwise return a default value.
+ *
+ * @param $var
+ * @param null $default
+ *
+ * @return array|object|string|integer|null
+ */
+function dosomething_helpers_isset($var, $default = NULL) {
+  return isset($var) ? $var : $default;
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function dosomething_helpers_menu() {
+  $items['admin/config/dosomething'] = array(
+    'title' => 'DoSomething config',
+    'description' => 'Configuration for DoSomething custom functionality.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  // A redirect page for facebook shares that require it.
+  $items['ds-share-complete'] = array(
+    'title' => 'Thank you for sharing',
+    'page callback' => 'dosomething_helpers_share_redirect',
+    'access arguments' => array('access content'),
+    'file' => 'dosomething_helpers.share.inc',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Utility function to delete automated test data.
+ */
+function dosomething_helpers_delete_test_nodes() {
+  $query = new EntityFieldQuery();
+
+  $query->entityCondition('entity_type', 'node');
+  $query->propertyCondition('created', -1);
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $test_nids = array_keys($result['node']);
+    node_delete_multiple($test_nids);
+
+    return $test_nids;
+  } else {
+    return null;
+  }
+}
+
+
+/**
+ * Utility function to extract content data from fields, while accounting
+ * for language selection.
+ *
+ * @param array $field Nested array of field data.
+ * @param string $language Language selection, defaults to Drupal constant for "undefined".
+ *
+ * @return array|null
+ */
+function dosomething_helpers_extract_field_data($field, $language = LANGUAGE_NONE) {
+  if (isset($field) && !empty($field)) {
+
+    $data = $field[$language];
+
+    $values = array();
+
+    foreach ($data as $item => $content) {
+      $keys = array_keys($content);
+
+      if ($keys[0] === 'value') {
+        // Text value, so need to extract using custom method.
+        $values[] = dosomething_helpers_extract_field_text($content);
+      }
+      else {
+        // ID value.
+        $values[] = $content[$keys[0]];
+      }
+    }
+
+    if (count($values) > 1) {
+      return $values;
+    }
+
+    return $values[0];
+  }
+
+  return NULL;
+}
+
+
+/**
+ * Utility function to extract field text content; both the raw
+ * and formatted text.
+ *
+ * @param array $data Nested array of field text data.
+ *
+ * @return array
+ */
+function dosomething_helpers_extract_field_text($data) {
+
+  if (isset($data['safe_value'])) {
+    if (is_null($data['format'])) {
+      return $data['value'];
+    }
+    else {
+      return array(
+        'raw' => $data['value'],
+        'formatted' => $data['safe_value'],
+      );
+    }
+  }
+
+  return $data['value'];
+}
+
+
+/**
+ * Wrapper function for Drupal's ip_address function.
+ *
+ * Because varnish only likes to expose its own IP, and
+ * apache and nginx will give different results as well.
+ *
+ * @return string
+ *   The IP address of the client machine.
+ */
+function dosomething_helpers_ip_address() {
+  return isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : ip_address();
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function dosomething_helpers_form_alter(&$form, &$form_state, $form_id) {
+  // If we are on a node add/edit form.
+  if (array_key_exists('#node_edit_form', $form)) {
+    // Add css to alter all node forms.
+    drupal_add_css(drupal_get_path('module', 'dosomething_helpers') . '/dosomething_helpers_nodeform.css');
+    drupal_add_js(drupal_get_path('module', 'dosomething_helpers') . '/dosomething_helpers_nodeform.js');
+  }
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function dosomething_helpers_menu_alter(&$items) {
+  // This removes the default '/node' view on drupal.
+  unset($items['node']);
+}
+
+
+/**
+ * Gets node nid's that reference the given $nid in a given $field_name.
+ *
+ * @param int $nid
+ *  The node nid value stored as the given field's target_id.
+ * @param string $field_name
+ *  The machine name of the entityreference field to look for parents.
+ *
+ * @return mixed
+ *  Array of entity objects (not loaded).  FALSE if no parents found.
+ */
+function dosomething_helpers_get_entityref_parents($nid, $field_name) {
+  $query = new EntityFieldQuery;
+  $result = $query->entityCondition('entity_type', 'node')
+    ->fieldCondition($field_name, 'target_id', $nid)
+    ->execute();
+  if (isset($result['node'])) {
+    return $result['node'];
+  }
+  return NULL;
+}
+
+/**
+ * Returns links to nodes that reference a given $nid with given $field_name.
+ *
+ * @param int $nid
+ *  The node nid value stored as the given field's target_id.
+ * @param string $field_name
+ *  The machine name of the entityreference field to look for parents.
+ *
+ * @return string
+ *   Markup of results.
+ */
+function dosomething_helpers_get_entityref_parent_list($nid, $field_name) {
+  if ($parents = dosomething_helpers_get_entityref_parents($nid, $field_name)) {
+    $header = array('Title', 'Type', 'Published', 'Created');
+    foreach ($parents as $parent) {
+      $node = node_load($parent->nid);
+      $rows[] = array(
+        l($node->title, 'node/' . $parent->nid),
+        $node->type,
+        $node->status,
+        format_date($node->created, 'short'),
+      );
+    }
+    return theme('table', array('header' => $header, 'rows' => $rows));
+  }
+  else {
+    return t("Not referenced in @field.", array('@field' => $field_name));
+  }
+}
+
+/**
+ * Adds links to a node's content displaying instances in $field_name.
+ *
+ * @param object $node
+ *  The node, passed from a hook_node_view.
+ * @param array $fields
+ *  Array of machine name of fields to check for.
+ */
+function dosomething_helpers_add_entityref_links(&$node, $fields) {
+  $i = 30;
+  foreach ($fields as $fld) {
+    $node->content[$fld] = array(
+      '#prefix' => '<div><h3>' . $fld .'</h3>',
+      '#suffix' => '</div>',
+      '#markup' => dosomething_helpers_get_entityref_parent_list($node->nid, $fld),
+      '#weight' => $i,
+    );
+    $i = $i + 10;
+  }
+}
+
+/**
+ * Returns array of values of a field collection field.
+ *
+ * @param object $wrapper
+ *   An entity_metadata_wrapper object.
+ * @param string $field_name
+ *   The field_collection field to return values from.
+ *
+ * @return mixed
+ *   Multi-dimensional array of field collection values or NULL if empty.
+ *
+ */
+function dosomething_helpers_get_field_collection_values($wrapper, $field_name) {
+  $values = array();
+
+  // Loop through the given field.
+  foreach ($wrapper->{$field_name}->getIterator() as $delta => $field) {
+    // Copy is returned as an array.
+    $copy = $field->field_compound_text_copy->value();
+    $values[] = array(
+      'header' => $field->field_compound_text_header->value(),
+      'copy' => $copy['safe_value'],
+    );
+  }
+  if (!empty($values)) {
+    return $values;
+  }
+  return NULL;
+}
+
+/*
+ * Returns array of nid and titles of all nodes with given $type.
+ *
+ * @return array
+ *  Array of nids and titles of all campaign group nodes.
+ */
+function dosomething_helpers_get_node_vars($type) {
+  $query = db_select('node', 'n')
+    ->fields('n', array('nid', 'title'))
+    ->condition('type', $type);
+  $results = $query->execute();
+
+  foreach($results as $key => $result) {
+    $vars[$key]['nid'] = $result->nid;
+    $vars[$key]['title'] = $result->title;
+  }
+  if ($vars) {
+    return $vars;
+  }
+  return NULL;
+}
+
+
+/**
+* Truncates text.
+*
+* Cuts a string to the length of $length and replaces the last characters
+* with the ending if the text is longer than length.
+*
+* @param string  $text String to truncate.
+* @param integer $length Length of returned string, including ellipsis.
+* @param string  $ending Ending to be appended to the trimmed string.
+* @param boolean $exact If false, $text will not be cut mid-word
+* @param boolean $considerHtml If true, HTML tags would be handled correctly
+* @return string Trimmed string.
+*/
+
+function dosomething_helpers_text_truncate($text, $length = 100, $ending = '...', $exact = true, $considerHtml = false) {
+    if ($considerHtml) {
+        // if the plain text is shorter than the maximum length, return the whole text
+        if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
+            return $text;
+        }
+
+        // splits all html-tags to scanable lines
+        preg_match_all('/(<.+?>)?([^<>]*)/s', $text, $lines, PREG_SET_ORDER);
+
+        $total_length = strlen($ending);
+        $open_tags = array();
+        $truncate = '';
+
+        foreach ($lines as $line_matchings) {
+            // if there is any html-tag in this line, handle it and add it (uncounted) to the output
+            if (!empty($line_matchings[1])) {
+                // if it's an "empty element" with or without xhtml-conform closing slash (f.e. <br/>)
+                if (preg_match('/^<(\s*.+?\/\s*|\s*(img|br|input|hr|area|base|basefont|col|frame|isindex|link|meta|param)(\s.+?)?)>$/is', $line_matchings[1])) {
+                    // do nothing
+                // if tag is a closing tag (f.e. </b>)
+                } else if (preg_match('/^<\s*\/([^\s]+?)\s*>$/s', $line_matchings[1], $tag_matchings)) {
+                    // delete tag from $open_tags list
+                    $pos = array_search($tag_matchings[1], $open_tags);
+                    if ($pos !== false) {
+                        unset($open_tags[$pos]);
+                    }
+                // if tag is an opening tag (f.e. <b>)
+                } else if (preg_match('/^<\s*([^\s>!]+).*?>$/s', $line_matchings[1], $tag_matchings)) {
+                    // add tag to the beginning of $open_tags list
+                    array_unshift($open_tags, strtolower($tag_matchings[1]));
+                }
+                // add html-tag to $truncate'd text
+                $truncate .= $line_matchings[1];
+            }
+
+            // calculate the length of the plain text part of the line; handle entities as one character
+            $content_length = strlen(preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|&#x[0-9a-f]{1,6};/i', ' ', $line_matchings[2]));
+            if ($total_length+$content_length> $length) {
+                // the number of characters which are left
+                $left = $length - $total_length;
+                $entities_length = 0;
+                // search for html entities
+                if (preg_match_all('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|&#x[0-9a-f]{1,6};/i', $line_matchings[2], $entities, PREG_OFFSET_CAPTURE)) {
+                    // calculate the real length of all entities in the legal range
+                    foreach ($entities[0] as $entity) {
+                        if ($entity[1]+1-$entities_length <= $left) {
+                            $left--;
+                            $entities_length += strlen($entity[0]);
+                        } else {
+                            // no more characters left
+                            break;
+                        }
+                    }
+                }
+                $truncate .= substr($line_matchings[2], 0, $left+$entities_length);
+                // maximum lenght is reached, so get off the loop
+                break;
+            } else {
+                $truncate .= $line_matchings[2];
+                $total_length += $content_length;
+            }
+
+            // if the maximum length is reached, get off the loop
+            if($total_length>= $length) {
+                break;
+            }
+        }
+    } else {
+        if (strlen($text) <= $length) {
+            return $text;
+        } else {
+            $truncate = substr($text, 0, $length - strlen($ending));
+        }
+    }
+
+    // if the words shouldn't be cut in the middle...
+    if (!$exact) {
+        // ...search the last occurance of a space...
+        $spacepos = strrpos($truncate, ' ');
+        if (isset($spacepos)) {
+            // ...and cut the text in this position
+            $truncate = substr($truncate, 0, $spacepos);
+        }
+    }
+
+    // add the defined ending to the text
+    $truncate .= $ending;
+
+    if($considerHtml) {
+        // close all unclosed html-tags
+        foreach ($open_tags as $tag) {
+            $truncate .= '</' . $tag . '>';
+        }
+    }
+
+    return $truncate;
+
+}
+
+/**
+ * Rounds a decimal $value down always, and to given number of $decimals.
+ *
+ * e.g. dosomething_helpers_floor_decimal(2.999999, 1) = 2.9
+ * e.g. dosomething_helpers_floor_decimal(2.989999, 2) = 2.98
+ *
+ * Many thanks to our buddy seppili_ at gmx dot de:
+ * @see http://php.net/manual/en/function.floor.php#96568
+ */
+function dosomething_helpers_floor_decimal($value, $decimals = 1) {
+  return floor($value * pow(10, $decimals)) / pow(10, $decimals);
+}
